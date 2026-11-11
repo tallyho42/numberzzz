@@ -20,8 +20,16 @@ Webová hra (HTML/TS) na čísla 0–10 pro pětiletou Medu, iPad na šířku, o
 - Pokrok v localStorage/IndexedDB, slabší čísla se opakují častěji. Nahrávání tahů do JSON + nástroj na přehrání a ladění prahů.
 - Rodičovská obrazovka schovaná (dlouhý stisk v rohu).
 
+## Vizuální směr
+Zvolen směr „Louka“ (nebe, kopce, bílé karty se stínem, koník jako průvodce, růžový inkoust, čísla v Andika). Návrhy všech obrazovek: https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz
+
 ## Aktivity
-Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očekávané číslice), dokresli N věcí, kolik jich je, spojování skupin s čísly, spojovačka 1–10, najdi a spočítej.
+Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očekávané číslice), dokresli N věcí, kolik jich je, spojování skupin s čísly, spojovačka 1–10, najdi a spočítej, tajné kouzlo (klepáním vybarvit políčka s daným číslem), oprav koníka (koník udělá chybu, Meda ji opraví), bleskový pohled (rozpoznat počet teček bez počítání), kolik se schovalo (rozklad čísla).
+- Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
+- Odměna: medaile odemykají věci do koníkovy stáje (sbírka, ne nekonečná hra).
+
+## Session
+15/30/45 min = 2/4/6 zastávek po ~7 min, každá zastávka jedno číslo (nové / opakování / mix). Začínat a končit snadným úkolem, max. jedno nové číslo za session, slabší čísla častěji (rozložené opakování), u obtahování postupně ubírat nápovědu. Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
 
 ## Tvary číslic
 Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou zdroj pravdy pro obtahování i šablony rozpoznávání. Desítka = „1“ + „0“ s posunem 0,82 šířky.
