@@ -10,6 +10,21 @@ export function plural(n: number, forms: { one: string; few: string; many: strin
 const WORDS = ['nula', 'jedna', 'dva', 'tři', 'čtyři', 'pět', 'šest', 'sedm', 'osm', 'devět', 'deset'];
 export const numWord = (n: number) => WORDS[n] ?? String(n);
 
+export type Gender = 'm' | 'f' | 'n';
+/** Number as used before a noun in the accusative: "dej mi jednu mrkev / dvě jablíčka / jeden míček". */
+export function numAcc(n: number, g: Gender) {
+  if (n === 1) return g === 'f' ? 'jednu' : g === 'n' ? 'jedno' : 'jeden';
+  if (n === 2) return g === 'm' ? 'dva' : 'dvě';
+  return numWord(n);
+}
+
+/** Number before a noun in the nominative: "jedna mrkev / jedno jablíčko / dvě mrkve". */
+export function numNom(n: number, g: Gender) {
+  if (n === 1) return g === 'f' ? 'jedna' : g === 'n' ? 'jedno' : 'jeden';
+  if (n === 2) return g === 'm' ? 'dva' : 'dvě';
+  return numWord(n);
+}
+
 const NUMBER_NOUN = ['nulu', 'jedničku', 'dvojku', 'trojku', 'čtyřku', 'pětku', 'šestku', 'sedmičku', 'osmičku', 'devítku', 'desítku'];
 /** Accusative name of the digit, e.g. "trojku". */
 export const digitNoun = (n: number) => NUMBER_NOUN[n] ?? `číslo ${n}`;

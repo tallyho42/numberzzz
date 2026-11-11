@@ -34,7 +34,12 @@ export interface StrokeRecord {
 interface Store {
   settings: Settings;
   stats: Record<string, DigitStat>;
+  /** Total medals ever (all themes). */
   medals: number;
+  /** Medals per theme id – each unlocks a present for that theme's animal. */
+  medalsBy: Record<string, number>;
+  /** Selected theme id. */
+  theme: string;
   sessions: number;
   log: StrokeRecord[];
 }
@@ -47,6 +52,8 @@ const defaults = (): Store => ({
   settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C', countMax: 10, name: 'Medo' },
   stats: {},
   medals: 0,
+  medalsBy: {},
+  theme: 'horse',
   sessions: 0,
   log: [],
 });
@@ -62,7 +69,9 @@ function load(): Store {
     } catch {
       /* keep what we have */
     }
-    return { ...defaults(), ...s, log, settings: { ...defaults().settings, ...s.settings } };
+    // Before themes existed, all medals belonged to the horse.
+    const medalsBy = s.medalsBy ?? { horse: s.medals ?? 0 };
+    return { ...defaults(), ...s, log, medalsBy, settings: { ...defaults().settings, ...s.settings } };
   } catch {
     return defaults();
   }

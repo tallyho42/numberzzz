@@ -16,13 +16,13 @@ export const find: Activity<{ n: number }> = (api, { n }) => {
   const counts: [ItemKind, number][] = [[target, n], [kinds[1], randInt(2, 4)], [kinds[2], randInt(2, 4)]];
   const total = counts.reduce((a, [, c]) => a + c, 0);
   const size = total > 14 ? 74 : 86;
-  const pts = placeItems(total, 760, 600, size);
+  const pts = placeItems(total, 640, 600, size);
   let i = 0;
   for (const [kind, c] of counts) for (let j = 0; j < c; j++, i++) items.push({ kind, x: pts[i].x, y: pts[i].y, r: randInt(-30, 30), checked: false });
 
-  const W = 760;
+  const W = 640;
   const H = 600;
-  const c = card(90, 140, W, H);
+  const c = card(230, 140, W, H);
   c.append(frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">${items.map((it) => itemGroup(it.kind, it.x, it.y, size / 40, it.r)).join('')}</svg>`));
   const marks = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;pointer-events:none" aria-hidden="true"></svg>`);
   api.layer.append(c);

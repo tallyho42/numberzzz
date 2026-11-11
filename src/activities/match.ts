@@ -43,6 +43,8 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
   const kinds = shuffle(['items', 'dice', 'frame'] as const).map((k, i) => (k === 'dice' && (left[i] < 1 || left[i] > 6) ? 'frame' : k));
 
   const c = card(90, 140, W, H);
+  // Scaled down from the right so the animal in the bottom-left corner stays visible.
+  Object.assign(c.style, { transform: 'scale(0.9)', transformOrigin: 'right top' });
   const tiles = ROWS.map((cy) => `<rect x="60" y="${cy - 75}" width="240" height="150" rx="28" fill="#F4FAF2" stroke="#DCEBD8" stroke-width="2"/><rect x="760" y="${cy - 75}" width="160" height="150" rx="28" fill="#F4FAF2" stroke="#DCEBD8" stroke-width="2"/>`).join('');
   const reps = left
     .map((n, i) => {

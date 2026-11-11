@@ -76,10 +76,10 @@ export async function countAloud(api: ActivityApi, parent: HTMLElement, pts: P[]
 
 export const count: Activity<{ n: number }> = (api, { n }) => {
   const kind: ItemKind = pick(['carrot', 'apple', 'horseshoe']);
-  const c = card(90, 140, 700, 560);
+  const c = card(240, 140, 600, 560);
   const size = n <= 5 ? 130 : 100;
-  const pts = placeItems(n, 700, 560, size);
-  c.append(frag(`<svg width="700" height="560" viewBox="0 0 700 560" aria-hidden="true">${pts.map((p) => itemGroup(kind, p.x, p.y, size / 40, randInt(-25, 25))).join('')}</svg>`));
+  const pts = placeItems(n, 600, 560, size);
+  c.append(frag(`<svg width="600" height="560" viewBox="0 0 600 560" aria-hidden="true">${pts.map((p) => itemGroup(kind, p.x, p.y, size / 40, randInt(-25, 25))).join('')}</svg>`));
   api.layer.append(c);
   answerButtons(api, n, {
     left: 880,
@@ -93,38 +93,6 @@ export const count: Activity<{ n: number }> = (api, { n }) => {
     },
   });
   void api.instruct(`Kolik je tu ${ITEM_NAMES[kind].many}? Ťukni na správné číslo.`);
-};
-
-export const flashCount: Activity<{ n: number }> = (api, { n }) => {
-  const c = card(130, 160, 600, 480, 'card glow');
-  const pattern = frag(`<svg width="380" height="380" viewBox="0 0 380 380" style="position:absolute;left:110px;top:50px" role="img" aria-label="Tečky">${dotPattern(n, 380)}</svg>`);
-  const cover = h('div', { class: 'cover' }, '?');
-  c.append(pattern, cover);
-  api.layer.append(c);
-  let timer = 0;
-  const show = async () => {
-    clearTimeout(timer);
-    cover.classList.remove('on');
-    timer = window.setTimeout(() => cover.classList.add('on'), 1500);
-  };
-  cover.classList.add('on');
-  const eye = h('button', { class: 'round-btn', 'aria-label': 'Ukázat ještě jednou', style: { ...box(388, 670, 84, 84) }, html: '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>' });
-  onTap(eye, () => void show());
-  api.layer.append(eye);
-  answerButtons(api, n, {
-    left: 880,
-    top: 150,
-    min: 1,
-    onCorrect: () => {
-      clearTimeout(timer);
-      cover.classList.remove('on');
-      recordResult('other', n, true);
-      api.success();
-    },
-    onWrong: () => void show(),
-  });
-  void api.instruct('Dívej se pozorně! Kolik je teček?').then(show);
-  return () => clearTimeout(timer);
 };
 
 const SPOTS: P[] = [

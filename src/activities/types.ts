@@ -26,8 +26,12 @@ export type ScreenSpec =
   | { type: 'find'; n: number }
   | { type: 'draw'; n: number }
   | { type: 'color'; digit: number }
-  | { type: 'flash'; n: number }
-  | { type: 'hide'; total: number; hidden: number };
+  | { type: 'hide'; total: number; hidden: number }
+  | { type: 'tapnum'; n: number }
+  | { type: 'feed'; n: number }
+  | { type: 'compare'; a: number; b: number; less: boolean }
+  | { type: 'dice' }
+  | { type: 'missing'; start: number; gap: number };
 
 /** Digit an activity mostly practises (for stats). */
 export function specDigit(s: ScreenSpec): number | null {
@@ -40,8 +44,13 @@ export function specDigit(s: ScreenSpec): number | null {
     case 'count':
     case 'find':
     case 'draw':
-    case 'flash':
+    case 'tapnum':
+    case 'feed':
       return s.n;
+    case 'compare':
+      return Math.max(s.a, s.b);
+    case 'missing':
+      return s.start + s.gap;
     case 'hide':
       return s.hidden;
     default:

@@ -1,13 +1,13 @@
 import type { Activity, ActivityApi } from './types';
 import { h, frag, wait, reducedMotion } from '../core/dom';
-import { card, horseGuide } from '../core/ui';
+import { card, horseGuide, companion } from '../core/ui';
 import { Ink } from '../core/ink';
 import { digitStrokes, digitPathMarkup, digitWidth, FRAME_H } from '../core/digits';
 import { pathLength } from '../core/geometry';
 import { judgeWriting } from '../core/recognizer';
 import { writeLeniency, recordResult, logStrokes } from '../core/progress';
 import { digitNoun, retry } from '../core/czech';
-import { ICONS, HORSE_HEAD } from '../art/art';
+import { ICONS } from '../art/art';
 
 /** Animate the correct digit inside an SVG group (used as a hint). */
 async function animateDigit(g: SVGGElement, digit: number) {
@@ -126,7 +126,7 @@ export const write: Activity<{ digit: number }> = (api, { digit }) => {
 /** "Fix the horse": the horse wrote the digit mirrored, the child writes it correctly. */
 export const fix: Activity<{ digit: number }> = (api, { digit }) => {
   const S = 2.6;
-  api.layer.append(h('img', { src: HORSE_HEAD, alt: 'Koník', class: 'guide', style: { position: 'absolute', left: '0px', bottom: '-6px', width: '330px', height: '330px' } }));
+  api.layer.append(companion(0, -6, 330));
   api.layer.append(h('div', { class: 'bubble', style: { left: '230px', bottom: '300px' } }, '?'));
   const horseCard = card(340, 150, 300, 470, 'card horse-card');
   const fw = digitWidth(digit);

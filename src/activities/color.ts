@@ -25,7 +25,7 @@ export const PICTURES: { name: string; color: string; mask: string[] }[] = [
 export const color: Activity<{ digit: number }> = (api, { digit }) => {
   const pic = pickFresh('spell', PICTURES, (p) => p.name);
   const others = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((d) => d !== digit);
-  const c = card(150, 128, 620, 620);
+  const c = card(225, 128, 620, 620);
   const grid = h('div', { class: 'spell-grid' });
   c.append(grid);
   api.layer.append(c);

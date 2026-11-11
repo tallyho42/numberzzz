@@ -37,7 +37,7 @@ function ears(api: Parameters<Activity<{ n: number }>>[0]) {
     { cx: 236, cy: 170, rx: 80, ry: 112 },
     { cx: 402, cy: 156, rx: 80, ry: 112 },
   ];
-  const c = card(140, 136, W, H);
+  const c = card(215, 136, W, H);
   const zoneSvg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">
     ${zones.map((z, i) => `<ellipse class="zone" data-i="${i}" cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}"/>`).join('')}
   </svg>`);
@@ -47,7 +47,7 @@ function ears(api: Parameters<Activity<{ n: number }>>[0]) {
   c.append(zoneSvg, h('img', { src: HORSE_EARLESS, alt: 'Koník bez uší', style: { position: 'absolute', left: '20px', top: '40px', width: '560px', height: '560px', pointerEvents: 'none' } }));
   api.layer.append(c);
   const cnt = counter(2, api.ink);
-  cnt.el.style.left = '870px';
+  cnt.el.style.left = '900px';
   cnt.el.style.top = '220px';
   api.layer.append(cnt.el);
 
@@ -99,7 +99,7 @@ function ears(api: Parameters<Activity<{ n: number }>>[0]) {
 /** Free counting: one big zone above the trough; strokes and dots inside are clustered and counted. */
 function trough(api: Parameters<Activity<{ n: number }>>[0], n: number) {
   const zone = { x: 90, y: 150, w: 460, h: 300 };
-  const c = card(140, 136, W, H);
+  const c = card(215, 136, W, H);
   c.append(
     frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">
       <rect class="zone" x="${zone.x}" y="${zone.y}" width="${zone.w}" height="${zone.h}" rx="56"/>
@@ -111,7 +111,7 @@ function trough(api: Parameters<Activity<{ n: number }>>[0], n: number) {
   const badgeLayer = h('div', { style: { position: 'absolute', inset: '0', pointerEvents: 'none' } });
   api.layer.append(c);
   const cnt = counter(n, api.ink);
-  cnt.el.style.left = '850px';
+  cnt.el.style.left = '900px';
   cnt.el.style.top = '200px';
   api.layer.append(cnt.el);
 

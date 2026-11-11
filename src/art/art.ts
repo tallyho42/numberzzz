@@ -25,10 +25,10 @@ const ITEM_BODY: Record<ItemKind, string> = {
     <circle cx="-10" cy="-4" r="1.2" fill="#55595F"/><circle cx="10" cy="-4" r="1.2" fill="#55595F"/>`,
 };
 
-export const ITEM_NAMES: Record<ItemKind, { one: string; few: string; many: string }> = {
-  carrot: { one: 'mrkev', few: 'mrkve', many: 'mrkví' },
-  apple: { one: 'jablíčko', few: 'jablíčka', many: 'jablíček' },
-  horseshoe: { one: 'podkova', few: 'podkovy', many: 'podkov' },
+export const ITEM_NAMES: Record<ItemKind, { one: string; few: string; many: string; g: 'm' | 'f' | 'n' }> = {
+  carrot: { one: 'mrkev', few: 'mrkve', many: 'mrkví', g: 'f' },
+  apple: { one: 'jablíčko', few: 'jablíčka', many: 'jablíček', g: 'n' },
+  horseshoe: { one: 'podkova', few: 'podkovy', many: 'podkov', g: 'f' },
 };
 
 /** Standalone SVG of one item, `size` px square. */
@@ -60,19 +60,6 @@ export const ICONS = {
 export function medalSvg(size: number) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h3l1 6-3 1z" fill="#4A8FE0"/><path d="M16 2h-3l-1 6 3 1z" fill="#E2558C"/><circle cx="12" cy="15" r="7" fill="#FFCC33" stroke="#E0A800" stroke-width="1.5"/></svg>`;
 }
-
-/** Collectible items for the horse's stable (unlocked one per medal). */
-export const STABLE_ITEMS: { name: string; d: string; fill: string; stroke: string }[] = [
-  { name: 'mašli', d: 'M12 12 L4 7 L4 17 Z M12 12 L20 7 L20 17 Z', fill: '#E2558C', stroke: '#A8335F' },
-  { name: 'hvězdičku', d: STAR_PATH, fill: '#FFCC33', stroke: '#E0A800' },
-  { name: 'zvoneček', d: 'M6 17h12l-1.5-2V11a4.5 4.5 0 0 0-9 0v4z M10.5 19a1.5 1.5 0 0 0 3 0z', fill: '#FFCC33', stroke: '#B88A00' },
-  { name: 'jablíčko', d: 'M12 7c-3-2-7 0-7 5s3 9 7 8c4 1 7-3 7-8s-4-7-7-5z M12 7l1-3', fill: '#E8574B', stroke: '#A8352B' },
-  { name: 'zlatou podkovu', d: 'M6 4h3v9a3 3 0 0 0 6 0V4h3v9a6 6 0 0 1-12 0z', fill: '#FFCC33', stroke: '#B88A00' },
-  { name: 'srdíčko', d: 'M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z', fill: '#E2558C', stroke: '#A8335F' },
-  { name: 'korunku', d: 'M4 17l1-9 4 4 3-6 3 6 4-4 1 9z', fill: '#FFCC33', stroke: '#B88A00' },
-  { name: 'sedlo', d: 'M4 12c3 0 4-4 8-4s5 4 8 4v3H4z', fill: '#8A5A35', stroke: '#5A3A20' },
-  { name: 'mrkev', d: 'M15 5l4 4-11 11-3-3z', fill: '#F28C28', stroke: '#B85C12' },
-];
 
 export const BARN_SVG = (doorOpen: boolean, question: boolean) => `
   <polygon points="336,190 404,128 472,190" fill="#A8382F" stroke="#6E2019" stroke-width="5" stroke-linejoin="round"/>

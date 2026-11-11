@@ -24,13 +24,21 @@ Webová hra (HTML/TS) na čísla 0–10 pro pětiletou Medu, iPad na šířku, o
 Zvolen směr „Louka“ (nebe, kopce, bílé karty se stínem, koník jako průvodce, růžový inkoust, čísla v Andika). Návrhy všech obrazovek: https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz
 
 ## Aktivity
-Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očekávané číslice), dokresli N věcí, kolik jich je, spojování skupin s čísly, spojovačka 1–10, najdi a spočítej, tajné kouzlo (klepáním vybarvit políčka s daným číslem), oprav koníka (koník udělá chybu, Meda ji opraví), bleskový pohled (rozpoznat počet teček bez počítání), kolik se schovalo (rozklad čísla).
+Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samostatně ($P recognizer, ověření očekávané číslice), oprav koníka (jen v testeru).
+Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, dokresli N věcí, kolik se schovalo, tajné kouzlo, spojovačka 1–10, ťukni na číslo (balónky, bez teček), nakrm zvířátko (dát přesně N), kde je víc/míň, hod kostkou (skákat po kamíncích), chybí kamínek (pořadí čísel). Bleskový pohled byl odebrán (nefungoval).
 - Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
-- Odměna: medaile odemykají věci do koníkovy stáje (sbírka, ne nekonečná hra); každý dárek je vždy vidět na obrázku stáje (na koníkovi, na stěně nebo v korýtku) a při zisku medaile.
 - Hlas oslovuje dítě jménem (oslovení v 5. pádě v rodičovském nastavení, výchozí „Medo“).
 
+## Témata a odměny
+- Téma = zvířátko (`src/themes`): koník (stáj), dále pejsek (bouda, návrh ke schválení: https://claude.ai/artifact/7cpH8QZybsQqydK1PDySga). Přepínač na úvodní obrazovce, splněné téma má zlatou fajfku.
+- Každé téma má vlastní předměty k počítání a 10 dárků; medaile se počítají po tématech, každá odemkne další dárek.
+- Zvířátko je vidět na každé obrazovce (levý dolní roh) se všemi dárky: nošené na něm, ostatní vedle na trávě; doma (stáj/bouda) jsou všechny dárky na obrázku.
+
 ## Session
-Psaní a počítání jsou oddělené: psaní = jedno nové číslo + 1–2 k opakování (bez opakování a ≥30 min přibude druhé nové); počítání/poznávání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje. Každá zastávka (~4 obrazovky) procvičuje psaní jen jednoho čísla (obtahování/psaní/oprava), mezi tím počítání. Psaní a počítání se střídají, stejná aktivita nikdy dvakrát za sebou, délka se plní podle odhadu minut na aktivitu, zastávky po ~4 obrazovkách. Začít snadno, na konci znovu napsat nové číslo a skončit hrou. Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
+- Hra = několik cest k medaili (15 min ≈ 1, 30 min ≈ 3, 45 min ≈ 4). Cesta: počítání · obtahování s čárkami · 2× počítání · obtahování jen se slabou číslicí · 2× počítání · psaní bez nápovědy → medaile + dárek. Bez samolepek.
+- V jedné cestě se píše jedno číslo; cesty střídají nové číslo a opakování (bez opakování a ≥2 cest přibude druhé nové). Počítání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje; stejná aktivita nikdy dvakrát za sebou, max. jedna dlouhá hra (kouzlo, spojovačka, kostka) na cestu. Začít snadno.
+- Nahoře pruh cesty: tečka za obrazovku (psaní růžové, počítání zelené), na konci medaile.
+- Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
 
 ## Tvary číslic
 Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou zdroj pravdy pro obtahování i šablony rozpoznávání. Desítka = „1“ + „0“ s posunem 0,82 šířky.

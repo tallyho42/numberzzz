@@ -1,5 +1,6 @@
 import { h, onTap, frag, box, flash } from './dom';
-import { ICONS, STAR_PATH, HORSE_HEAD, dotPattern } from '../art/art';
+import { ICONS, STAR_PATH, dotPattern, medalSvg } from '../art/art';
+import { theme, giftsIn } from '../themes';
 import { needsHint } from './progress';
 
 export const W = 1180;
@@ -25,6 +26,8 @@ export function roundButton(html: string, label: string, onClick: () => void, si
 export interface TopBar {
   el: HTMLElement;
   setStars(done: number, total: number): void;
+  /** Path to the medal: one dot per screen (writing pink, counting green), medal at the end. */
+  setSteps(current: number, kinds: ('w' | 'c')[]): void;
   starDone(index: number): void;
   setUndo(fn: (() => void) | null): void;
 }
@@ -51,6 +54,12 @@ export function topBar(onSpeaker: () => void, onSkip: () => void): TopBar {
         stars.append(frag(`<svg class="star ${i < done ? 'on' : ''}" width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="${STAR_PATH}" stroke-width="1.4" stroke-linejoin="round"/></svg>`));
       }
     },
+    setSteps(cur, kinds) {
+      stars.innerHTML = '';
+      stars.classList.add('steps');
+      kinds.forEach((k, i) => stars.append(h('span', { class: `step ${k} ${i < cur ? 'done' : i === cur ? 'now' : ''}` })));
+      stars.append(h('span', { class: 'step-medal', html: medalSvg(44) }));
+    },
     starDone(i) {
       const s = stars.children[i];
       if (s) {
@@ -69,8 +78,28 @@ export function card(left: number, top: number, width: number, height: number, c
   return h('div', { class: cls, style: box(left, top, width, height) });
 }
 
-export function horseGuide(left: number, bottom: number, size = 300): HTMLImageElement {
-  return h('img', { class: 'guide', src: HORSE_HEAD, alt: 'Koník průvodce', style: { position: 'absolute', left: `${left}px`, bottom: `${bottom}px`, width: `${size}px`, height: `${size}px` } });
+/** The theme's animal as a guide in the corner (kept for older call sites). */
+export function horseGuide(left: number, bottom: number, size = 300): HTMLElement {
+  return companion(left, bottom, size);
+}
+
+/**
+ * The theme's animal with every present it has earned so far: worn ones drawn on it,
+ * the others lying on the grass beside it. Shown on every screen.
+ */
+export function companion(left: number, bottom: number, size = 260, extraClass = ''): HTMLElement {
+  const t = theme();
+  const got = t.gifts.slice(0, giftsIn(t));
+  const el = h('div', { class: `companion guide ${extraClass}`, style: { position: 'absolute', left: `${left}px`, bottom: `${bottom}px`, width: `${size}px`, height: `${size}px` } });
+  el.append(h('img', { src: t.head, alt: t.animal.Nom, style: { position: 'absolute', inset: '0', width: '100%', height: '100%' } }));
+  const worn = got.map((g) => g.worn ?? '').join('');
+  if (worn) el.append(frag(`<svg width="${size}" height="${size}" viewBox="0 0 240 240" style="position:absolute;inset:0;overflow:visible" aria-hidden="true">${worn}</svg>`));
+  const floor = got.filter((g) => !g.worn);
+  const gs = Math.round(size * 0.2);
+  floor.forEach((g, i) => {
+    el.append(h('div', { class: 'companion-gift', style: { left: `${Math.round(size * 0.55 + i * size * 0.19)}px`, top: `${Math.round(size * 0.78)}px`, width: `${gs}px`, height: `${gs}px` }, html: g.icon(gs) }));
+  });
+  return el;
 }
 
 /** Big round number button used by all "pick the number" activities. */
@@ -113,7 +142,7 @@ export function rotateHint(): HTMLElement {
   return h(
     'div',
     { class: 'rotate-hint', role: 'alert', 'aria-label': 'Otoč tablet na šířku' },
-    h('img', { src: HORSE_HEAD, alt: '', class: 'rotate-horse' }),
+    h('img', { src: theme().head, alt: '', class: 'rotate-horse' }),
     frag(`<svg class="rotate-tablet" width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
       <rect x="70" y="30" width="80" height="120" rx="12" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="6"/>
       <circle cx="110" cy="138" r="4" fill="#2E6B3A"/>

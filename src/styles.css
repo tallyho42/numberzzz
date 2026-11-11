@@ -108,6 +108,8 @@ button {
 }
 
 .guide { pointer-events: none; }
+.companion-gift { position: absolute; filter: drop-shadow(0 3px 0 rgba(46, 107, 58, 0.18)); }
+.companion-gift svg { display: block; }
 .bubble {
   position: absolute;
   width: 84px;
@@ -267,7 +269,7 @@ button {
 }
 .spell-cell.colored { color: rgba(255, 255, 255, 0.6); }
 .spell-grid.revealed .spell-cell:not(.colored) { opacity: 0.35; }
-.spell-side { position: absolute; left: 860px; top: 200px; width: 220px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.spell-side { position: absolute; left: 885px; top: 200px; width: 220px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
 .spell-target {
   width: 200px;
   height: 200px;
@@ -387,10 +389,10 @@ button {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 36px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
-.shelf-item { height: 136px; border-radius: 28px; display: flex; align-items: center; justify-content: center; border: 4px dashed #D9C3A0; box-sizing: border-box; }
+.shelf-item { height: 112px; border-radius: 28px; display: flex; align-items: center; justify-content: center; border: 4px dashed #D9C3A0; box-sizing: border-box; }
 .shelf-item.on { border: none; background: #FFFFFF; box-shadow: 0 5px 0 rgba(107, 66, 38, 0.18); }
 
 /* Parent screen */
@@ -495,3 +497,52 @@ button {
   animation-delay: 0.6s;
   animation-fill-mode: backwards;
 }
+
+/* Ťukni na číslo */
+.balloon { position: absolute; border: none; background: none; padding: 0; animation: bob 3.2s ease-in-out infinite; transition: transform 0.9s ease-in, opacity 0.9s; }
+.balloon svg { position: absolute; inset: 0; }
+.balloon span { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-family: var(--font-num); font-weight: 700; font-size: 120px; line-height: 1; color: #FFFFFF; text-shadow: 0 3px 0 rgba(0, 0, 0, 0.15); }
+.balloon.fly { animation: none; transform: translateY(-900px); opacity: 0.6; }
+.balloon.hint-glow svg ellipse:nth-of-type(1) { stroke: #FFF3A0; stroke-width: 10; }
+
+/* Nakrm */
+.food { position: absolute; width: 82px; height: 82px; border: none; background: none; padding: 0; transition: left 0.35s ease, top 0.35s ease; }
+.food svg { display: block; }
+.feed-count { position: absolute; left: 540px; top: 40px; width: 110px; height: 110px; border-radius: 50%; background: #FFF6E8; border: 6px solid #F2B400; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: var(--font-num); font-weight: 700; font-size: 64px; color: #2E4A35; }
+.tick.hidden { visibility: hidden; }
+
+/* Kde je víc */
+.compare-card { border: none; padding: 0; cursor: pointer; }
+.compare-card.picked { box-shadow: 0 0 0 12px rgba(61, 170, 92, 0.45), 0 8px 0 rgba(46, 107, 58, 0.15); }
+
+/* Hod kostkou */
+.stone-btn { position: absolute; border: none; border-radius: 50%; background: #E9E2D3; box-shadow: 0 6px 0 #C9BFA9; padding: 0; transition: background 0.2s; }
+.stone-btn.start { background: #CFE3CB; box-shadow: 0 6px 0 #9DBF97; }
+.stone-btn.visited { background: #FBD3E3; box-shadow: 0 6px 0 #E2A3BD; }
+.stone-btn.next { background: #FFE17A; box-shadow: 0 6px 0 #E0B000; animation: breathe 1.2s ease-in-out infinite; }
+.dice-goal { position: absolute; animation: bob 3s ease-in-out infinite; }
+.dice-token { position: absolute; pointer-events: none; transition: left 0.35s ease, top 0.35s ease; }
+.die { position: absolute; border: none; background: none; padding: 0; filter: drop-shadow(0 8px 0 rgba(46, 107, 58, 0.2)); }
+
+/* Chybí kamínek */
+.num-stone { position: absolute; border-radius: 50%; background: #FFFFFF; box-shadow: 0 8px 0 rgba(46, 107, 58, 0.18); display: flex; align-items: center; justify-content: center; font-family: var(--font-num); font-weight: 700; font-size: 72px; color: #2E4A35; }
+.num-stone.gap { background: #FFF6E8; border: 6px dashed #F2B400; box-sizing: border-box; color: #F2B400; }
+
+/* Path to the medal in the top bar */
+.stars.steps { gap: 12px; align-items: center; }
+.step { width: 26px; height: 26px; border-radius: 50%; box-sizing: border-box; }
+.step.c { background: #E1EEDD; }
+.step.w { background: #F6D3E2; }
+.step.c.done { background: #3DAA5C; }
+.step.w.done { background: #E2558C; }
+.step.now { width: 36px; height: 36px; background: #FFFFFF; border: 6px solid #F2B400; }
+.step.now.on { background: #F2B400; }
+.step-medal { display: flex; margin-left: 4px; }
+
+/* Theme picker on the home screen */
+.theme-picker { position: absolute; left: 32px; top: 28px; display: flex; gap: 18px; align-items: center; background: rgba(255, 255, 255, 0.6); border-radius: 80px; padding: 12px 18px; }
+.theme-btn { position: relative; width: 120px; height: 120px; border-radius: 50%; border: 6px solid #FFFFFF; background: #F6E3C3; box-shadow: 0 4px 0 rgba(46, 107, 58, 0.18); padding: 0; }
+.theme-btn img { width: 100%; height: 100%; border-radius: 50%; }
+.theme-btn.on { width: 150px; height: 150px; border: 8px solid #E2558C; background: #FFF6E8; }
+.theme-done { position: absolute; right: -8px; bottom: -6px; width: 48px; height: 48px; border-radius: 50%; background: #FFCC33; border: 3px solid #E0A800; display: flex; align-items: center; justify-content: center; }
+.play-btn.small { width: 140px; height: 140px; }
