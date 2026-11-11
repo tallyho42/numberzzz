@@ -2,7 +2,7 @@ import type { Theme, Gift } from './types';
 import { HORSE_VB, HORSE_PIVOT, horseFaceSvg } from '../art/horseShapes';
 import { artUrl } from '../core/critter';
 import { neigh } from '../core/sound';
-import { paintedImg } from '../paint/runtime';
+import { paintedImg, paintedImage } from '../paint/runtime';
 
 const INK = '#20150E';
 const icon = (svg: string) => (size: number) => paintedImg(svg, [0, 0, 100, 100], size);
@@ -20,19 +20,19 @@ const FLOWER = `<path d="M50,52 C48,66 46,78 40,92" fill="none" stroke="#5E8C3A"
 
 /** An icon placed in the horse's art frame (centre x,y, size in frame units). */
 const at = (svg: string, x: number, y: number, size: number, rot = 0) =>
-  `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${size / 100}) translate(-50 -50)">${svg}</g>`;
+  paintedImage(svg, [0, 0, 100, 100], x, y, size, size * 0.3, undefined, rot ? `rotate(${rot} ${x} ${y})` : '');
 
 const gifts: Gift[] = [
-  { name: 'mašli', icon: icon(BOW), worn: { on: 'head', svg: at(BOW, 640, 410, 170, -14) } },
-  { name: 'hvězdičku', icon: icon(STAR), worn: { on: 'head', svg: at(STAR, 730, 640, 90) } },
-  { name: 'zvoneček', icon: icon(BELL), worn: { on: 'body', svg: `<path d="M560,1240 Q730,1310 900,1240" fill="none" stroke="#B4513A" stroke-width="28" stroke-linecap="round"/>${at(BELL, 730, 1320, 120)}` } },
+  { name: 'mašli', icon: icon(BOW), worn: { on: 'head', svg: at(BOW, 630, 400, 230, -14) } },
+  { name: 'hvězdičku', icon: icon(STAR), worn: { on: 'head', svg: at(STAR, 730, 650, 140) } },
+  { name: 'zvoneček', icon: icon(BELL), worn: { on: 'body', svg: `<path d="M560,1240 Q730,1310 900,1240" fill="none" stroke="#B4513A" stroke-width="30" stroke-linecap="round"/>${at(BELL, 730, 1330, 170)}` } },
   { name: 'jablíčko', icon: icon(APPLE), scale: 0.8 },
   { name: 'zlatou podkovu', icon: icon(SHOE), scale: 0.9 },
   { name: 'srdíčko', icon: icon(HEART), scale: 0.8 },
-  { name: 'korunku', icon: icon(CROWN), worn: { on: 'head', svg: at(CROWN, 730, 250, 210) } },
+  { name: 'korunku', icon: icon(CROWN), worn: { on: 'head', svg: at(CROWN, 730, 240, 300) } },
   { name: 'sedlo', icon: icon(SADDLE), scale: 1 },
   { name: 'mrkev', icon: icon(CARROT), scale: 0.9 },
-  { name: 'kytičku', icon: icon(FLOWER), worn: { on: 'head', svg: at(FLOWER, 920, 440, 150, 20) } },
+  { name: 'kytičku', icon: icon(FLOWER), worn: { on: 'head', svg: at(FLOWER, 925, 430, 220, 20) } },
 ];
 
 export const HORSE: Theme = {
