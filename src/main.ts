@@ -7,10 +7,13 @@ const app = document.getElementById('app')!;
 const stage = h('div', { id: 'stage' });
 app.append(stage, rotateHint());
 
-/** Size of the visible area; iPadOS updates visualViewport more reliably than innerWidth after rotation. */
+/**
+ * Size of the visible area, measured on #app itself (a fixed, non-scrolling box covering the window).
+ * Measuring the container avoids iPadOS quirks where the page ends up scrolled or zoomed after rotation.
+ */
 function viewport() {
-  const vv = window.visualViewport;
-  return { w: vv?.width ?? window.innerWidth, h: vv?.height ?? window.innerHeight };
+  const r = app.getBoundingClientRect();
+  return { w: r.width || window.innerWidth, h: r.height || window.innerHeight };
 }
 
 /**
@@ -18,6 +21,7 @@ function viewport() {
  * After a fit, `stagefit` tells drawing canvases to re-measure their pixel size.
  */
 function fit() {
+  window.scrollTo(0, 0);
   const { w, h: vh } = viewport();
   const s = Math.min(w / W, vh / H);
   stage.style.transform = `translate(${(w - W * s) / 2}px, ${(vh - H * s) / 2}px) scale(${s})`;
