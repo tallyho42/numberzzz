@@ -52,12 +52,12 @@ class NumberBag {
 type CountType = 'count' | 'flash' | 'find' | 'match' | 'draw' | 'hide';
 
 /**
- * Today's session (see CLAUDE.md):
- * - writing focuses on one new digit plus 1–2 review digits,
- * - counting/recognition uses the whole range 1–countMax, every number once before repeats,
- * - writing and counting alternate, the same activity never comes twice in a row,
- * - the session is filled up to the chosen length using estimated minutes per activity,
- * - start easy, recall the new digit near the end, finish with something fun.
+ * Today's session (see CLAUDE.md), built as stops of ~4 screens:
+ * - every stop practises exactly ONE writing digit (shown on the stop card) – traced, written, fixed,
+ * - writing and counting alternate inside a stop; counting uses the whole range 1–countMax from a bag,
+ * - writing focuses on one new digit plus 1–2 review digits (a second new digit if nothing to review),
+ * - stops are added until the chosen length is filled (estimated minutes per activity),
+ * - the last stop writes the new digit once more and finishes with something fun.
  */
 export function planSession(): Station[] {
   const enabled = DIGIT_ORDER.filter((d) => store.settings.digits.includes(d));
@@ -67,33 +67,16 @@ export function planSession(): Station[] {
     .filter((d) => d !== current && stat(d).level >= 1)
     .sort((a, b) => strength(a) - strength(b))
     .slice(0, 2);
-  const fixable = [current, ...reviews].filter((d) => FIXABLE.includes(d) && stat(d).level >= 2);
   const countMax = store.settings.countMax;
   const bag = new NumberBag(Array.from({ length: countMax }, (_, i) => i + 1));
   const budget = store.settings.minutes;
 
   // Nothing to review yet and a longer session: bring in the next digit too, so it isn't one digit all along.
   const second = !reviews.length && budget >= 30 ? order.find((d) => d !== current && stat(d).level < 3) : undefined;
-  const introduce = (d: number): ScreenSpec[] => [
-    { type: 'trace', digit: d, support: 'full' },
-    { type: 'trace', digit: d, support: 'start' },
-    { type: 'write', digit: d },
-  ];
-  // Writing queue: introduce the new digit(s), then cycle new/review writing.
-  const intro: ScreenSpec[] = [...introduce(current), ...(second != null ? introduce(second) : [])];
-  const cycle: ScreenSpec[] = [];
-  for (const r of reviews) cycle.push({ type: 'write', digit: r });
-  cycle.push({ type: 'write', digit: current });
-  if (second != null) cycle.push({ type: 'write', digit: second });
-  if (fixable.length) cycle.push({ type: 'fix', digit: pick(fixable) });
-  cycle.push({ type: 'trace', digit: current, support: 'start' });
-  if (second != null) cycle.push({ type: 'trace', digit: second, support: 'start' });
-  let wi = 0;
-  const nextWriting = (): ScreenSpec => (wi < intro.length ? intro[wi++] : cycle[(wi++ - intro.length) % cycle.length]);
 
-  // Counting queue: rotate activity types, numbers from the bag.
+  // Counting: rotate activity types, numbers from the bag.
   let typeBag: CountType[] = [];
-  let lastType: string = '';
+  let lastType = '';
   const nextCountType = (): CountType => {
     if (!typeBag.length) typeBag = shuffle(['count', 'flash', 'find', 'match', 'draw', 'hide'] as CountType[]);
     let i = typeBag.findIndex((t) => t !== lastType);
@@ -102,7 +85,7 @@ export function planSession(): Station[] {
     lastType = t;
     return t;
   };
-  const counting = (t: CountType): ScreenSpec => {
+  const counting = (t: CountType = nextCountType()): ScreenSpec => {
     switch (t) {
       case 'count': return { type: 'count', n: bag.next() };
       case 'flash': return { type: 'flash', n: bag.next() };
@@ -119,43 +102,63 @@ export function planSession(): Station[] {
       }
     }
   };
+  const minutes = (screens: ScreenSpec[]) => screens.reduce((a, s) => a + MINUTES[s.type], 0);
 
-  const screens: ScreenSpec[] = [];
-  let used = 0;
-  const push = (s: ScreenSpec) => {
-    screens.push(s);
-    used += MINUTES[s.type];
+  // Writing part of a stop – always one digit.
+  const visits = new Map<number, number>();
+  const writing = (d: number): ScreenSpec[] => {
+    const v = visits.get(d) ?? 0;
+    visits.set(d, v + 1);
+    const canFix = FIXABLE.includes(d) && stat(d).level >= 2;
+    if (v % 2 === 1 && canFix) return [{ type: 'write', digit: d }, { type: 'fix', digit: d }];
+    return [{ type: 'trace', digit: d, support: 'start' }, { type: 'write', digit: d }];
   };
 
-  // Ending: recall the new digit, then something fun.
-  const ending: ScreenSpec[] = [{ type: 'write', digit: current }, { type: 'dots' }];
-  const endMinutes = ending.reduce((a, s) => a + MINUTES[s.type], 0);
-  const specials: ScreenSpec[] = [{ type: 'color', digit: current }];
-  if (budget >= 30) specials.push({ type: 'color', digit: second ?? reviews[0] ?? current });
-  if (budget >= 45) specials.push({ type: 'color', digit: pick([current, ...reviews, ...(second != null ? [second] : [])]) });
-
-  push({ type: 'count', n: bag.next((n) => n <= 5) }); // easy start
-  lastType = 'count';
-  let turn = 0;
-  while (used + endMinutes < budget) {
-    if (turn % 2 === 0) push(nextWriting());
-    else if (specials.length && turn % 6 === 5) push(specials.shift()!);
-    else push(counting(nextCountType()));
-    turn++;
-  }
-  for (const s of specials.splice(0, 1)) push(s);
-  ending.forEach(push);
-
-  // Group into stops of ~4 screens (a sticker after each).
   const stations: Station[] = [];
-  for (let i = 0; i < screens.length; i += 4) {
-    // Don't leave a lonely last screen: fold a short tail into the last stop.
-    const chunk = screens.length - (i + 4) < 2 ? screens.slice(i) : screens.slice(i, i + 4);
-    const fresh = chunk.find((s) => s.type === 'trace' && s.support === 'full');
-    const w = fresh ?? chunk.find((s) => s.type === 'trace' || s.type === 'write');
-    stations.push({ digit: w && 'digit' in w ? w.digit : null, intro: fresh != null, screens: chunk });
-    if (chunk.length > 4) break;
+  let used = 0;
+  const add = (st: Station) => {
+    stations.push(st);
+    used += minutes(st.screens);
+  };
+
+  // New digit(s): full tracing, tracing from the start dot, then writing alone – counting in between.
+  const introStop = (d: number, easy: boolean): Station => {
+    visits.set(d, 1);
+    const c1 = easy ? { type: 'count', n: bag.next((n) => n <= 5) } as ScreenSpec : counting();
+    if (easy) lastType = 'count';
+    return {
+      digit: d,
+      intro: true,
+      screens: [{ type: 'trace', digit: d, support: 'full' }, c1, { type: 'trace', digit: d, support: 'start' }, counting(), { type: 'write', digit: d }],
+    };
+  };
+
+  // Last stop: the new digit once more, the secret colouring with it, and the dot-to-dot to finish.
+  const finalStop: Station = {
+    digit: current,
+    intro: false,
+    screens: [{ type: 'trace', digit: current, support: 'start' }, { type: 'color', digit: current }, { type: 'write', digit: current }, { type: 'dots' }],
+  };
+  const finalMinutes = minutes(finalStop.screens);
+
+  add(introStop(current, true));
+  if (second != null) add(introStop(second, false));
+
+  // Middle stops: reviews (and the second new digit) take turns with today's digit.
+  const cycle = [...reviews, ...(second != null ? [second] : []), current];
+  let ci = 0;
+  let colorLeft = budget >= 45 ? 2 : budget >= 30 ? 1 : 0;
+  for (let guard = 0; guard < 20; guard++) {
+    let d = cycle[ci++ % cycle.length];
+    if (d === stations[stations.length - 1].digit && cycle.length > 1) d = cycle[ci++ % cycle.length];
+    const [w1, w2] = writing(d);
+    const special = colorLeft > 0 && stations.length % 2 === 0;
+    const screens = [w1, special ? ({ type: 'color', digit: d } as ScreenSpec) : counting(), w2, counting()];
+    if (used + minutes(screens) + finalMinutes > budget + 0.5) break;
+    if (special) colorLeft--;
+    add({ digit: d, intro: false, screens });
   }
+  add(finalStop);
   return stations;
 }
 

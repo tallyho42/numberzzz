@@ -10,6 +10,7 @@ export function h<K extends keyof HTMLElementTagNameMap>(
   for (const [k, v] of Object.entries(props)) {
     if (v == null || v === false) continue;
     if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k === 'onClick' && typeof v === 'function') onTap(el, v as () => void);
     else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v as EventListener);
     else if (k === 'html') el.innerHTML = String(v);
     else if (k === 'class') el.className = String(v);
@@ -17,6 +18,34 @@ export function h<K extends keyof HTMLElementTagNameMap>(
   }
   for (const c of children) if (c != null && c !== false) el.append(c);
   return el;
+}
+
+/**
+ * Reliable tap for buttons: fires on pointerup inside the element, without waiting for `click`.
+ * iPadOS drops the `click` when the finger or Pencil moves a hair during the tap, so a plain
+ * click listener sometimes needs a second tap. `click` stays as the fallback (keyboard, tests)
+ * and is ignored right after a pointer tap so the handler never runs twice.
+ */
+export function onTap(el: HTMLElement, fn: () => void) {
+  let downId: number | null = null;
+  let lastTap = 0;
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button === 0) downId = e.pointerId;
+  });
+  el.addEventListener('pointercancel', () => (downId = null));
+  el.addEventListener('pointerup', (e) => {
+    if (e.pointerId !== downId) return;
+    downId = null;
+    const r = el.getBoundingClientRect();
+    const pad = 12;
+    if (e.clientX < r.left - pad || e.clientX > r.right + pad || e.clientY < r.top - pad || e.clientY > r.bottom + pad) return;
+    lastTap = Date.now();
+    fn();
+  });
+  el.addEventListener('click', () => {
+    if (Date.now() - lastTap < 800) return;
+    fn();
+  });
 }
 
 /** Parse an SVG (or any single-root) markup string into an element. */

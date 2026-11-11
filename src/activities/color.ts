@@ -34,6 +34,27 @@ export const color: Activity<{ digit: number }> = (api, { digit }) => {
   let left = 0;
   let fails = 0;
   let done = false;
+  const handlers = new Map<Element, () => void>();
+  // Cells react on touch-down (no waiting for a click iPadOS may drop); a touch in the gap picks the nearest cell.
+  let lastDown = 0;
+  grid.addEventListener('pointerdown', (e) => {
+    lastDown = Date.now();
+    let cell = document.elementFromPoint(e.clientX, e.clientY)?.closest('.spell-cell');
+    if (!cell) {
+      let best = Infinity;
+      for (const el of handlers.keys()) {
+        const r = el.getBoundingClientRect();
+        const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+        if (d < best) [best, cell] = [d, el];
+      }
+    }
+    if (cell) handlers.get(cell)?.();
+  });
+  grid.addEventListener('click', (e) => {
+    if (Date.now() - lastDown < 800) return; // already handled on pointerdown
+    const cell = (e.target as Element).closest('.spell-cell');
+    if (cell) handlers.get(cell)?.();
+  });
 
   for (let r = 0; r < 8; r++) {
     for (let col = 0; col < 8; col++) {
@@ -41,7 +62,7 @@ export const color: Activity<{ digit: number }> = (api, { digit }) => {
       const n = target ? digit : pick(others);
       if (target) left++;
       const b = h('button', { class: 'spell-cell', 'aria-label': `Políčko ${n}` }, String(n));
-      b.addEventListener('click', async () => {
+      handlers.set(b, async () => {
         if (done || b.classList.contains('colored')) return;
         if (target) {
           b.classList.add('colored');

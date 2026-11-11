@@ -1,4 +1,4 @@
-import { h, frag, box, flash } from './dom';
+import { h, onTap, frag, box, flash } from './dom';
 import { ICONS, STAR_PATH, HORSE_HEAD, dotPattern } from '../art/art';
 import { needsHint } from './progress';
 
@@ -34,7 +34,7 @@ export function topBar(onSpeaker: () => void, onSkip: () => void): TopBar {
   const stars = h('div', { class: 'stars' });
   // Parent helper: three quick taps on the star bar skip the current screen.
   let taps: number[] = [];
-  stars.addEventListener('click', () => {
+  onTap(stars, () => {
     const now = Date.now();
     taps = [...taps.filter((t) => now - t < 900), now];
     if (taps.length >= 3) {
@@ -89,7 +89,7 @@ export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void
       b.append(frag(`<svg class="dot-hint" width="${w}" height="${Math.round(w * 0.4)}" viewBox="0 ${w * 0.3} ${w} ${w * 0.4}" aria-hidden="true">${dots(w)}</svg>`));
     }
   }
-  b.addEventListener('click', () => onPick(b));
+  onTap(b, () => onPick(b));
   return b;
 }
 

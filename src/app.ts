@@ -1,4 +1,4 @@
-import { h, frag, wait, pick, box } from './core/dom';
+import { h, onTap, frag, wait, pick, box } from './core/dom';
 import { meadow, topBar, parentCorner, confetti, card, horseGuide, roundButton, goFullscreen, W, H } from './core/ui';
 import { say, stop, unlockVoice } from './core/voice';
 import { chime, fanfare, unlockSound } from './core/sound';
@@ -53,7 +53,7 @@ export function home() {
   stage.append(meadow());
   stage.append(h('img', { src: HORSE_HEAD, alt: 'Koník', class: 'guide bob', style: { position: 'absolute', left: '120px', bottom: '-10px', width: '460px', height: '460px' } }));
   const play = h('button', { class: 'play-btn', 'aria-label': 'Hrát', html: ICONS.play(110) });
-  play.addEventListener('click', () => {
+  onTap(play, () => {
     goFullscreen();
     unlockVoice();
     unlockSound();

@@ -42,15 +42,9 @@ document.addEventListener('fullscreenchange', refit);
 document.addEventListener('webkitfullscreenchange', refit);
 fit();
 
-// No zoom, scroll, long-press menus or text selection while playing.
+// No zoom or long-press menus while playing. Scrolling is blocked by `touch-action: none` in CSS;
+// a global touchmove preventDefault is avoided on purpose – iPadOS then drops taps that move slightly.
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('contextmenu', (e) => e.preventDefault());
-document.addEventListener(
-  'touchmove',
-  (e) => {
-    if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
-  },
-  { passive: false },
-);
 
 initApp(stage);
