@@ -38,6 +38,7 @@ interface Store {
 }
 
 const KEY = 'numberzzz.v1';
+const LOG_KEY = 'numberzzz.v1.log';
 export const DIGIT_ORDER = [1, 7, 4, 0, 6, 9, 2, 3, 5, 8, 10];
 
 const defaults = (): Store => ({
@@ -53,7 +54,13 @@ function load(): Store {
     const raw = localStorage.getItem(KEY);
     if (!raw) return defaults();
     const s = JSON.parse(raw) as Store;
-    return { ...defaults(), ...s, settings: { ...defaults().settings, ...s.settings } };
+    let log = s.log ?? []; // older versions kept the log in the main record
+    try {
+      log = JSON.parse(localStorage.getItem(LOG_KEY) || 'null') ?? log;
+    } catch {
+      /* keep what we have */
+    }
+    return { ...defaults(), ...s, log, settings: { ...defaults().settings, ...s.settings } };
   } catch {
     return defaults();
   }
@@ -61,13 +68,33 @@ function load(): Store {
 
 export const store: Store = load();
 
+/**
+ * Progress, medals and settings are small and saved under their own key, so they always fit.
+ * The stroke log is big (the Pencil sends hundreds of points a second) and lives under a separate
+ * key: if it ever hits the storage quota it gets trimmed, and it can never block saving medals.
+ */
 export function save() {
   try {
-    localStorage.setItem(KEY, JSON.stringify(store));
+    localStorage.setItem(KEY, JSON.stringify({ ...store, log: undefined }));
   } catch {
     /* storage may be unavailable (private mode) – the game still works */
   }
 }
+
+function saveLog() {
+  for (let i = 0; i < 4; i++) {
+    try {
+      localStorage.setItem(LOG_KEY, JSON.stringify(store.log));
+      return;
+    } catch {
+      if (!store.log.length) return;
+      store.log.splice(0, Math.ceil(store.log.length / 2)); // over quota: drop the oldest half
+    }
+  }
+}
+
+// Ask the browser not to evict our storage under pressure (no prompt; granted for home-screen apps).
+void navigator.storage?.persist?.().catch(() => {});
 
 export function stat(d: number): DigitStat {
   const k = String(d);
@@ -129,13 +156,14 @@ export function logStrokes(activity: string, digit: number, success: boolean, st
     strokes: strokes.map((s) => s.map((p) => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, t: Math.round(p.t), p: Math.round(p.p * 100) / 100 }))),
   });
   if (store.log.length > 300) store.log.splice(0, store.log.length - 300);
-  save();
+  saveLog();
 }
 
 export function resetProgress() {
   const keep = store.settings;
   Object.assign(store, defaults(), { settings: keep });
   save();
+  saveLog();
 }
 
 /** Tracing corridor half-width (frame units) and required coverage for the tolerance setting. */
@@ -147,4 +175,29 @@ export function traceTolerance() {
 export function writeLeniency() {
   const i = Math.min(4, Math.max(0, store.settings.tolerance - 1));
   return [1.35, 1.22, 1.12, 1.05, 1.0][i];
+}
+
+const RECENT_KEY = 'numberzzz.recent';
+
+/**
+ * Pick an item not shown recently (remembered across sessions): the last half of the
+ * list is kept out, so every picture comes round before one repeats soon.
+ */
+export function pickFresh<T>(kind: string, items: T[], id: (t: T) => string): T {
+  let recent: Record<string, string[]> = {};
+  try {
+    recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '{}');
+  } catch {
+    /* no storage – plain random */
+  }
+  const seen = recent[kind] ?? [];
+  const pool = items.filter((t) => !seen.includes(id(t)));
+  const choice = (pool.length ? pool : items)[Math.floor(Math.random() * (pool.length || items.length))];
+  recent[kind] = [id(choice), ...seen.filter((s) => s !== id(choice))].slice(0, Math.floor(items.length / 2));
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+  } catch {
+    /* ignore */
+  }
+  return choice;
 }
