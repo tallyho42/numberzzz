@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import type { Activity, ActivityApi } from './types';
 import { h, frag, wait, reducedMotion } from '../core/dom';
 import { card, horseGuide, companion } from '../core/ui';
@@ -14,7 +15,7 @@ async function animateDigit(g: SVGGElement, digit: number) {
   const strokes = digitStrokes(digit, 1);
   g.innerHTML = '';
   for (const pts of strokes) {
-    const line = frag<SVGPolylineElement>(`<svg xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#3DAA5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/></svg>`).firstElementChild as SVGPolylineElement;
+    const line = frag<SVGPolylineElement>(`<svg xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#6E9B4C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/></svg>`).firstElementChild as SVGPolylineElement;
     g.append(line);
     const dur = reducedMotion() ? 0 : 1200 + pts.length * 5;
     await new Promise<void>((resolve) => {
@@ -39,7 +40,7 @@ function writingPad(api: ActivityApi, digit: number, host: HTMLElement, cardW: n
   host.append(h('div', { class: 'dashed-frame' }));
   const overlay = frag(`<svg width="${fw * S}" height="${FRAME_H * S}" viewBox="0 0 ${fw} ${FRAME_H}" style="position:absolute;left:${ox}px;top:${oy}px;overflow:visible" aria-hidden="true">
     <g class="hint"></g><g class="demo"></g>
-    <circle cx="${first.x}" cy="${first.y}" r="${16 / S}" fill="#3DAA5C"/>
+    <circle cx="${first.x}" cy="${first.y}" r="${16 / S}" fill="#6E9B4C"/>
   </svg>`);
   host.append(overlay);
   const hint = overlay.querySelector('.hint') as SVGGElement;
@@ -86,7 +87,7 @@ function writingPad(api: ActivityApi, digit: number, host: HTMLElement, cardW: n
       await api.say('Pomůžu ti. Podívej, jak se píše.');
       ink.clear();
       await animateDigit(demoG, digit);
-      hint.innerHTML = digitPathMarkup(digit, 'fill="none" stroke="#DDE3DC" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 6.5"');
+      hint.innerHTML = digitPathMarkup(digit, 'fill="none" stroke="#E3DACB" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 6.5"');
     } else {
       await api.say(retry());
       await Promise.all(ink.strokes.map((s) => ink.fade(s)));
@@ -112,7 +113,7 @@ export const write: Activity<{ digit: number }> = (api, { digit }) => {
   const cardW = fw * S + 80;
   const cardH = FRAME_H * S + 120;
   const left = cardW > 420 ? 1180 - cardW - 70 : 400;
-  api.layer.append(horseGuide(cardW > 420 ? 20 : 50, -6, cardW > 420 ? 260 : 310));
+  api.layer.append(horseGuide(cardW > 420 ? 20 : 50, 14, cardW > 420 ? 260 : 310));
   const c = card(left, 136, cardW, cardH);
   api.layer.append(c);
   const cleanup = writingPad(api, digit, c, cardW, cardH, 40, 60, S, () => {
@@ -126,17 +127,17 @@ export const write: Activity<{ digit: number }> = (api, { digit }) => {
 /** "Fix the horse": the horse wrote the digit mirrored, the child writes it correctly. */
 export const fix: Activity<{ digit: number }> = (api, { digit }) => {
   const S = 2.6;
-  api.layer.append(companion(0, -6, 330));
+  api.layer.append(companion(10, 14, 330));
   api.layer.append(h('div', { class: 'bubble', style: { left: '230px', bottom: '300px' } }, '?'));
   const horseCard = card(340, 150, 300, 470, 'card horse-card');
   const fw = digitWidth(digit);
   horseCard.append(
-    frag(`<svg width="220" height="352" viewBox="0 0 ${fw} ${FRAME_H}" style="position:absolute;left:40px;top:59px" role="img" aria-label="Koníkova číslice napsaná obráceně">
+    frag(`<svg width="220" height="352" viewBox="0 0 ${fw} ${FRAME_H}" style="position:absolute;left:40px;top:59px" role="img" aria-label="Obrácená číslice">
       <g transform="translate(${fw},0) scale(-1,1)">${digitPathMarkup(digit, 'fill="none" stroke="#8A5A35" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"')}</g>
     </svg>`),
   );
   api.layer.append(horseCard);
-  api.layer.append(frag(`<svg width="90" height="60" viewBox="0 0 90 60" style="position:absolute;left:660px;top:355px" aria-hidden="true"><path d="M8,30 H72 M56,14 L74,30 L56,46" fill="none" stroke="#2E6B3A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`));
+  api.layer.append(frag(`<svg width="90" height="60" viewBox="0 0 90 60" style="position:absolute;left:660px;top:355px" aria-hidden="true"><path d="M8,30 H72 M56,14 L74,30 L56,46" fill="none" stroke="#20150E" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>`));
   const cardW = 340;
   const cardH = 500;
   const c = card(770, 136, cardW, cardH);
@@ -145,6 +146,6 @@ export const fix: Activity<{ digit: number }> = (api, { digit }) => {
     void api.say('Děkuju! Teď už to vím.');
     api.success();
   });
-  void api.instruct(`Koník napsal ${digitNoun(digit)}, ale nějak se mu to popletlo. Napiš mu ji správně.`);
+  void api.instruct(`${theme().animal.Nom} napsal ${digitNoun(digit)}, ale nějak se mu to popletlo. Napiš mu ji správně.`);
   return cleanup;
 };

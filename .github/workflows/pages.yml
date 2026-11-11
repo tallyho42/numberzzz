@@ -1,5 +1,8 @@
 name: Deploy to GitHub Pages
 
+# Two versions on one site:
+#   /           – the original meadow version, frozen at tag v1
+#   /pejsek/    – the painted version from main
 on:
   push:
     branches: [main]
@@ -19,15 +22,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: current
+      - uses: actions/checkout@v4
+        with:
+          ref: v1
+          path: v1
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      - name: Build the painted version
+        working-directory: current
+        run: npm ci && npm run build
+      - name: Build the original version
+        working-directory: v1
+        run: npm ci && npm run build
+      - name: Assemble the site
+        run: |
+          mkdir -p site/pejsek
+          cp -r v1/dist/. site/
+          cp -r current/dist/. site/pejsek/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build

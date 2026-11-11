@@ -21,7 +21,14 @@ Webová hra (HTML/TS) na čísla 0–10 pro pětiletou Medu, iPad na šířku, o
 - Rodičovská obrazovka schovaná (dlouhý stisk v rohu).
 
 ## Vizuální směr
-Zvolen směr „Louka“ (nebe, kopce, bílé karty se stínem, koník jako průvodce, růžový inkoust, čísla v Andika). Návrhy všech obrazovek: https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz
+Malovaný styl „Štětec“ podle předlohy pejska (suchý štětec, papír): teplý papír #F6F0E4, okrová/hnědá, inkoust #20150E, šalvějová zelená, růžová, hořčicová. Masy jsou malované (textura, světlé mezery u okrajů, štětiny, cákance), detaily (oči, nos, pusa, nohy, čísla) ostré inkoustové. Papírové karty (9-slice), tlačítka jako malované kulaté skvrny, čísla v Andika.
+Původní směr „Louka“ (https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz) zůstává zmražený na tagu `v1`.
+
+## Malování (src/paint)
+- `brush.ts`: suchý štětec – z plochého SVG udělá malovanou vrstvu (směr tahů, `dry`, `zone`, `edge`, `bristle`, `grain`, `tone`, `speck`, `clean` pro papírové karty).
+- Velké věci (zvířata po dílech, pozadí, domečky, karta, skvrny tlačítek, medaile, ikony) se pečou do `public/art/*.webp` v ateliéru: `npm run dev` → `/atelier.html?m=none`, v konzoli `await bakeAll()` (porovnání s předlohou: `await compare()` → `public/art/zz-preview.png`, nemazat do gitu; `atelier/ref.webp` je jen lokálně). Ikony: `await bakeIcons()` a přesunout z `public/art` do `public/`.
+- Malé věci (předměty, pamlsky, dárky, balónky, obrázky spojovaček) maluje `runtime.ts` za běhu do cache; než je hotovo, ukazuje se ploché SVG.
+- Zvíře = `core/critter.ts`: díly (ocas, tělo, hlava, uši) jako obrázky + inkoustový obličej SVG se všemi výrazy. Samo dýchá, mrká, kouká, vrtí ocasem; na ťuknutí dělá kousky (štěkne/zařehtá, jazyk, naklonění hlavy, skok, vrtění, šilhání, uši, otočka, kýchnutí). Tvary: `art/dogShapes.ts`, `art/horseShapes.ts`.
 
 ## Aktivity
 Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samostatně ($P recognizer, ověření očekávané číslice), oprav koníka (jen v testeru).
@@ -30,8 +37,8 @@ Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, d
 - Hlas oslovuje dítě jménem (oslovení v 5. pádě v rodičovském nastavení, výchozí „Medo“).
 
 ## Témata a odměny
-- Téma = zvířátko (`src/themes`): koník (stáj), dále pejsek (bouda, návrh ke schválení: https://claude.ai/artifact/7cpH8QZybsQqydK1PDySga). Přepínač na úvodní obrazovce, splněné téma má zlatou fajfku.
-- Každé téma má vlastní předměty k počítání a 10 dárků; medaile se počítají po tématech, každá odemkne další dárek.
+- Téma = zvířátko (`src/themes`): koník (stáj; mrkev, jablko, podkova) a pejsek (bouda; kost, míček, párek). Přepínač na úvodní obrazovce, splněné téma má zlatou fajfku. Po dokončení koníka začíná malovaná verze pejskem.
+- Každé téma má vlastní předměty k počítání a 10 dárků; medaile se počítají po tématech, každá odemkne další dárek. Pejsek dostává pamlsky od malých po velké (granulka, piškot, sušenka, párek, sýr, kostička, tyčinka, velká kost, stehýnko, dort) a na trávě rostou podle úrovně.
 - Zvířátko je vidět na každé obrazovce (levý dolní roh) se všemi dárky: nošené na něm, ostatní vedle na trávě; doma (stáj/bouda) jsou všechny dárky na obrázku.
 
 ## Session
@@ -45,9 +52,9 @@ Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou 
 
 ## Vývoj
 - `npm run dev` (Vite, i na iPadu v síti), `npm run build` = typová kontrola + build do `dist/`.
-- Push do `main` → GitHub Action nasadí na GitHub Pages: https://tallyho42.github.io/numberzzz/ (repo je veřejné).
+- Push do `main` → GitHub Action nasadí na GitHub Pages (repo je veřejné): malovaná verze z `main` na https://tallyho42.github.io/numberzzz/pejsek/, původní verze z tagu `v1` zůstává na https://tallyho42.github.io/numberzzz/. Obě sdílejí pokrok (stejný localStorage).
 - Rychlé otevření jedné aktivity: `#zkus=<typ>-<číslo>` (např. `#zkus=trace-3`), dále `#zkus=medaile|staj|rodice`.
-- Kód: `src/core` (ink, recognizer $P, voice, progress, session), `src/activities` (jedna aktivita = funkce `(api, params)`), `src/screens`, `src/art` (koník jako SVG).
+- Kód: `src/core` (ink, recognizer $P, voice, progress, session, critter), `src/activities` (jedna aktivita = funkce `(api, params)`), `src/screens`, `src/art` (tvary zvířat, předměty, scény), `src/paint` (štětec, ateliér).
 
 ## Postup
 1. Prototyp obtahování jedné číslice – ukázat uživateli na iPadu před pokračováním.

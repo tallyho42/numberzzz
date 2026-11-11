@@ -49,7 +49,7 @@ function arrowMarkup(stroke: P[], cx: number): string {
   const back = { x: -t.x * 5, y: -t.y * 5 };
   const h1 = rot(back, 0.6);
   const h2 = rot(back, -0.6);
-  return `<path d="M${s.x},${s.y} L${e.x},${e.y} M${e.x + h1.x},${e.y + h1.y} L${e.x},${e.y} L${e.x + h2.x},${e.y + h2.y}" fill="none" stroke="#3DAA5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  return `<path d="M${s.x},${s.y} L${e.x},${e.y} M${e.x + h1.x},${e.y + h1.y} L${e.x},${e.y} L${e.x + h2.x},${e.y + h2.y}" fill="none" stroke="#6E9B4C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
 }
 
 export const trace: Activity<{ digit: number; support: 'full' | 'start' }> = (api, { digit, support }) => {
@@ -64,20 +64,20 @@ export const trace: Activity<{ digit: number; support: 'full' | 'start' }> = (ap
   const all = strokes.flat();
   const cx = fw / 2;
 
-  api.layer.append(horseGuide(cardW > 420 ? 20 : 50, -6, cardW > 420 ? 260 : 310));
+  api.layer.append(horseGuide(cardW > 420 ? 20 : 50, 14, cardW > 420 ? 260 : 310));
   const c = card(left, 136, cardW, cardH);
   api.layer.append(c);
 
   const guide = frag(`<svg width="${fw * S}" height="${FRAME_H * S}" viewBox="0 0 ${fw} ${FRAME_H}" style="position:absolute;left:${ox}px;top:${oy}px;overflow:visible" aria-hidden="true">
-    ${support === 'full' ? digitPathMarkup(digit, `fill="none" stroke="#EEF3EC" stroke-width="${T * 2}" stroke-linecap="round" stroke-linejoin="round"`) : ''}
-    ${digitPathMarkup(digit, `fill="none" stroke="${support === 'full' ? '#B5BDB3' : '#E3E8E2'}" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 6.5"`)}
+    ${support === 'full' ? digitPathMarkup(digit, `fill="none" stroke="#F1EADC" stroke-width="${T * 2}" stroke-linecap="round" stroke-linejoin="round"`) : ''}
+    ${digitPathMarkup(digit, `fill="none" stroke="${support === 'full' ? '#B9AE9C' : '#E6DED0'}" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 6.5"`)}
     <g class="arrows">${strokes.map((s) => arrowMarkup(s, cx)).join('')}</g>
     <g class="demo"></g>
     ${strokes
       .map(
         (s, i) => `<g class="start ${i === 0 ? 'pulse' : ''}" data-i="${i}" style="transform-origin:${s[0].x}px ${s[0].y}px">
-          <circle cx="${s[0].x}" cy="${s[0].y}" r="5.5" fill="#3DAA5C"/>
-          ${strokes.length > 1 ? `<text x="${s[0].x - 10}" y="${s[0].y - 6}" font-size="9" font-weight="700" fill="#2E6B3A" font-family="Andika, sans-serif">${i + 1}</text>` : ''}
+          <circle cx="${s[0].x}" cy="${s[0].y}" r="5.5" fill="#6E9B4C"/>
+          ${strokes.length > 1 ? `<text x="${s[0].x - 10}" y="${s[0].y - 6}" font-size="9" font-weight="700" fill="#20150E" font-family="Andika, sans-serif">${i + 1}</text>` : ''}
         </g>`,
       )
       .join('')}
@@ -99,7 +99,7 @@ export const trace: Activity<{ digit: number; support: 'full' | 'start' }> = (ap
 
   const ink = new Ink(c, cardW, cardH, {
     color: api.ink,
-    pointColor: (p) => (nearest(toFrame(p)) > T ? '#F5BDD3' : api.ink),
+    pointColor: (p) => (nearest(toFrame(p)) > T ? '#F0C3CE' : api.ink),
     onEnd: (s) => void evaluate(s),
   });
 
@@ -110,7 +110,7 @@ export const trace: Activity<{ digit: number; support: 'full' | 'start' }> = (ap
   async function demo(i: number) {
     const g = guide.querySelector('.demo')!;
     const pts = strokes[i];
-    g.innerHTML = `<polyline fill="none" stroke="#3DAA5C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/><circle r="6" fill="#FFCC33" stroke="#B88A00" stroke-width="1.5"/>`;
+    g.innerHTML = `<polyline fill="none" stroke="#6E9B4C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/><circle r="6" fill="#E2B13F" stroke="#A97E1E" stroke-width="1.5"/>`;
     const line = g.querySelector('polyline')!;
     const dot = g.querySelector('circle')!;
     const dur = reducedMotion() ? 0 : 1400 + pts.length * 6;

@@ -1,53 +1,52 @@
 import type { Theme, Gift } from './types';
-import { HORSE_HEAD, STAR_PATH } from '../art/art';
+import { HORSE_VB, HORSE_PIVOT, horseFaceSvg } from '../art/horseShapes';
+import { artUrl } from '../core/critter';
+import { neigh } from '../core/sound';
+import { paintedImg } from '../paint/runtime';
 
-const icon24 = (d: string, fill: string, stroke: string) => (size: number) =>
-  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+const INK = '#20150E';
+const icon = (svg: string) => (size: number) => paintedImg(svg, [0, 0, 100, 100], size);
 
-const FLOWER = (size: number) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true">
-  <path d="M50,52 C48,66 46,78 40,92" fill="none" stroke="#3DAA5C" stroke-width="5" stroke-linecap="round"/>
-  <path d="M46,74 C36,66 26,70 24,78 C34,82 42,80 46,74 Z" fill="#5CB85C" stroke="#3A8A3A" stroke-width="3"/>
-  <g fill="#F07A8E" stroke="#D6455E" stroke-width="3"><circle cx="50" cy="26" r="12"/><circle cx="70" cy="40" r="12"/><circle cx="62" cy="62" r="12"/><circle cx="38" cy="62" r="12"/><circle cx="30" cy="40" r="12"/></g>
-  <circle cx="50" cy="45" r="11" fill="#FFCC33" stroke="#E0A800" stroke-width="3"/></svg>`;
+const BOW = `<path d="M50,50 L18,30 C12,40 12,60 18,70 Z M50,50 L82,30 C88,40 88,60 82,70 Z" fill="#D9617F"/><circle cx="50" cy="50" r="9" fill="#A8435C"/>`;
+const STAR = `<path d="M50,10 L61,37 L90,38 L67,56 L75,85 L50,68 L25,85 L33,56 L10,38 L39,37 Z" fill="#E2B13F"/>`;
+const BELL = `<path d="M24,72 L76,72 L70,64 L70,46 C70,32 62,24 50,24 C38,24 30,32 30,46 L30,64 Z" fill="#E2B13F"/><circle cx="50" cy="80" r="7" fill="#A97E1E"/><path d="M50,24 L50,16" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
+const APPLE = `<path d="M50,30 C34,18 14,30 16,52 C18,74 36,90 50,84 C64,90 82,74 84,52 C86,30 66,18 50,30 Z" fill="#C8433A"/><path d="M50,30 L52,14" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M53,20 C60,10 74,12 76,16 C68,24 60,24 53,20 Z" fill="#5E8C3A"/>`;
+const SHOE = `<path d="M26,18 L26,52 A24,24 0 0 0 74,52 L74,18" fill="none" stroke="#E2B13F" stroke-width="16" stroke-linecap="round"/><circle cx="26" cy="34" r="2.6" fill="${INK}"/><circle cx="74" cy="34" r="2.6" fill="${INK}"/><circle cx="32" cy="60" r="2.6" fill="${INK}"/><circle cx="68" cy="60" r="2.6" fill="${INK}"/>`;
+const HEART = `<path d="M50,86 C30,72 12,58 12,38 C12,24 22,16 33,16 C41,16 47,21 50,28 C53,21 59,16 67,16 C78,16 88,24 88,38 C88,58 70,72 50,86 Z" fill="#D9617F"/>`;
+const CROWN = `<path d="M14,74 L18,30 L36,48 L50,22 L64,48 L82,30 L86,74 Z" fill="#E2B13F"/><circle cx="50" cy="60" r="6" fill="#D9617F"/>`;
+const SADDLE = `<path d="M10,52 C26,52 30,32 50,32 C70,32 74,52 90,52 L90,66 L10,66 Z" fill="#7A4A26"/><path d="M44,66 L44,86 M38,86 L50,86" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
+const CARROT = `<path d="M60,24 L56,8 M64,26 L74,12 M68,30 L86,24" stroke="#5E8C3A" stroke-width="7" stroke-linecap="round"/><path d="M48,26 C62,18 78,30 72,42 L28,86 C22,90 16,86 18,80 Z" fill="#E07B2C"/>`;
+const FLOWER = `<path d="M50,52 C48,66 46,78 40,92" fill="none" stroke="#5E8C3A" stroke-width="6" stroke-linecap="round"/><g fill="#D9617F"><circle cx="50" cy="26" r="13"/><circle cx="71" cy="41" r="13"/><circle cx="63" cy="64" r="13"/><circle cx="37" cy="64" r="13"/><circle cx="29" cy="41" r="13"/></g><circle cx="50" cy="46" r="12" fill="#E2B13F"/>`;
+
+/** An icon placed in the horse's art frame (centre x,y, size in frame units). */
+const at = (svg: string, x: number, y: number, size: number, rot = 0) =>
+  `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${size / 100}) translate(-50 -50)">${svg}</g>`;
 
 const gifts: Gift[] = [
-  {
-    name: 'mašli',
-    icon: icon24('M12 12 L4 7 L4 17 Z M12 12 L20 7 L20 17 Z', '#E2558C', '#A8335F'),
-    worn: '<path d="M92,104 L72,92 L74,118 Z M92,104 L112,94 L108,120 Z" fill="#E2558C" stroke="#A8335F" stroke-width="2.5" stroke-linejoin="round"/><circle cx="92" cy="105" r="5" fill="#A8335F"/>',
-  },
-  {
-    name: 'hvězdičku',
-    icon: icon24(STAR_PATH, '#FFCC33', '#E0A800'),
-    worn: '<path d="M184,92 l2.6,5.4 5.9,0.8 -4.3,4.1 1,5.9 -5.2,-2.8 -5.2,2.8 1,-5.9 -4.3,-4.1 5.9,-0.8z" fill="#FFCC33" stroke="#E0A800" stroke-width="1.2"/>',
-  },
-  {
-    name: 'zvoneček',
-    icon: icon24('M6 17h12l-1.5-2V11a4.5 4.5 0 0 0-9 0v4z M10.5 19a1.5 1.5 0 0 0 3 0z', '#FFCC33', '#B88A00'),
-    worn: '<path d="M72,198 Q100,214 130,204" fill="none" stroke="#B5442F" stroke-width="5" stroke-linecap="round"/><path d="M93,222 h16 l-2,-3 v-6 a6,6 0 0 0 -12,0 v6z" fill="#FFCC33" stroke="#B88A00" stroke-width="2"/>',
-  },
-  { name: 'jablíčko', icon: icon24('M12 7c-3-2-7 0-7 5s3 9 7 8c4 1 7-3 7-8s-4-7-7-5z M12 7l1-3', '#E8574B', '#A8352B'), at: { x: 345, y: 462, size: 62 } },
-  { name: 'zlatou podkovu', icon: icon24('M6 4h3v9a3 3 0 0 0 6 0V4h3v9a6 6 0 0 1-12 0z', '#FFCC33', '#B88A00'), at: { x: 240, y: 86, size: 96 } },
-  { name: 'srdíčko', icon: icon24('M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z', '#E2558C', '#A8335F'), at: { x: 405, y: 90, size: 80, rot: -8 } },
-  {
-    name: 'korunku',
-    icon: icon24('M4 17l1-9 4 4 3-6 3 6 4-4 1 9z', '#FFCC33', '#B88A00'),
-    worn: '<path d="M107,74 L110,50 L118,61 L125,44 L132,61 L140,50 L143,74 Z" fill="#FFCC33" stroke="#B88A00" stroke-width="2.4" stroke-linejoin="round"/><circle cx="125" cy="66" r="3.5" fill="#E2558C"/>',
-  },
-  { name: 'sedlo', icon: icon24('M4 12c3 0 4-4 8-4s5 4 8 4v3H4z', '#8A5A35', '#5A3A20'), at: { x: 95, y: 118, size: 120 } },
-  { name: 'mrkev', icon: icon24('M15 5l4 4-11 11-3-3z', '#F28C28', '#B85C12'), at: { x: 418, y: 458, size: 74 } },
-  {
-    name: 'kytičku',
-    icon: FLOWER,
-    worn: '<g transform="translate(84 118) scale(0.32) translate(-50 -50)">' + FLOWER(100).replace(/<\/?svg[^>]*>/g, '') + '</g>',
-  },
+  { name: 'mašli', icon: icon(BOW), worn: { on: 'head', svg: at(BOW, 640, 410, 170, -14) } },
+  { name: 'hvězdičku', icon: icon(STAR), worn: { on: 'head', svg: at(STAR, 730, 640, 90) } },
+  { name: 'zvoneček', icon: icon(BELL), worn: { on: 'body', svg: `<path d="M560,1240 Q730,1310 900,1240" fill="none" stroke="#B4513A" stroke-width="28" stroke-linecap="round"/>${at(BELL, 730, 1320, 120)}` } },
+  { name: 'jablíčko', icon: icon(APPLE), scale: 0.8 },
+  { name: 'zlatou podkovu', icon: icon(SHOE), scale: 0.9 },
+  { name: 'srdíčko', icon: icon(HEART), scale: 0.8 },
+  { name: 'korunku', icon: icon(CROWN), worn: { on: 'head', svg: at(CROWN, 730, 250, 210) } },
+  { name: 'sedlo', icon: icon(SADDLE), scale: 1 },
+  { name: 'mrkev', icon: icon(CARROT), scale: 0.9 },
+  { name: 'kytičku', icon: icon(FLOWER), worn: { on: 'head', svg: at(FLOWER, 920, 440, 150, 20) } },
 ];
 
 export const HORSE: Theme = {
   id: 'horse',
-  animal: { nom: 'koník', gen: 'koníka', dat: 'koníkovi', ins: 'koníkem', Nom: 'Koník' },
-  head: HORSE_HEAD,
-  home: { nom: 'stáj', loc: 've stáji', acc: 'do stáje' },
+  animal: { nom: 'koník', gen: 'koníka', dat: 'koníkovi', ins: 'koníkem', Nom: 'Koník', plural: { one: 'koník', few: 'koníci', many: 'koníků' } },
+  critter: { id: 'horse', vb: HORSE_VB, parts: ['body', 'head', 'earL', 'earR'], pivot: HORSE_PIVOT, face: horseFaceSvg(), call: neigh },
+  head: artUrl('horse-face'),
+  full: artUrl('horse-full'),
+  earless: artUrl('horse-earless'),
+  earZones: [
+    { cx: 200, cy: 130, rx: 78, ry: 108 },
+    { cx: 400, cy: 130, rx: 78, ry: 108 },
+  ],
+  home: { nom: 'stáj', loc: 've stáji', acc: 'do stáje', art: artUrl('home-horse'), of: 'koníkova' },
   items: ['carrot', 'apple', 'horseshoe'],
   food: 'carrot',
   gifts,

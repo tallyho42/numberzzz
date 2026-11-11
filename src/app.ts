@@ -6,6 +6,7 @@ import { store, save, newSessionId, markSeen } from './core/progress';
 import { planSession, sampleScreen, ACTIVITY_LABELS, type Station } from './core/session';
 import { praise, digitNoun, withName, hello } from './core/czech';
 import { ICONS, medalSvg } from './art/art';
+import type { Critter } from './core/critter';
 import { THEMES, theme, setTheme, medalsIn, completed, awardMedal } from './themes';
 import type { ActivityApi, ScreenSpec } from './activities/types';
 import { trace } from './activities/trace';
@@ -53,7 +54,9 @@ function openParent() {
 export function home() {
   reset();
   stage.append(meadow());
-  stage.append(companion(110, -10, 470, 'bob'));
+  const pet = companion(150, 40, 500);
+  stage.append(pet);
+  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('tilt'), 900);
   stage.append(themePicker());
   const play = h('button', { class: 'play-btn', 'aria-label': 'Hrát', html: ICONS.play(110) });
   onTap(play, () => {
@@ -62,18 +65,18 @@ export function home() {
     unlockSound();
     void runSession();
   });
-  stage.append(h('div', { style: box(660, 250) }, play));
-  const stable = roundButton(ICONS.barn(60), `Domeček – ${theme().home.nom}`, () => {
+  stage.append(h('div', { style: box(700, 250) }, play));
+  const stable = roundButton(`<img src="${theme().home.art}" alt="" width="104" height="97">`, `Domeček – ${theme().home.nom}`, () => {
     goFullscreen();
     unlockVoice();
     unlockSound();
     showStable();
-  }, 110);
+  }, 150);
   stable.style.position = 'absolute';
-  stable.style.left = '960px';
-  stable.style.top = '640px';
+  stable.style.left = '980px';
+  stable.style.top = '610px';
   stage.append(stable);
-  stage.append(h('div', { class: 'medal-count', style: box(1000, 40) }, h('span', { html: medalSvg(48) }), h('b', {}, String(medalsIn()))));
+  stage.append(h('div', { class: 'medal-count', style: box(1000, 40) }, h('span', { html: medalSvg(56) }), h('b', {}, String(medalsIn()))));
   stage.append(parentCorner(openParent));
 }
 
@@ -87,7 +90,7 @@ function themePicker(): HTMLElement {
       setTheme(t.id);
       unlockVoice();
       home();
-      void say(`${hello('Ahoj')} Teď budeme sbírat dárky pro ${t.animal.gen}.`);
+      void say(`${hello('Ahoj')} Teď budeme sbírat ${t.id === 'dog' ? 'pamlsky' : 'dárky'} pro ${t.animal.gen}.`);
     } }, h('img', { src: t.head, alt: '' }));
     if (completed(t)) b.append(h('span', { class: 'theme-done', html: ICONS.check(30, '#FFFFFF') }));
     wrap.append(b);
@@ -100,7 +103,8 @@ function showStable() {
   stableScreen(stage, home);
   stage.append(parentCorner(openParent));
   const t = theme();
-  void say(`${hello('Ahoj')} Tohle je ${t.animal.gen === 'koníka' ? 'koníkova' : 'pejskova'} ${t.home.nom}. ${medalsIn() ? `Za každou tvoji medaili dostane ${t.animal.nom} dárek.` : `Za medaile tu budou dárky pro ${t.animal.gen}.`}`);
+  const what = t.id === 'dog' ? 'pamlsek' : 'dárek';
+  void say(`${hello('Ahoj')} Tohle je ${t.home.of} ${t.home.nom}. ${medalsIn() ? `Za každou tvoji medaili dostane ${t.animal.nom} ${what}.` : `Za medaile tu budou ${t.id === 'dog' ? 'pamlsky' : 'dárky'} pro ${t.animal.gen}.`} Ťukni na ${t.animal.gen}!`);
 }
 
 const ACTIVITIES: Record<ScreenSpec['type'], (api: ActivityApi, spec: any) => void | (() => void)> = {
@@ -172,7 +176,7 @@ function runScreen(spec: ScreenSpec, starIndex: number, steps: ('w' | 'c')[], my
     };
     cleanup = ACTIVITIES[spec.type](api, spec);
     // The animal with its presents is on every screen.
-    if (!layer.querySelector('.companion')) layer.prepend(companion(-10, -8, 220));
+    if (!layer.querySelector('.companion')) layer.prepend(companion(8, 14, 230));
   });
 }
 
@@ -182,7 +186,7 @@ const stepKinds = (st: Station) => st.screens.map((s) => (s.type === 'trace' || 
 async function pathIntro(st: Station, index: number, my: number) {
   stage.innerHTML = '';
   stage.append(meadow());
-  stage.append(companion(40, -6, 340));
+  stage.append(companion(70, 30, 380));
   const bar = topBar(() => {}, () => {});
   bar.setSteps(-1, stepKinds(st));
   bar.el.querySelector<HTMLElement>('.round-btn')?.style.setProperty('visibility', 'hidden');
@@ -192,7 +196,7 @@ async function pathIntro(st: Station, index: number, my: number) {
   stage.append(c, parentCorner(openParent));
   const t = theme();
   const text = index === 0
-    ? `Jdeme pro medaili! ${st.intro ? 'Naučíme se psát' : 'Budeme psát'} ${digitNoun(st.digit)} a budeme počítat. Za medaili dostane ${t.animal.nom} dárek.`
+    ? `Jdeme pro medaili! ${st.intro ? 'Naučíme se psát' : 'Budeme psát'} ${digitNoun(st.digit)} a budeme počítat. Za medaili dostane ${t.animal.nom} ${t.id === 'dog' ? 'pamlsek' : 'dárek'}.`
     : `${withName('Další medaile čeká')} Teď budeme psát ${digitNoun(st.digit)}.`;
   await say(text);
   if (my !== nav) return;
@@ -203,6 +207,10 @@ async function runSession() {
   const my = reset();
   newSessionId();
   const plan = planSession();
+  stage.append(meadow());
+  const pet = companion(380, 40, 520);
+  stage.append(pet);
+  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('call'), 300);
   await say(`${hello('Ahoj')} Jdeme spolu na výlet za čísly.`);
   for (let pi = 0; pi < plan.length; pi++) {
     if (my !== nav) return;
@@ -243,19 +251,16 @@ function medal(more = false): Promise<void> {
     const t = theme();
     const gift = awardMedal();
     stage.append(meadow());
-    const m = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" role="img" aria-label="Medaile">
-      <polygon points="520,250 590,250 560,420 500,380" fill="#4A8FE0"/>
-      <polygon points="590,250 660,250 680,380 620,420" fill="#E2558C"/>
-      <circle cx="590" cy="470" r="160" fill="#FFCC33" stroke="#E0A800" stroke-width="10"/>
-      <circle cx="590" cy="470" r="128" fill="#FFE17A"/>
-    </svg>`);
-    const medalEl = h('div', { class: 'medal-wrap pop' }, m, h('div', { class: 'medal-face' }, h('img', { src: t.head, alt: '', style: { position: 'absolute', left: '0px', top: '4px', width: '252px', height: '252px' } })));
+    const medalEl = h('div', { class: 'medal-wrap pop' }, h('div', { class: 'medal-big', html: medalSvg(480) }), h('div', { class: 'medal-face' }, h('img', { src: t.head, alt: '', style: { position: 'absolute', inset: '0', width: '100%', height: '100%' } })));
     stage.append(medalEl);
+    const pet = companion(40, 30, 360);
+    stage.append(pet);
     confetti(stage, 60);
     fanfare();
-    if (gift) stage.append(h('div', { class: 'gift-pop pop', role: 'img', 'aria-label': gift.name, html: gift.icon(150) }));
-    const stableBtn = roundButton(ICONS.barn(64), `Domeček – ${t.home.nom}`, () => { resolve(); showStable(); }, 120);
-    Object.assign(stableBtn.style, { position: 'absolute', left: '60px', bottom: '50px' });
+    if (gift) stage.append(h('div', { class: 'gift-pop pop', role: 'img', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) }));
+    setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('wiggle'), 1200);
+    const stableBtn = roundButton(`<img src="${t.home.art}" alt="" width="96" height="90">`, `Domeček – ${t.home.nom}`, () => { resolve(); showStable(); }, 140);
+    Object.assign(stableBtn.style, { position: 'absolute', right: '210px', bottom: '50px' });
     if (more) {
       const next = h('button', { class: 'play-btn small', 'aria-label': 'Pokračovat', html: ICONS.play(70) });
       onTap(next, () => resolve());
@@ -270,7 +275,9 @@ function medal(more = false): Promise<void> {
       await say(`${withName('Hotovo', '!', true)} Zasloužíš si medaili.`);
       if (my !== nav) return;
       if (gift) await say(`${t.animal.Nom} dostal ${gift.name}.${more ? '' : ` Podívej se ${t.home.acc}.`}`);
-      else await say(`${t.animal.Nom} už má všechny dárky! Můžeš si vybrat nové zvířátko.`);
+      else await say(`${t.animal.Nom} už má ${t.id === 'dog' ? 'všechny pamlsky' : 'všechny dárky'}! Můžeš si vybrat nové zvířátko.`);
+      if (my !== nav) return;
+      (pet as HTMLElement & { critter?: Critter }).critter?.trick(t.id === 'dog' ? 'call' : 'tongue');
       if (my === nav && more) await say('Jdeme dál?');
     })();
   });

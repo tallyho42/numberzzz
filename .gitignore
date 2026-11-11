@@ -14,3 +14,5 @@ npm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .claude/settings.local.json
+atelier/ref.webp
+public/art/zz-preview.png

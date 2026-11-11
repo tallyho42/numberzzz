@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import type { Activity } from './types';
 import { h, frag, randInt, shuffle } from '../core/dom';
 import { card } from '../core/ui';
@@ -10,7 +11,7 @@ import { resampleStep } from '../core/geometry';
 
 /** Find & count: scattered items of several kinds; tick them off with the pencil, then pick the number. */
 export const find: Activity<{ n: number }> = (api, { n }) => {
-  const kinds: ItemKind[] = shuffle(['carrot', 'apple', 'horseshoe']);
+  const kinds: ItemKind[] = shuffle([...theme().items]);
   const target = kinds[0];
   const items: { kind: ItemKind; x: number; y: number; r: number; checked: boolean }[] = [];
   const counts: [ItemKind, number][] = [[target, n], [kinds[1], randInt(2, 4)], [kinds[2], randInt(2, 4)]];

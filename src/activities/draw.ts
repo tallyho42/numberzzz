@@ -3,7 +3,7 @@ import { h, frag, wait } from '../core/dom';
 import { card } from '../core/ui';
 import { Ink, type Stroke } from '../core/ink';
 import { clusterStrokes, insideEllipse, bbox, type P } from '../core/geometry';
-import { HORSE_EARLESS } from '../art/art';
+import { theme } from '../themes';
 import { plural, numWord } from '../core/czech';
 import { recordResult, logStrokes } from '../core/progress';
 import { pop } from '../core/sound';
@@ -33,10 +33,8 @@ const inZone = (s: Stroke, test: (p: P) => boolean) => s.pts.filter(test).length
 
 /** Two ears on fixed spots: one large, clearly marked zone per ear. */
 function ears(api: Parameters<Activity<{ n: number }>>[0]) {
-  const zones = [
-    { cx: 236, cy: 170, rx: 80, ry: 112 },
-    { cx: 402, cy: 156, rx: 80, ry: 112 },
-  ];
+  const t = theme();
+  const zones = t.earZones;
   const c = card(215, 136, W, H);
   const zoneSvg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">
     ${zones.map((z, i) => `<ellipse class="zone" data-i="${i}" cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}"/>`).join('')}
@@ -44,7 +42,7 @@ function ears(api: Parameters<Activity<{ n: number }>>[0]) {
   const badges = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;pointer-events:none" aria-hidden="true">
     ${zones.map((z, i) => `<g class="zone-badge" data-i="${i}"><circle cx="${z.cx - 60}" cy="${z.cy - 96}" r="24"/><text x="${z.cx - 60}" y="${z.cy - 94}" text-anchor="middle" dominant-baseline="central" font-family="Andika, sans-serif" font-weight="700" font-size="32">${i + 1}</text></g>`).join('')}
   </svg>`);
-  c.append(zoneSvg, h('img', { src: HORSE_EARLESS, alt: 'Koník bez uší', style: { position: 'absolute', left: '20px', top: '40px', width: '560px', height: '560px', pointerEvents: 'none' } }));
+  c.append(zoneSvg, h('img', { src: t.earless, alt: `${t.animal.Nom} bez uší`, style: { position: 'absolute', left: '20px', top: '40px', width: '560px', height: '560px', pointerEvents: 'none' } }));
   api.layer.append(c);
   const cnt = counter(2, api.ink);
   cnt.el.style.left = '900px';
@@ -92,7 +90,7 @@ function ears(api: Parameters<Activity<{ n: number }>>[0]) {
     if (last) ink.remove(last);
     update();
   });
-  void api.instruct('Dokresli koníkovi dvě uši. Jedno do každého kolečka.');
+  void api.instruct(`Dokresli ${t.animal.dat} dvě uši. Jedno do každého kolečka.`);
   return () => ink.destroy();
 }
 
@@ -172,7 +170,7 @@ function trough(api: Parameters<Activity<{ n: number }>>[0], n: number) {
     }
   });
   const word = plural(n, { one: 'zrníčko', few: 'zrníčka', many: 'zrníček' });
-  void api.instruct(`Dokresli koníkovi do žlabu ${n === 1 ? 'jedno' : n === 2 ? 'dvě' : numWord(n)} ${word}. Stačí tečky.`);
+  void api.instruct(`Dokresli ${theme().animal.dat} do ${theme().id === 'dog' ? 'misky' : 'žlabu'} ${n === 1 ? 'jedno' : n === 2 ? 'dvě' : numWord(n)} ${word}. Stačí tečky.`);
   return () => {
     clearTimeout(timer);
     ink.destroy();

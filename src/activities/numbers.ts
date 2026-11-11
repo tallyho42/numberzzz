@@ -1,3 +1,4 @@
+import { paintedImg } from '../paint/runtime';
 import type { Activity } from './types';
 import { h, onTap, frag, box, choices, flash, wait, randInt, pick, shuffle } from '../core/dom';
 import { card } from '../core/ui';
@@ -5,10 +6,10 @@ import { plural, numWord, numAcc, numNom } from '../core/czech';
 import { recordResult, store } from '../core/progress';
 import { itemGroup, itemSvg, ITEM_NAMES, dotPattern, ICONS } from '../art/art';
 import { chime, pop, soft } from '../core/sound';
-import { theme } from '../themes';
+import { theme, giftsIn } from '../themes';
 import { answerButtons, countAloud, placeItems } from './choice';
 
-const BALLOON_COLORS = ['#E2558C', '#4A8FE0', '#F2B400', '#3DAA5C', '#F28C28', '#7B4DD6'];
+const BALLOON_COLORS = ['#D9617F', '#7FA7C4', '#E2B13F', '#6E9B4C', '#E07B2C', '#8C6BB0'];
 
 /** 1 · Ťukni na číslo: the voice names a number, she taps the balloon with that numeral (no dot hints). */
 export const tapnum: Activity<{ n: number }> = (api, { n }) => {
@@ -24,12 +25,7 @@ export const tapnum: Activity<{ n: number }> = (api, { n }) => {
       class: 'balloon',
       'aria-label': `Balónek s číslem ${m}`,
       style: { ...box(x, y, 190, 330), animationDelay: `${i * 0.4}s` },
-      html: `<svg width="190" height="330" viewBox="0 0 190 330" aria-hidden="true">
-        <path d="M95,250 q-22,26 0,52 t0,30" fill="none" stroke="#8A8A8A" stroke-width="4"/>
-        <ellipse cx="95" cy="118" rx="88" ry="108" fill="${colors[i]}"/>
-        <path d="M85,224 L105,224 L99,238 L91,238 Z" fill="${colors[i]}"/>
-        <ellipse cx="58" cy="70" rx="14" ry="26" fill="#FFFFFF" opacity="0.35" transform="rotate(25 58 70)"/>
-      </svg><span>${m}</span>`,
+      html: `<svg width="190" height="330" viewBox="0 0 190 330" aria-hidden="true"><path d="M95,250 q-22,26 0,52 t0,30" fill="none" stroke="#6B5A45" stroke-width="3"/></svg>${paintedImg(`<ellipse cx="95" cy="118" rx="88" ry="108" fill="${colors[i]}"/><path d="M85,224 L105,224 L99,238 L91,238 Z" fill="${colors[i]}"/>`, [0, 0, 190, 330], 190, 330, { angle: 70, zone: 14, edge: 1.5, bristle: 5, grain: 1.3, tone: 0.3 }, 'style="position:absolute;inset:0"')}<span>${m}</span>`,
     });
     onTap(b, () => {
       if (done) return;
@@ -64,10 +60,7 @@ export const feed: Activity<{ n: number }> = (api, { n }) => {
   const pileCount = Math.min(n + randInt(2, 3), 13);
   const pile = placeItems(pileCount, 330, 470, 82).map((p) => ({ x: p.x + 20, y: p.y + 40 }));
   // Trough on the right with slots in two rows.
-  c.append(frag(`<svg width="430" height="300" viewBox="0 0 430 300" style="position:absolute;left:360px;top:200px" aria-hidden="true">
-    <path d="M10,60 h410 l-34,190 h-342 z" fill="#B07A45" stroke="#6B4226" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M24,74 h382" stroke="#E7D27A" stroke-width="14" stroke-linecap="round"/>
-  </svg>`));
+  c.append(h('div', { style: { position: 'absolute', left: '360px', top: '200px' }, html: paintedImg('<path d="M10,60 h410 l-34,190 h-342 z" fill="#B07A3F"/><path d="M14,62 h402" stroke="#7E5428" stroke-width="10"/>', [0, 0, 430, 300], 430, 300, { angle: 0, zone: 16, edge: 2, bristle: 8, grain: 1.5, tone: 0.35 }) }));
   const slots = Array.from({ length: 14 }, (_, i) => ({ x: 420 + (i % 7) * 52, y: 300 + Math.floor(i / 7) * 80 }));
   const inTrough: (HTMLButtonElement | null)[] = slots.map(() => null);
   const counter = h('div', { class: 'feed-count', 'aria-live': 'polite' }, '0');
@@ -177,7 +170,7 @@ export const dice: Activity<Record<string, never>> = (api) => {
     api.layer.append(el);
     return el;
   });
-  const goal = t.gifts[0];
+  const goal = t.gifts[Math.min(giftsIn(t), t.gifts.length - 1)];
   api.layer.append(h('div', { class: 'dice-goal', style: box(stones[STEPS].x - 40, stones[STEPS].y - 110, 80, 80), html: goal.icon(80) }));
   const token = h('img', { class: 'dice-token', src: t.head, alt: t.animal.Nom, style: box(stones[0].x - 60, stones[0].y - 118, 120, 120) });
   api.layer.append(token);
@@ -225,7 +218,7 @@ export const dice: Activity<Record<string, never>> = (api) => {
 };
 
 function dieFace(v: number) {
-  return `<svg width="170" height="170" viewBox="0 0 170 170" aria-hidden="true"><rect x="8" y="8" width="154" height="154" rx="30" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="6"/><g transform="translate(25 25)">${dotPattern(v, 120).replaceAll('#F28C28', '#2E6B3A')}</g></svg>`;
+  return `<svg width="170" height="170" viewBox="0 0 170 170" aria-hidden="true"><rect x="8" y="8" width="154" height="154" rx="30" fill="#FFFFFF" stroke="#20150E" stroke-width="6"/><g transform="translate(25 25)">${dotPattern(v, 120).replaceAll('#E07B2C', '#20150E')}</g></svg>`;
 }
 
 /** 5 · Chybí kamínek: a row of five numbers with one missing; pick the missing one. */

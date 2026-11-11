@@ -40,6 +40,8 @@ interface Store {
   medalsBy: Record<string, number>;
   /** Selected theme id. */
   theme: string;
+  /** One-off migrations and switches. */
+  flags?: Record<string, boolean>;
   sessions: number;
   log: StrokeRecord[];
 }
@@ -49,7 +51,7 @@ const LOG_KEY = 'numberzzz.v1.log';
 export const DIGIT_ORDER = [1, 7, 4, 0, 6, 9, 2, 3, 5, 8, 10];
 
 const defaults = (): Store => ({
-  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C', countMax: 10, name: 'Medo' },
+  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#D9617F', countMax: 10, name: 'Medo' },
   stats: {},
   medals: 0,
   medalsBy: {},

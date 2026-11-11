@@ -1,3 +1,4 @@
+import { paintedImage } from '../paint/runtime';
 import type { Activity } from './types';
 import { h, frag, flash, wait } from '../core/dom';
 import { pickFresh } from '../core/progress';
@@ -26,7 +27,7 @@ interface DotShape {
 }
 
 const filled = (fill: string, stroke: string, extra = '') => (d: string) =>
-  `<path d="${d} Z" fill="${fill}" stroke="${stroke}" stroke-width="8" stroke-linejoin="round"/>${extra}`;
+  `<path d="${d} Z" fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/>${extra}`;
 const eye = (x: number, y: number, r = 14) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#2B2B2B"/><circle cx="${x + r * 0.35}" cy="${y - r * 0.35}" r="${r * 0.35}" fill="#fff"/>`;
 
 export const SHAPES: DotShape[] = [
@@ -35,30 +36,30 @@ export const SHAPES: DotShape[] = [
     done: 'Podkova pro štěstí!',
     pts: [[170, 100], [160, 210], [170, 320], [210, 420], [280, 485], [360, 485], [430, 420], [470, 320], [480, 210], [470, 100]],
     closed: false,
-    art: (d) => `<path d="${d}" fill="none" stroke="#B88A00" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="${d}" fill="none" stroke="#FFCC33" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
-      ${[[160, 210], [210, 420], [360, 485], [470, 320], [470, 100]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="#B88A00"/>`).join('')}`,
+    art: (d) => `<path d="${d}" fill="none" stroke="#A97E1E" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${d}" fill="none" stroke="#E2B13F" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+      ${[[160, 210], [210, 420], [360, 485], [470, 320], [470, 100]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="#A97E1E"/>`).join('')}`,
   },
   {
     name: 'hvězdička',
     done: 'Hvězdička! Svítí jako na nebi.',
     pts: [[310, 105], [362, 244], [510, 250], [394, 342], [433, 485], [310, 403], [187, 485], [226, 342], [110, 250], [258, 244]],
     closed: true,
-    art: filled('#FFCC33', '#E0A800'),
+    art: filled('#E2B13F', '#A97E1E'),
   },
   {
     name: 'srdíčko',
-    done: 'Srdíčko! Koník tě má rád.',
+    done: 'Srdíčko! Mám tě rád.',
     pts: [[310, 222], [354, 150], [496, 163], [496, 316], [354, 450], [310, 520], [266, 450], [124, 316], [124, 163], [266, 150]],
     closed: true,
     art: () => `<path d="M310,215 C350,120 510,120 505,250 C500,360 380,430 310,520 C240,430 120,360 115,250 C110,120 270,120 310,215 Z" fill="#F07A8E" stroke="#D6455E" stroke-width="8" stroke-linejoin="round"/>`,
   },
   {
     name: 'domeček',
-    done: 'Domeček! Tady bydlí koník.',
+    done: 'Domeček! Tady se bydlí.',
     pts: [[150, 520], [150, 330], [100, 330], [205, 225], [310, 120], [415, 225], [520, 330], [470, 330], [470, 520], [310, 520]],
     closed: true,
-    art: filled('#F6C9A0', '#C9814A', `<path d="M100,330 L310,120 L520,330 Z" fill="#E2558C" stroke="#B8346A" stroke-width="8" stroke-linejoin="round"/>
+    art: filled('#F6C9A0', '#C9814A', `<path d="M100,330 L310,120 L520,330 Z" fill="#D9617F" stroke="#B8346A" stroke-width="8" stroke-linejoin="round"/>
       <rect x="270" y="420" width="80" height="100" rx="10" fill="#9B6A3C"/><rect x="185" y="370" width="60" height="55" rx="6" fill="#BFE3F7" stroke="#C9814A" stroke-width="5"/><rect x="375" y="370" width="60" height="55" rx="6" fill="#BFE3F7" stroke="#C9814A" stroke-width="5"/>`),
   },
   {
@@ -67,31 +68,31 @@ export const SHAPES: DotShape[] = [
     pts: [[300, 80], [460, 360], [530, 400], [450, 500], [310, 510], [170, 500], [90, 400], [200, 400], [300, 400], [300, 240]],
     closed: true,
     labels: { 8: [0, -40], 9: [-44, 0] },
-    art: () => `<path d="M300,80 L460,360 L300,360 Z" fill="#FFFFFF" stroke="#4A8FE0" stroke-width="8" stroke-linejoin="round"/>
+    art: () => `<path d="M300,80 L460,360 L300,360 Z" fill="#FFFFFF" stroke="#7FA7C4" stroke-width="8" stroke-linejoin="round"/>
       <line x1="300" y1="80" x2="300" y2="400" stroke="#9B6A3C" stroke-width="10" stroke-linecap="round"/>
-      <path d="M90,400 L530,400 L450,500 L170,500 Z" fill="#E8574B" stroke="#B8382E" stroke-width="8" stroke-linejoin="round"/>
-      <path d="M60,540 q40,-24 80,0 t80,0 t80,0 t80,0 t80,0 t80,0" fill="none" stroke="#4A8FE0" stroke-width="8" stroke-linecap="round"/>`,
+      <path d="M90,400 L530,400 L450,500 L170,500 Z" fill="#C8433A" stroke="#B8382E" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M60,540 q40,-24 80,0 t80,0 t80,0 t80,0 t80,0 t80,0" fill="none" stroke="#7FA7C4" stroke-width="8" stroke-linecap="round"/>`,
   },
   {
     name: 'rybička',
     done: 'Rybička! Plave a mává ocáskem.',
     pts: [[490, 310], [410, 220], [330, 160], [290, 215], [190, 285], [100, 205], [100, 415], [190, 335], [290, 405], [410, 400]],
     closed: true,
-    art: filled('#F28C28', '#C9661A', eye(420, 285)),
+    art: filled('#E07B2C', '#C9661A', eye(420, 285)),
   },
   {
     name: 'balónek',
     done: 'Balónek! Letí až do nebe.',
     pts: [[310, 80], [398, 113], [453, 201], [453, 309], [398, 397], [310, 430], [222, 397], [167, 309], [167, 201], [222, 113]],
     closed: true,
-    art: filled('#4A8FE0', '#2F6DB8', `<path d="M296,430 L324,430 L316,448 L304,448 Z" fill="#2F6DB8"/><path d="M310,448 q-30,30 0,60 t0,60" fill="none" stroke="#7A7A7A" stroke-width="5"/><ellipse cx="250" cy="190" rx="22" ry="40" fill="#fff" opacity="0.5" transform="rotate(25 250 190)"/>`),
+    art: filled('#7FA7C4', '#4F7FA3', `<path d="M296,430 L324,430 L316,448 L304,448 Z" fill="#4F7FA3"/><path d="M310,448 q-30,30 0,60 t0,60" fill="none" stroke="#7A7A7A" stroke-width="5"/><ellipse cx="250" cy="190" rx="22" ry="40" fill="#fff" opacity="0.5" transform="rotate(25 250 190)"/>`),
   },
   {
     name: 'měsíček',
-    done: 'Měsíček! Dobrou noc, koníku.',
+    done: 'Měsíček! Dobrou noc.',
     pts: [[435, 128], [265, 110], [138, 225], [138, 395], [265, 510], [435, 492], [349, 444], [299, 359], [299, 261], [349, 176]],
     closed: true,
-    art: filled('#FFE17A', '#E0A800'),
+    art: filled('#FFE17A', '#A97E1E'),
     labels: { 6: [42, 10], 7: [44, 0], 8: [44, 0], 9: [42, -10] },
   },
   {
@@ -108,17 +109,17 @@ export const SHAPES: DotShape[] = [
     done: 'Raketa! Tři, dva, jedna, start!',
     pts: [[310, 70], [390, 200], [390, 390], [470, 480], [390, 450], [310, 490], [230, 450], [150, 480], [230, 390], [230, 200]],
     closed: true,
-    art: filled('#E8E8F0', '#7A7A9A', `<path d="M390,390 L470,480 L390,450 Z M230,390 L150,480 L230,450 Z" fill="#E8574B" stroke="#B8382E" stroke-width="6" stroke-linejoin="round"/>
-      <circle cx="310" cy="250" r="38" fill="#BFE3F7" stroke="#4A8FE0" stroke-width="8"/>
-      <path d="M270,470 Q310,580 350,470 Z" fill="#FFCC33" stroke="#F28C28" stroke-width="6" stroke-linejoin="round"/>`),
+    art: filled('#E8E8F0', '#7A7A9A', `<path d="M390,390 L470,480 L390,450 Z M230,390 L150,480 L230,450 Z" fill="#C8433A" stroke="#B8382E" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="310" cy="250" r="38" fill="#BFE3F7" stroke="#7FA7C4" stroke-width="8"/>
+      <path d="M270,470 Q310,580 350,470 Z" fill="#E2B13F" stroke="#E07B2C" stroke-width="6" stroke-linejoin="round"/>`),
   },
   {
     name: 'mrkev',
-    done: 'Mrkev! Mňam, tu si koník dá.',
+    done: 'Mrkev! Mňam.',
     pts: [[310, 530], [250, 350], [220, 230], [170, 100], [270, 190], [310, 70], [350, 190], [450, 100], [400, 230], [370, 350]],
     closed: true,
     art: () => `<path d="M220,230 L170,100 L270,190 L310,70 L350,190 L450,100 L400,230 Z" fill="#5CB85C" stroke="#3A8A3A" stroke-width="8" stroke-linejoin="round"/>
-      <path d="M310,530 L250,350 L220,230 Q310,200 400,230 L370,350 Z" fill="#F28C28" stroke="#C9661A" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M310,530 L250,350 L220,230 Q310,200 400,230 L370,350 Z" fill="#E07B2C" stroke="#C9661A" stroke-width="8" stroke-linejoin="round"/>
       <path d="M250,300 L290,295 M330,350 L365,345 M270,410 L300,405" stroke="#C9661A" stroke-width="6" stroke-linecap="round"/>`,
   },
 ];
@@ -136,15 +137,15 @@ export const dots: Activity<Record<string, never>> = (api) => {
     const len = Math.hypot(x - cx, y - cy) || 1;
     return [x + ((x - cx) / len) * 40, y + ((y - cy) / len) * 40];
   };
-  api.layer.append(horseGuide(50, -6, 300));
+  api.layer.append(horseGuide(40, 14, 300));
   const c = card(400, 136, W, H);
   const pathD = PTS.map(([x, y], i) => `${i ? 'L' : 'M'}${x},${y}`).join(' ');
   const svg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;touch-action:none" role="img" aria-label="Spojovačka od 1 do 10">
-    <g class="reveal" opacity="0">${shape.art(pathD)}</g>
+    <g class="reveal" opacity="0">${paintedImage(shape.art(pathD), [0, 0, W, H], W / 2, H / 2, W, W, { zone: 12, edge: 2, bristle: 6, grain: 1.4, speck: 0.15, speckRange: 10 })}</g>
     <g class="lines"></g>
     <line class="drag" stroke="${api.ink}" stroke-width="10" stroke-linecap="round" visibility="hidden"/>
-    <circle class="next-ring" r="30" fill="#FFF3D1"/>
-    ${PTS.map(([x, y], i) => `<circle class="dot" data-i="${i}" cx="${x}" cy="${y}" r="13" fill="${i === 0 ? '#3DAA5C' : '#9AA79B'}"/>`).join('')}
+    <circle class="next-ring" r="30" fill="#FBEFD2"/>
+    ${PTS.map(([x, y], i) => `<circle class="dot" data-i="${i}" cx="${x}" cy="${y}" r="13" fill="${i === 0 ? '#6E9B4C' : '#B3A794'}"/>`).join('')}
   </svg>`);
   c.append(svg);
   for (let i = 0; i < PTS.length; i++) {
@@ -163,7 +164,7 @@ export const dots: Activity<Record<string, never>> = (api) => {
   const setRing = () => {
     svg.querySelectorAll('.dot').forEach((d) => {
       const i = Number((d as SVGElement).dataset.i);
-      d.setAttribute('fill', i === 0 ? '#3DAA5C' : i <= k ? api.ink : i === k + 1 ? '#F2B400' : '#9AA79B');
+      d.setAttribute('fill', i === 0 ? '#6E9B4C' : i <= k ? api.ink : i === k + 1 ? '#E2B13F' : '#B3A794');
     });
     const n = PTS[k + 1];
     if (!n) return ring.setAttribute('visibility', 'hidden');

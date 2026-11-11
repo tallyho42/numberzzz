@@ -1,26 +1,19 @@
 import { h, onTap, frag, box, flash } from './dom';
 import { ICONS, STAR_PATH, dotPattern, medalSvg } from '../art/art';
-import { theme, giftsIn } from '../themes';
+import { theme, giftsIn, type Theme, type Gift } from '../themes';
+import { critter, type Critter } from './critter';
 import { needsHint } from './progress';
 
 export const W = 1180;
 export const H = 820;
 
-/** Meadow scene background (sky, sun, clouds, two hills). */
-export function meadow(): SVGSVGElement {
-  return frag(`<svg class="scene" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-    <rect width="${W}" height="${H}" fill="#CFE9F8"/>
-    <circle cx="1040" cy="150" r="70" fill="#FFD95A"/>
-    <ellipse class="cloud" cx="230" cy="170" rx="90" ry="28" fill="#FFFFFF" opacity="0.85"/>
-    <ellipse class="cloud" cx="290" cy="150" rx="60" ry="26" fill="#FFFFFF" opacity="0.85"/>
-    <ellipse class="cloud slow" cx="880" cy="110" rx="70" ry="20" fill="#FFFFFF" opacity="0.7"/>
-    <path d="M0,600 C220,520 420,560 600,610 C800,665 980,560 1180,590 L1180,820 L0,820 Z" fill="#A8D99C"/>
-    <path d="M0,690 C260,640 520,700 760,690 C930,684 1060,650 1180,670 L1180,820 L0,820 Z" fill="#8CCB82"/>
-  </svg>`);
+/** Painted meadow background (paper, sun, two hills). */
+export function meadow(): HTMLElement {
+  return h('div', { class: 'scene meadow', 'aria-hidden': 'true' });
 }
 
 export function roundButton(html: string, label: string, onClick: () => void, size = 76): HTMLButtonElement {
-  return h('button', { class: 'round-btn', 'aria-label': label, style: { width: `${size}px`, height: `${size}px` }, html, onClick });
+  return h('button', { class: 'round-btn blob', 'aria-label': label, style: { width: `${size}px`, height: `${size}px` }, html, onClick });
 }
 
 export interface TopBar {
@@ -58,7 +51,7 @@ export function topBar(onSpeaker: () => void, onSkip: () => void): TopBar {
       stars.innerHTML = '';
       stars.classList.add('steps');
       kinds.forEach((k, i) => stars.append(h('span', { class: `step ${k} ${i < cur ? 'done' : i === cur ? 'now' : ''}` })));
-      stars.append(h('span', { class: 'step-medal', html: medalSvg(44) }));
+      stars.append(h('span', { class: 'step-medal', html: medalSvg(48) }));
     },
     starDone(i) {
       const s = stars.children[i];
@@ -84,21 +77,40 @@ export function horseGuide(left: number, bottom: number, size = 300): HTMLElemen
 }
 
 /**
- * The theme's animal with every present it has earned so far: worn ones drawn on it,
- * the others lying on the grass beside it. Shown on every screen.
+ * The theme's animal, alive, with every present it has earned so far: worn ones on it,
+ * the others lying on the grass at its feet (treats grow from tiny to big). Shown on every screen.
+ * `height` is the animal's height in px.
  */
-export function companion(left: number, bottom: number, size = 260, extraClass = ''): HTMLElement {
-  const t = theme();
+export function companion(left: number, bottom: number, height = 240, extraClass = '', t: Theme = theme()): HTMLElement {
   const got = t.gifts.slice(0, giftsIn(t));
-  const el = h('div', { class: `companion guide ${extraClass}`, style: { position: 'absolute', left: `${left}px`, bottom: `${bottom}px`, width: `${size}px`, height: `${size}px` } });
-  el.append(h('img', { src: t.head, alt: t.animal.Nom, style: { position: 'absolute', inset: '0', width: '100%', height: '100%' } }));
-  const worn = got.map((g) => g.worn ?? '').join('');
-  if (worn) el.append(frag(`<svg width="${size}" height="${size}" viewBox="0 0 240 240" style="position:absolute;inset:0;overflow:visible" aria-hidden="true">${worn}</svg>`));
+  const wornOn = (on: 'head' | 'body') => got.filter((g) => g.worn?.on === on).map((g) => g.worn!.svg).join('');
+  const c = critter(t.critter, height, { head: wornOn('head'), body: wornOn('body') });
+  const width = parseFloat(c.el.style.width);
+  const el = h('div', { class: `companion ${extraClass}`, style: { position: 'absolute', left: `${left}px`, bottom: `${bottom}px`, width: `${width}px`, height: `${height}px` } });
+  el.append(c.el);
+  (el as HTMLElement & { critter?: Critter }).critter = c;
+  // Floor presents in two rows, small ones in front, big ones behind: at the feet in the corner,
+  // spread on the grass beside the animal on the big screens.
   const floor = got.filter((g) => !g.worn);
-  const gs = Math.round(size * 0.2);
-  floor.forEach((g, i) => {
-    el.append(h('div', { class: 'companion-gift', style: { left: `${Math.round(size * 0.55 + i * size * 0.19)}px`, top: `${Math.round(size * 0.78)}px`, width: `${gs}px`, height: `${gs}px` }, html: g.icon(gs) }));
-  });
+  const side = height >= 360;
+  const base = height * (side ? 0.25 : 0.3);
+  const front = floor.slice(0, Math.ceil(floor.length / 2));
+  const back = floor.slice(front.length);
+  const row = (list: Gift[], y: number, x0: number) => {
+    let x = x0;
+    for (const g of list) {
+      const s = Math.round(base * (g.scale ?? 0.8));
+      el.append(h('div', { class: 'companion-gift', style: { left: `${Math.round(x)}px`, top: `${Math.round(y - s)}px`, width: `${s}px`, height: `${s}px` }, html: g.icon(s) }));
+      x += s * (side ? 0.95 : 0.78);
+    }
+  };
+  if (side) {
+    row(back, height * 0.95, width * 0.78);
+    row(front, height * 1.02, width * 0.7);
+  } else {
+    row(back, height * 0.97, width * 0.55);
+    row(front, height * 1.04, width * 0.45);
+  }
   return el;
 }
 
@@ -108,7 +120,7 @@ export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void
   const fs = Math.round(size * (n >= 10 ? 0.5 : 0.66) * (hint ? 0.8 : 1));
   const b = h('button', { class: `num-btn ${hint ? 'hinted' : ''}`, 'aria-label': `Číslo ${n}`, style: { width: `${size}px`, height: `${size}px`, fontSize: `${fs}px` } }, h('span', {}, String(n)));
   if (hint) {
-    const dots = (s: number) => dotPattern(n, s).replaceAll('#F28C28', '#F2B400');
+    const dots = (s: number) => dotPattern(n, s).replaceAll('#E07B2C', '#E2B13F');
     if (n <= 6) {
       const hs = Math.round(size * 0.34);
       b.append(frag(`<svg class="dot-hint" width="${hs}" height="${hs}" viewBox="0 0 ${hs} ${hs}" aria-hidden="true">${dots(hs)}</svg>`));
@@ -144,10 +156,10 @@ export function rotateHint(): HTMLElement {
     { class: 'rotate-hint', role: 'alert', 'aria-label': 'Otoč tablet na šířku' },
     h('img', { src: theme().head, alt: '', class: 'rotate-horse' }),
     frag(`<svg class="rotate-tablet" width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
-      <rect x="70" y="30" width="80" height="120" rx="12" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="6"/>
-      <circle cx="110" cy="138" r="4" fill="#2E6B3A"/>
-      <path d="M40,170 A80,80 0 0 0 180,170" fill="none" stroke="#3DAA5C" stroke-width="7" stroke-linecap="round"/>
-      <path d="M180,170 l-4,-22 M180,170 l-20,-8" stroke="#3DAA5C" stroke-width="7" stroke-linecap="round"/>
+      <rect x="70" y="30" width="80" height="120" rx="12" fill="#FFFFFF" stroke="#20150E" stroke-width="6"/>
+      <circle cx="110" cy="138" r="4" fill="#20150E"/>
+      <path d="M40,170 A80,80 0 0 0 180,170" fill="none" stroke="#8FAA66" stroke-width="7" stroke-linecap="round"/>
+      <path d="M180,170 l-4,-22 M180,170 l-20,-8" stroke="#8FAA66" stroke-width="7" stroke-linecap="round"/>
     </svg>`),
   );
 }
@@ -169,7 +181,7 @@ export function goFullscreen() {
 
 /** A soft confetti burst over the stage. */
 export function confetti(parent: HTMLElement, count = 40) {
-  const cols = ['#E2558C', '#4A8FE0', '#FFCC33', '#3DAA5C', '#F28C28'];
+  const cols = ['#D9617F', '#7FA7C4', '#E2B13F', '#8FAA66', '#B07A3F'];
   for (let i = 0; i < count; i++) {
     const c = h('div', {
       class: 'confetti',

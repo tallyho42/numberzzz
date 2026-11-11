@@ -3,7 +3,8 @@ import { h, onTap, frag, box, choices, flash, wait, randInt, pick, shuffle } fro
 import { card, numberButton } from '../core/ui';
 import { plural, numWord } from '../core/czech';
 import { recordResult } from '../core/progress';
-import { itemGroup, ITEM_NAMES, HORSE_FULL, BARN_SVG, dotPattern, type ItemKind } from '../art/art';
+import { itemGroup, ITEM_NAMES, dotPattern, type ItemKind } from '../art/art';
+import { theme } from '../themes';
 import { soft } from '../core/sound';
 import type { P } from '../core/geometry';
 
@@ -75,7 +76,7 @@ export async function countAloud(api: ActivityApi, parent: HTMLElement, pts: P[]
 }
 
 export const count: Activity<{ n: number }> = (api, { n }) => {
-  const kind: ItemKind = pick(['carrot', 'apple', 'horseshoe']);
+  const kind: ItemKind = pick(theme().items);
   const c = card(240, 140, 600, 560);
   const size = n <= 5 ? 130 : 100;
   const pts = placeItems(n, 600, 560, size);
@@ -107,9 +108,12 @@ function meadowScene(left: number, ponies: number[], doorOpen: boolean, question
   const c = h('div', { class: 'scene-card', style: box(left, 128, 490, 430) });
   c.append(
     frag(`<svg width="474" height="414" viewBox="0 0 474 414" style="position:absolute;inset:0" role="img" aria-label="${label}">
-      <path d="M0,250 C120,232 300,244 474,236 L474,414 L0,414 Z" fill="#B6E0AA"/>${BARN_SVG(doorOpen, question)}</svg>`),
+      <path d="M0,250 C120,232 300,244 474,236 L474,414 L0,414 Z" fill="#DCE3C4"/>
+      <image href="${theme().home.art}" x="300" y="110" width="190" height="177"/>
+      ${question ? `<circle cx="395" cy="250" r="26" fill="#FFFFFF"/><text x="395" y="252" text-anchor="middle" dominant-baseline="central" font-family="Andika, system-ui, sans-serif" font-weight="700" font-size="40" fill="#B4513A">?</text>` : ''}</svg>`),
   );
-  for (const i of ponies) c.append(h('img', { src: HORSE_FULL, alt: '', style: { ...box(SPOTS[i].x, SPOTS[i].y, 130, 114) } }));
+  void doorOpen;
+  for (const i of ponies) c.append(h('img', { src: theme().full, alt: '', style: { ...box(SPOTS[i].x + 22, SPOTS[i].y - 30, 92, 130) } }));
   return c;
 }
 
@@ -118,9 +122,11 @@ export const hide: Activity<{ total: number; hidden: number }> = (api, { total, 
   const all = shuffle([0, 1, 2, 3, 4]).slice(0, total).sort();
   // The horses nearest the stable are the ones that walk in.
   const stay = all.slice().sort((a, b) => SPOTS[a].x + SPOTS[a].y * 0.2 - (SPOTS[b].x + SPOTS[b].y * 0.2)).slice(0, total - hidden);
-  api.layer.append(meadowScene(50, all, true, false, `Na louce je ${total} koníků`));
-  api.layer.append(frag(`<svg width="100" height="70" viewBox="0 0 100 70" style="position:absolute;left:540px;top:308px" aria-hidden="true"><path d="M14,35 H78 M60,17 L80,35 L60,53" fill="none" stroke="#2E6B3A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>`));
-  api.layer.append(meadowScene(640, stay, false, true, `Na louce zůstali ${total - hidden} koníci`));
+  const t = theme();
+  const forms = t.animal.plural;
+  api.layer.append(meadowScene(50, all, true, false, `Na louce je ${total} ${forms.many}`));
+  api.layer.append(frag(`<svg width="100" height="70" viewBox="0 0 100 70" style="position:absolute;left:540px;top:308px" aria-hidden="true"><path d="M14,35 H78 M60,17 L80,35 L60,53" fill="none" stroke="#20150E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>`));
+  api.layer.append(meadowScene(640, stay, false, true, `Na louce zůstalo ${total - hidden} ${plural(total - hidden, forms)}`));
   answerButtons(api, hidden, {
     left: 590 - (3 * 136 + 2 * 40) / 2,
     top: 600,
@@ -133,7 +139,7 @@ export const hide: Activity<{ total: number; hidden: number }> = (api, { total, 
       api.success();
     },
   });
-  const forms = { one: 'koník', few: 'koníci', many: 'koníků' };
-  const first = total >= 2 && total <= 4 ? `Na louce se pásli ${total} ${plural(total, forms)}.` : `Na louce se páslo ${total} ${plural(total, forms)}.`;
-  void api.instruct(`${first} Pak někteří odešli do stáje. Kolik se jich schovalo?`);
+  const few = total >= 2 && total <= 4;
+  const verb = t.id === 'dog' ? (few ? 'si hráli' : 'si hrálo') : few ? 'se pásli' : 'se páslo';
+  void api.instruct(`Na louce ${verb} ${total} ${plural(total, forms)}. Pak někteří odešli ${t.home.acc}. Kolik se jich schovalo?`);
 };

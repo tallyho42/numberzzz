@@ -1,3 +1,4 @@
+import { theme } from '../themes';
 import type { Activity } from './types';
 import { frag, shuffle, pick } from '../core/dom';
 import { card } from '../core/ui';
@@ -16,7 +17,7 @@ const RA = 742; // right anchor x
 
 function representation(n: number, kind: 'items' | 'dice', cy: number, item: ItemKind): string {
   if (kind === 'dice') {
-    return `<g transform="translate(125,${cy - 55})"><rect width="110" height="110" rx="20" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="4"/>${dotPattern(n, 110).replaceAll('#F28C28', '#2E6B3A')}</g>`;
+    return `<g transform="translate(125,${cy - 55})"><rect width="110" height="110" rx="20" fill="#FFFFFF" stroke="#20150E" stroke-width="4"/>${dotPattern(n, 110).replaceAll('#E07B2C', '#20150E')}</g>`;
   }
   const pts = placeItems(n, 220, 130, n > 6 ? 46 : 62);
   return pts.map((p) => itemGroup(item, 70 + p.x, cy - 65 + p.y, n > 6 ? 1.05 : 1.35)).join('');
@@ -27,16 +28,16 @@ function tenFrame(n: number, cy: number): string {
   const cell = 40;
   const x0 = 80;
   const y0 = cy - 40;
-  let s = `<rect x="${x0}" y="${y0}" width="200" height="80" rx="6" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="3"/>`;
-  for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + 80}" stroke="#2E6B3A" stroke-width="2"/>`;
-  s += `<path d="M${x0},${y0 + 40} H${x0 + 200}" stroke="#2E6B3A" stroke-width="2"/>`;
-  for (let i = 0; i < n; i++) s += `<circle cx="${x0 + (i % 5) * cell + 20}" cy="${y0 + Math.floor(i / 5) * cell + 20}" r="13" fill="#F28C28"/>`;
+  let s = `<rect x="${x0}" y="${y0}" width="200" height="80" rx="6" fill="#FFFFFF" stroke="#20150E" stroke-width="3"/>`;
+  for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + 80}" stroke="#20150E" stroke-width="2"/>`;
+  s += `<path d="M${x0},${y0 + 40} H${x0 + 200}" stroke="#20150E" stroke-width="2"/>`;
+  for (let i = 0; i < n; i++) s += `<circle cx="${x0 + (i % 5) * cell + 20}" cy="${y0 + Math.floor(i / 5) * cell + 20}" r="13" fill="#E07B2C"/>`;
   return s;
 }
 
 /** Match groups (items, dice, ten-frame) on the left with shuffled numbers on the right by drawing a line. */
 export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
-  const item: ItemKind = pick(['carrot', 'apple', 'horseshoe']);
+  const item: ItemKind = pick(theme().items);
   const left = nums.slice(0, 3);
   let right = shuffle(left);
   for (let i = 0; i < 5 && right.every((v, j) => v === left[j]); i++) right = shuffle(left);
@@ -45,15 +46,15 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
   const c = card(90, 140, W, H);
   // Scaled down from the right so the animal in the bottom-left corner stays visible.
   Object.assign(c.style, { transform: 'scale(0.9)', transformOrigin: 'right top' });
-  const tiles = ROWS.map((cy) => `<rect x="60" y="${cy - 75}" width="240" height="150" rx="28" fill="#F4FAF2" stroke="#DCEBD8" stroke-width="2"/><rect x="760" y="${cy - 75}" width="160" height="150" rx="28" fill="#F4FAF2" stroke="#DCEBD8" stroke-width="2"/>`).join('');
+  const tiles = ROWS.map((cy) => `<rect x="60" y="${cy - 75}" width="240" height="150" rx="28" fill="#FBF7EF" stroke="#EDE4D3" stroke-width="2"/><rect x="760" y="${cy - 75}" width="160" height="150" rx="28" fill="#FBF7EF" stroke="#EDE4D3" stroke-width="2"/>`).join('');
   const reps = left
     .map((n, i) => {
       const k = kinds[i];
       return k === 'frame' ? tenFrame(n, ROWS[i]) : representation(n, k, ROWS[i], item);
     })
     .join('');
-  const digits = right.map((n, i) => `<text x="840" y="${ROWS[i] + 38}" text-anchor="middle" font-family="Andika, system-ui, sans-serif" font-weight="700" font-size="110" fill="#2E6B3A">${n}</text>`).join('');
-  const anchors = ROWS.map((cy, i) => `<circle class="anchor-l" data-i="${i}" cx="${LA}" cy="${cy}" r="14" fill="#3DAA5C"/><circle class="anchor-r" data-i="${i}" cx="${RA}" cy="${cy}" r="14" fill="#FFFFFF" stroke="#9CCB94" stroke-width="4"/>`).join('');
+  const digits = right.map((n, i) => `<text x="840" y="${ROWS[i] + 38}" text-anchor="middle" font-family="Andika, system-ui, sans-serif" font-weight="700" font-size="110" fill="#20150E">${n}</text>`).join('');
+  const anchors = ROWS.map((cy, i) => `<circle class="anchor-l" data-i="${i}" cx="${LA}" cy="${cy}" r="14" fill="#6E9B4C"/><circle class="anchor-r" data-i="${i}" cx="${RA}" cy="${cy}" r="14" fill="#FFFFFF" stroke="#9CCB94" stroke-width="4"/>`).join('');
   const svg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;touch-action:none" role="img" aria-label="Spoj skupiny se správným číslem">
     ${tiles}${reps}${digits}<g class="lines"></g><line class="drag" stroke="${api.ink}" stroke-width="10" stroke-linecap="round" visibility="hidden"/>${anchors}</svg>`);
   c.append(svg);
@@ -113,7 +114,7 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
       pop();
       doneL.add(li);
       doneR.add(ri);
-      svg.querySelector(`.anchor-r[data-i="${ri}"]`)?.setAttribute('fill', '#3DAA5C');
+      svg.querySelector(`.anchor-r[data-i="${ri}"]`)?.setAttribute('fill', '#6E9B4C');
       if (doneL.size === 3) {
         left.forEach((n) => recordResult('other', n, true));
         api.success();
