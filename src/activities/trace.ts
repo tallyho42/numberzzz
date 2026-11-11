@@ -1,11 +1,11 @@
 import type { Activity } from './types';
-import { frag, wait, reducedMotion, pick } from '../core/dom';
+import { frag, wait, reducedMotion } from '../core/dom';
 import { card, horseGuide } from '../core/ui';
 import { Ink, type Stroke } from '../core/ink';
 import { digitStrokes, digitPathMarkup, digitWidth, FRAME_H } from '../core/digits';
 import { dist, pathLength, type P } from '../core/geometry';
 import { traceTolerance, recordResult, logStrokes } from '../core/progress';
-import { digitNoun, RETRY } from '../core/czech';
+import { digitNoun, retry } from '../core/czech';
 
 const S = 3; // px per frame unit
 
@@ -167,7 +167,7 @@ export const trace: Activity<{ digit: number; support: 'full' | 'start' }> = (ap
     } else if (!startOk) {
       await api.say('Začni u zelené tečky.');
     } else {
-      await api.say(pick(RETRY));
+      await api.say(retry());
     }
     busy = false;
   }

@@ -4,7 +4,7 @@ import { say, stop, unlockVoice } from './core/voice';
 import { chime, fanfare, unlockSound } from './core/sound';
 import { store, save, newSessionId, markSeen } from './core/progress';
 import { planSession, sampleScreen, ACTIVITY_LABELS, type Station } from './core/session';
-import { PRAISE, digitNoun } from './core/czech';
+import { praise, digitNoun, withName, hello } from './core/czech';
 import { ICONS, HORSE_HEAD, STABLE_ITEMS, medalSvg } from './art/art';
 import type { ActivityApi, ScreenSpec } from './activities/types';
 import { trace } from './activities/trace';
@@ -78,7 +78,7 @@ function showStable() {
   reset();
   stableScreen(stage, home);
   stage.append(parentCorner(openParent));
-  void say(store.medals ? 'Tohle je koníkova stáj. Za každou medaili dostane koník dárek.' : 'Tohle je koníkova stáj. Za medaile tu budou dárky pro koníka.');
+  void say(`${hello('Ahoj')} ${store.medals ? 'Tohle je koníkova stáj. Za každou tvoji medaili dostane koník dárek.' : 'Tohle je koníkova stáj. Za medaile tu budou dárky pro koníka.'}`);
 }
 
 const ACTIVITIES: Record<ScreenSpec['type'], (api: ActivityApi, spec: any) => void | (() => void)> = {
@@ -117,7 +117,7 @@ function runScreen(spec: ScreenSpec, starIndex: number, starTotal: number, my: n
       if (ok) {
         chime();
         bar.starDone(starIndex);
-        await say(pick(PRAISE));
+        await say(praise());
         await wait(500);
       }
       cleanup?.();
@@ -166,12 +166,12 @@ async function stationIntro(st: Station, index: number, total: number, my: numbe
   }
   stage.append(parentCorner(openParent));
   const text = st.intro && st.digit != null && index > 0
-    ? `Další zastávka! Naučíme se psát ${digitNoun(st.digit)}.`
+    ? `${withName('Další zastávka')} Naučíme se psát ${digitNoun(st.digit)}.`
     : st.intro && st.digit != null
     ? `Dnes se naučíme psát ${digitNoun(st.digit)}. A budeme počítat až do ${store.settings.countMax === 5 ? 'pěti' : 'deseti'}.`
     : st.digit != null
-      ? `Další zastávka! Napíšeme si ${digitNoun(st.digit)} a zase budeme počítat.`
-      : 'Další zastávka! Teď si pohrajeme s čísly.';
+      ? `${withName('Další zastávka')} Napíšeme si ${digitNoun(st.digit)} a zase budeme počítat.`
+      : `${withName('Další zastávka')} Teď si pohrajeme s čísly.`;
   await say(text);
   if (my !== nav) return;
   await wait(600);
@@ -182,7 +182,7 @@ async function sticker(index: number, total: number, my: number) {
   const pop = h('div', { class: 'sticker-pop', html: `<svg width="220" height="220" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#FFFFFF" stroke="#E0A800" stroke-width="0.8"/><path d="M12 4.5l2.3 4.8 5.2.7-3.8 3.6.9 5.2L12 16.3l-4.6 2.5.9-5.2-3.8-3.6 5.2-.7z" fill="#FFCC33" stroke="#E0A800" stroke-width="0.6" stroke-linejoin="round"/></svg>` });
   stage.append(pop);
   fanfare();
-  await say(index + 1 < total ? 'Zastávka hotová! Tady máš samolepku.' : 'Poslední zastávka hotová!');
+  await say(index + 1 < total ? `${withName('Zastávka hotová', '!', true)} Tady máš samolepku.` : withName('Poslední zastávka hotová', '!', true));
   await wait(400);
 }
 
@@ -190,7 +190,7 @@ async function runSession() {
   const my = reset();
   newSessionId();
   const plan = planSession();
-  await say('Ahoj! Jdeme spolu na výlet za čísly.');
+  await say(`${hello('Ahoj')} Jdeme spolu na výlet za čísly.`);
   for (let si = 0; si < plan.length; si++) {
     if (my !== nav) return;
     const st = plan[si];
@@ -239,8 +239,12 @@ function medal() {
   const stableBtn = roundButton(ICONS.barn(64), 'Koníkova stáj', showStable, 120);
   Object.assign(stableBtn.style, { position: 'absolute', left: '60px', bottom: '50px' });
   stage.append(homeBtn, stableBtn, parentCorner(openParent));
+  // The present she just earned, shown as a picture (it is also in the stable from now on).
+  if (item && store.medals <= STABLE_ITEMS.length) {
+    stage.append(h('div', { class: 'gift-pop pop', role: 'img', 'aria-label': item.name, html: `<svg width="150" height="150" viewBox="0 0 24 24" aria-hidden="true"><path d="${item.d}" fill="${item.fill}" stroke="${item.stroke}" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/></svg>` }));
+  }
   void (async () => {
-    await say('Hotovo! Zasloužíš si medaili.');
+    await say(`${withName('Hotovo', '!', true)} Zasloužíš si medaili.`);
     if (my !== nav) return;
     if (item && store.medals <= STABLE_ITEMS.length) await say(`Koník dostal ${item.name}. Podívej se do stáje.`);
   })();

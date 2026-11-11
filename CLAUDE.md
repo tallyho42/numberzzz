@@ -26,7 +26,8 @@ Zvolen směr „Louka“ (nebe, kopce, bílé karty se stínem, koník jako prů
 ## Aktivity
 Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očekávané číslice), dokresli N věcí, kolik jich je, spojování skupin s čísly, spojovačka 1–10, najdi a spočítej, tajné kouzlo (klepáním vybarvit políčka s daným číslem), oprav koníka (koník udělá chybu, Meda ji opraví), bleskový pohled (rozpoznat počet teček bez počítání), kolik se schovalo (rozklad čísla).
 - Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
-- Odměna: medaile odemykají věci do koníkovy stáje (sbírka, ne nekonečná hra).
+- Odměna: medaile odemykají věci do koníkovy stáje (sbírka, ne nekonečná hra); každý dárek je vždy vidět na obrázku stáje (na koníkovi, na stěně nebo v korýtku) a při zisku medaile.
+- Hlas oslovuje dítě jménem (oslovení v 5. pádě v rodičovském nastavení, výchozí „Medo“).
 
 ## Session
 Psaní a počítání jsou oddělené: psaní = jedno nové číslo + 1–2 k opakování (bez opakování a ≥30 min přibude druhé nové); počítání/poznávání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje. Každá zastávka (~4 obrazovky) procvičuje psaní jen jednoho čísla (obtahování/psaní/oprava), mezi tím počítání. Psaní a počítání se střídají, stejná aktivita nikdy dvakrát za sebou, délka se plní podle odhadu minut na aktivitu, zastávky po ~4 obrazovkách. Začít snadno, na konci znovu napsat nové číslo a skončit hrou. Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.

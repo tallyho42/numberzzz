@@ -1,12 +1,12 @@
 import type { Activity, ActivityApi } from './types';
-import { h, frag, wait, reducedMotion, pick } from '../core/dom';
+import { h, frag, wait, reducedMotion } from '../core/dom';
 import { card, horseGuide } from '../core/ui';
 import { Ink } from '../core/ink';
 import { digitStrokes, digitPathMarkup, digitWidth, FRAME_H } from '../core/digits';
 import { pathLength } from '../core/geometry';
 import { judgeWriting } from '../core/recognizer';
 import { writeLeniency, recordResult, logStrokes } from '../core/progress';
-import { digitNoun, RETRY } from '../core/czech';
+import { digitNoun, retry } from '../core/czech';
 import { ICONS, HORSE_HEAD } from '../art/art';
 
 /** Animate the correct digit inside an SVG group (used as a hint). */
@@ -88,7 +88,7 @@ function writingPad(api: ActivityApi, digit: number, host: HTMLElement, cardW: n
       await animateDigit(demoG, digit);
       hint.innerHTML = digitPathMarkup(digit, 'fill="none" stroke="#DDE3DC" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 6.5"');
     } else {
-      await api.say(pick(RETRY));
+      await api.say(retry());
       await Promise.all(ink.strokes.map((s) => ink.fade(s)));
     }
     ink.clear();

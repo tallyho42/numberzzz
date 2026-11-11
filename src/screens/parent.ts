@@ -19,6 +19,10 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
 
     const length = h('section', {}, h('h2', {}, 'Délka hraní'), seg([15, 30, 45] as (15 | 30 | 45)[], s.minutes, (v) => `${v} min`, (v) => (s.minutes = v)), h('h2', {}, 'Počítání do'), seg([5, 10], s.countMax, (v) => String(v), (v) => (s.countMax = v)));
 
+    const nameIn = h('input', { type: 'text', value: s.name, placeholder: 'např. Medo', id: 'childname', autocomplete: 'off', class: 'p-text' }) as HTMLInputElement;
+    nameIn.addEventListener('change', () => { s.name = nameIn.value.trim(); save(); });
+    const nameSec = h('section', {}, h('label', { for: 'childname' }, 'Oslovení (5. pád, hlas ho říká)'), nameIn);
+
     const tol = h('input', { type: 'range', min: '1', max: '5', value: String(s.tolerance), id: 'tol' }) as HTMLInputElement;
     tol.addEventListener('change', () => { s.tolerance = Number(tol.value); save(); render(); });
     const strict = h('section', {}, h('label', { for: 'tol' }, `Přísnost vyhodnocení: ${s.tolerance} / 5`), tol, h('div', { class: 'p-ends' }, h('span', {}, 'Mírná'), h('span', {}, 'Přísná')));
@@ -68,7 +72,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
     const data = h('section', {}, h('h2', {}, 'Data'), h('div', { class: 'p-row' }, exportBtn, resetBtn),
       h('p', { class: 'p-note' }, hasCzechVoice() ? 'Český hlas: nalezen.' : 'Český hlas nenalezen – v iPadu: Nastavení › Zpřístupnění › Předčítání › Hlasy › Čeština.'));
 
-    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, data)));
+    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, nameSec, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, data)));
   };
   render();
 }

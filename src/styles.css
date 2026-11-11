@@ -413,6 +413,7 @@ button {
 .parent section { background: #FFFFFF; border-radius: 22px; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
 .parent h2, .parent label { margin: 0; font-size: 17px; font-weight: 700; color: #4A6150; }
 .parent input[type=range] { width: 100%; accent-color: var(--green); height: 30px; }
+.parent .p-text { height: 50px; border-radius: 14px; border: 2px solid #DCEBD8; background: #FFFFFF; font-size: 18px; padding: 0 14px; font-family: inherit; -webkit-user-select: text; user-select: text; }
 .p-ends { display: flex; justify-content: space-between; font-size: 14px; color: #4A6150; }
 .p-note { margin: 0; font-size: 14px; color: #4A6150; }
 .seg { display: flex; background: #EEF4EC; border-radius: 14px; padding: 4px; }
@@ -476,4 +477,21 @@ button {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .confetti { display: none; }
+}
+
+/* Present earned with a medal */
+.gift-pop {
+  position: absolute;
+  left: 830px;
+  top: 300px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 8px 0 rgba(46, 107, 58, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation-delay: 0.6s;
+  animation-fill-mode: backwards;
 }

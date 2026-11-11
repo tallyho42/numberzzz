@@ -8,6 +8,8 @@ export interface Settings {
   ink: string;
   /** Counting activities use numbers 1..countMax. */
   countMax: number;
+  /** How the voice addresses the child (Czech vocative, e.g. "Medo"); empty = no name. */
+  name: string;
 }
 
 export interface DigitStat {
@@ -42,7 +44,7 @@ const LOG_KEY = 'numberzzz.v1.log';
 export const DIGIT_ORDER = [1, 7, 4, 0, 6, 9, 2, 3, 5, 8, 10];
 
 const defaults = (): Store => ({
-  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C', countMax: 10 },
+  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C', countMax: 10, name: 'Medo' },
   stats: {},
   medals: 0,
   sessions: 0,
