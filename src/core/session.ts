@@ -3,80 +3,160 @@ import { store, stat, strength, DIGIT_ORDER } from './progress';
 import { pick, randInt, shuffle } from './dom';
 
 export interface Station {
-  kind: 'new' | 'review' | 'mix';
+  /** Digit being written in this stop (shown on the stop card), if any. */
   digit: number | null;
+  /** True for the stop where today's new digit is introduced. */
+  intro: boolean;
   screens: ScreenSpec[];
 }
 
 const FIXABLE = [2, 3, 4, 5, 6, 7, 9];
 
-function newStation(d: number): Station {
-  const s: ScreenSpec[] = [];
-  if (d >= 1) s.push({ type: 'count', n: d });
-  s.push({ type: 'trace', digit: d, support: 'full' });
-  if (d >= 1) s.push({ type: 'draw', n: d });
-  s.push({ type: 'trace', digit: d, support: 'start' });
-  s.push({ type: 'write', digit: d });
-  s.push({ type: 'color', digit: d });
-  return { kind: 'new', digit: d, screens: s };
+/** Rough minutes per activity, used to fill the session length. */
+const MINUTES: Record<ScreenSpec['type'], number> = {
+  trace: 1,
+  write: 1,
+  fix: 1.5,
+  count: 1,
+  flash: 1,
+  hide: 1.5,
+  find: 2,
+  match: 2,
+  draw: 1.5,
+  color: 3,
+  dots: 2,
+};
+
+/** A shuffled bag of numbers: every number comes up once before any repeats, never twice in a row. */
+class NumberBag {
+  private bag: number[] = [];
+  private last = -1;
+  constructor(private readonly nums: number[]) {}
+  next(filter: (n: number) => boolean = () => true): number {
+    const allowed = this.nums.filter(filter);
+    if (!allowed.length) return pick(this.nums);
+    for (let tries = 0; tries < 3; tries++) {
+      if (!this.bag.some(filter)) this.bag = shuffle(this.nums);
+      const i = this.bag.findIndex((n) => filter(n) && n !== this.last);
+      if (i >= 0) {
+        const n = this.bag.splice(i, 1)[0];
+        this.last = n;
+        return n;
+      }
+      this.bag = [];
+    }
+    return pick(allowed);
+  }
 }
 
-function reviewStation(d: number, pool: number[]): Station {
-  const s: ScreenSpec[] = [];
-  if (d >= 1) s.push(Math.random() < 0.5 ? { type: 'count', n: d } : { type: 'flash', n: d });
-  s.push({ type: 'trace', digit: d, support: 'start' });
-  s.push({ type: 'write', digit: d });
-  if (d >= 1 && d <= 8) s.push({ type: 'find', n: d });
-  else s.push({ type: 'color', digit: d });
-  if (d >= 1 && d <= 4) s.push({ type: 'hide', hidden: d, total: d + randInt(1, 5 - d) });
-  else s.push({ type: 'match', nums: matchNums(d, pool) });
-  return { kind: 'review', digit: d, screens: s };
-}
+type CountType = 'count' | 'flash' | 'find' | 'match' | 'draw' | 'hide';
 
-function matchNums(must: number | null, pool: number[]): number[] {
-  const set = new Set<number>();
-  if (must != null) set.add(must);
-  for (const n of shuffle(pool)) if (set.size < 3) set.add(n);
-  for (const n of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) if (set.size < 3) set.add(n);
-  return shuffle([...set]);
-}
-
-function mixStation(pool: number[]): Station {
-  const counting = pool.filter((n) => n >= 1);
-  const any = counting.length ? counting : [2, 3, 4, 5];
-  const s: ScreenSpec[] = [
-    { type: 'match', nums: matchNums(null, pool) },
-    { type: 'find', n: pick(any.filter((n) => n <= 8).length ? any.filter((n) => n <= 8) : [3, 4, 5]) },
-    { type: 'dots' },
-  ];
-  const small = any.filter((n) => n <= 4);
-  s.push(small.length && Math.random() < 0.5 ? (() => { const h = pick(small); return { type: 'hide', hidden: h, total: h + randInt(1, 5 - h) } as ScreenSpec; })() : { type: 'flash', n: pick(any) });
-  const fixable = pool.filter((n) => FIXABLE.includes(n) && stat(n).level >= 2);
-  if (fixable.length) s.push({ type: 'fix', digit: pick(fixable) });
-  return { kind: 'mix', digit: null, screens: s };
-}
-
-/** Build today's session following the plan in CLAUDE.md (stations of ~7 minutes). */
+/**
+ * Today's session (see CLAUDE.md):
+ * - writing focuses on one new digit plus 1–2 review digits,
+ * - counting/recognition uses the whole range 1–countMax, every number once before repeats,
+ * - writing and counting alternate, the same activity never comes twice in a row,
+ * - the session is filled up to the chosen length using estimated minutes per activity,
+ * - start easy, recall the new digit near the end, finish with something fun.
+ */
 export function planSession(): Station[] {
   const enabled = DIGIT_ORDER.filter((d) => store.settings.digits.includes(d));
   const order = enabled.length ? enabled : DIGIT_ORDER;
-  const current = order.find((d) => stat(d).level < 3) ?? order[order.length - 1];
-  const known = order.filter((d) => d !== current && stat(d).level >= 1);
-  const byWeak = known.slice().sort((a, b) => strength(a) - strength(b));
-  const byStrong = byWeak.slice().reverse();
-  const pool = [...known, current];
-  const count = store.settings.minutes === 45 ? 6 : store.settings.minutes === 30 ? 4 : 2;
+  const current = order.find((d) => stat(d).level < 3) ?? order.slice().sort((a, b) => strength(a) - strength(b))[0];
+  const reviews = order
+    .filter((d) => d !== current && stat(d).level >= 1)
+    .sort((a, b) => strength(a) - strength(b))
+    .slice(0, 2);
+  const fixable = [current, ...reviews].filter((d) => FIXABLE.includes(d) && stat(d).level >= 2);
+  const countMax = store.settings.countMax;
+  const bag = new NumberBag(Array.from({ length: countMax }, (_, i) => i + 1));
+  const budget = store.settings.minutes;
 
-  const review = (d: number | undefined) => reviewStation(d ?? current, pool);
-  const plan: Station[] = [];
-  if (count === 2) {
-    plan.push(newStation(current), known.length ? mixStation(pool) : review(current));
-  } else if (count === 4) {
-    plan.push(review(byStrong[0]), newStation(current), review(byWeak[0]), mixStation(pool));
-  } else {
-    plan.push(review(byStrong[0]), newStation(current), review(byWeak[0]), mixStation(pool), review(byWeak[1] ?? byWeak[0]), mixStation(pool));
+  // Nothing to review yet and a longer session: bring in the next digit too, so it isn't one digit all along.
+  const second = !reviews.length && budget >= 30 ? order.find((d) => d !== current && stat(d).level < 3) : undefined;
+  const introduce = (d: number): ScreenSpec[] => [
+    { type: 'trace', digit: d, support: 'full' },
+    { type: 'trace', digit: d, support: 'start' },
+    { type: 'write', digit: d },
+  ];
+  // Writing queue: introduce the new digit(s), then cycle new/review writing.
+  const intro: ScreenSpec[] = [...introduce(current), ...(second != null ? introduce(second) : [])];
+  const cycle: ScreenSpec[] = [];
+  for (const r of reviews) cycle.push({ type: 'write', digit: r });
+  cycle.push({ type: 'write', digit: current });
+  if (second != null) cycle.push({ type: 'write', digit: second });
+  if (fixable.length) cycle.push({ type: 'fix', digit: pick(fixable) });
+  cycle.push({ type: 'trace', digit: current, support: 'start' });
+  if (second != null) cycle.push({ type: 'trace', digit: second, support: 'start' });
+  let wi = 0;
+  const nextWriting = (): ScreenSpec => (wi < intro.length ? intro[wi++] : cycle[(wi++ - intro.length) % cycle.length]);
+
+  // Counting queue: rotate activity types, numbers from the bag.
+  let typeBag: CountType[] = [];
+  let lastType: string = '';
+  const nextCountType = (): CountType => {
+    if (!typeBag.length) typeBag = shuffle(['count', 'flash', 'find', 'match', 'draw', 'hide'] as CountType[]);
+    let i = typeBag.findIndex((t) => t !== lastType);
+    if (i < 0) i = 0;
+    const t = typeBag.splice(i, 1)[0];
+    lastType = t;
+    return t;
+  };
+  const counting = (t: CountType): ScreenSpec => {
+    switch (t) {
+      case 'count': return { type: 'count', n: bag.next() };
+      case 'flash': return { type: 'flash', n: bag.next() };
+      case 'find': return { type: 'find', n: bag.next((n) => n <= 8) };
+      case 'draw': return { type: 'draw', n: bag.next() };
+      case 'hide': {
+        const hidden = bag.next((n) => n <= 4);
+        return { type: 'hide', hidden, total: Math.min(5, hidden + randInt(1, 3)) };
+      }
+      case 'match': {
+        const nums = new Set<number>();
+        while (nums.size < 3) nums.add(bag.next((n) => !nums.has(n)));
+        return { type: 'match', nums: [...nums] };
+      }
+    }
+  };
+
+  const screens: ScreenSpec[] = [];
+  let used = 0;
+  const push = (s: ScreenSpec) => {
+    screens.push(s);
+    used += MINUTES[s.type];
+  };
+
+  // Ending: recall the new digit, then something fun.
+  const ending: ScreenSpec[] = [{ type: 'write', digit: current }, { type: 'dots' }];
+  const endMinutes = ending.reduce((a, s) => a + MINUTES[s.type], 0);
+  const specials: ScreenSpec[] = [{ type: 'color', digit: current }];
+  if (budget >= 30) specials.push({ type: 'color', digit: second ?? reviews[0] ?? current });
+  if (budget >= 45) specials.push({ type: 'color', digit: pick([current, ...reviews, ...(second != null ? [second] : [])]) });
+
+  push({ type: 'count', n: bag.next((n) => n <= 5) }); // easy start
+  lastType = 'count';
+  let turn = 0;
+  while (used + endMinutes < budget) {
+    if (turn % 2 === 0) push(nextWriting());
+    else if (specials.length && turn % 6 === 5) push(specials.shift()!);
+    else push(counting(nextCountType()));
+    turn++;
   }
-  return plan;
+  for (const s of specials.splice(0, 1)) push(s);
+  ending.forEach(push);
+
+  // Group into stops of ~4 screens (a sticker after each).
+  const stations: Station[] = [];
+  for (let i = 0; i < screens.length; i += 4) {
+    // Don't leave a lonely last screen: fold a short tail into the last stop.
+    const chunk = screens.length - (i + 4) < 2 ? screens.slice(i) : screens.slice(i, i + 4);
+    const fresh = chunk.find((s) => s.type === 'trace' && s.support === 'full');
+    const w = fresh ?? chunk.find((s) => s.type === 'trace' || s.type === 'write');
+    stations.push({ digit: w && 'digit' in w ? w.digit : null, intro: fresh != null, screens: chunk });
+    if (chunk.length > 4) break;
+  }
+  return stations;
 }
 
 /** Every activity once, for the parent's "try it" menu. */
@@ -101,12 +181,16 @@ export function sampleScreen(type: ScreenSpec['type'], d: number): ScreenSpec {
     case 'write': return { type, digit: d };
     case 'fix': return { type, digit: FIXABLE.includes(d) ? d : 3 };
     case 'count': return { type, n };
-    case 'match': return { type, nums: matchNums(d, [1, 2, 3, 4, 5]) };
+    case 'match': {
+      const nums = new Set([n]);
+      while (nums.size < 3) nums.add(randInt(1, 10));
+      return { type, nums: shuffle([...nums]) };
+    }
     case 'dots': return { type };
     case 'find': return { type, n: Math.min(8, n) };
     case 'draw': return { type, n };
     case 'color': return { type, digit: d };
     case 'flash': return { type, n };
-    case 'hide': { const h = Math.min(4, n); return { type, hidden: h, total: h + randInt(1, 5 - h) }; }
+    case 'hide': { const h = Math.min(4, n); return { type, hidden: h, total: Math.min(5, h + randInt(1, 3)) }; }
   }
 }

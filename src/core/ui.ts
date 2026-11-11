@@ -1,5 +1,6 @@
 import { h, frag, box, flash } from './dom';
-import { ICONS, STAR_PATH, HORSE_HEAD } from '../art/art';
+import { ICONS, STAR_PATH, HORSE_HEAD, dotPattern } from '../art/art';
+import { needsHint } from './progress';
 
 export const W = 1180;
 export const H = 820;
@@ -74,7 +75,20 @@ export function horseGuide(left: number, bottom: number, size = 300): HTMLImageE
 
 /** Big round number button used by all "pick the number" activities. */
 export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void, size = 150): HTMLButtonElement {
-  const b = h('button', { class: 'num-btn', 'aria-label': `Číslo ${n}`, style: { width: `${size}px`, height: `${size}px`, fontSize: `${Math.round(size * (n >= 10 ? 0.5 : 0.66))}px` } }, String(n));
+  const hint = needsHint(n);
+  const fs = Math.round(size * (n >= 10 ? 0.5 : 0.66) * (hint ? 0.8 : 1));
+  const b = h('button', { class: `num-btn ${hint ? 'hinted' : ''}`, 'aria-label': `Číslo ${n}`, style: { width: `${size}px`, height: `${size}px`, fontSize: `${fs}px` } }, h('span', {}, String(n)));
+  if (hint) {
+    const dots = (s: number) => dotPattern(n, s).replaceAll('#F28C28', '#F2B400');
+    if (n <= 6) {
+      const hs = Math.round(size * 0.34);
+      b.append(frag(`<svg class="dot-hint" width="${hs}" height="${hs}" viewBox="0 0 ${hs} ${hs}" aria-hidden="true">${dots(hs)}</svg>`));
+    } else {
+      // Ten-frame is wide and flat: crop the square pattern to its middle band.
+      const w = Math.round(size * 0.66);
+      b.append(frag(`<svg class="dot-hint" width="${w}" height="${Math.round(w * 0.4)}" viewBox="0 ${w * 0.3} ${w} ${w * 0.4}" aria-hidden="true">${dots(w)}</svg>`));
+    }
+  }
   b.addEventListener('click', () => onPick(b));
   return b;
 }

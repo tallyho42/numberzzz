@@ -81,3 +81,29 @@ export const BARN_SVG = (doorOpen: boolean, question: boolean) => `
     ? `<rect x="374" y="250" width="62" height="98" fill="#5A1E18" stroke="#6E2019" stroke-width="5"/><rect x="436" y="250" width="22" height="98" fill="#F4E3C3" stroke="#6E2019" stroke-width="4"/>`
     : `<rect x="374" y="250" width="62" height="98" fill="#F4E3C3" stroke="#6E2019" stroke-width="5"/><path d="M374,250 L436,348 M436,250 L374,348" stroke="#C9A877" stroke-width="5"/>`}
   ${question ? `<circle cx="405" cy="299" r="26" fill="#FFFFFF" stroke="#6E2019" stroke-width="4"/><text x="405" y="301" text-anchor="middle" dominant-baseline="central" font-family="Andika, system-ui, sans-serif" font-weight="700" font-size="40" fill="#A8382F">?</text>` : ''}`;
+
+/** Dot pattern for quick recognition: dice faces up to 6, ten-frame above. */
+export function dotPattern(n: number, size: number): string {
+  const c = size / 2;
+  const o = size * 0.3;
+  const dice: Record<number, [number, number][]> = {
+    1: [[0, 0]],
+    2: [[-1, -1], [1, 1]],
+    3: [[-1, -1], [0, 0], [1, 1]],
+    4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
+    5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
+    6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
+  };
+  if (n <= 6) {
+    const r = size * 0.13;
+    return (dice[n] ?? []).map(([x, y]) => `<circle cx="${c + x * o}" cy="${c + y * o}" r="${r}" fill="#F28C28"/>`).join('');
+  }
+  const cell = size / 5.6;
+  const x0 = c - cell * 2.5;
+  const y0 = c - cell;
+  let s = `<rect x="${x0}" y="${y0}" width="${cell * 5}" height="${cell * 2}" rx="6" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="3"/>`;
+  for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + cell * 2}" stroke="#2E6B3A" stroke-width="2"/>`;
+  s += `<path d="M${x0},${y0 + cell} H${x0 + cell * 5}" stroke="#2E6B3A" stroke-width="2"/>`;
+  for (let i = 0; i < n; i++) s += `<circle cx="${x0 + (i % 5) * cell + cell / 2}" cy="${y0 + Math.floor(i / 5) * cell + cell / 2}" r="${cell * 0.34}" fill="#F28C28"/>`;
+  return s;
+}

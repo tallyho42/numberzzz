@@ -6,6 +6,8 @@ export interface Settings {
   tolerance: number;
   digits: number[];
   ink: string;
+  /** Counting activities use numbers 1..countMax. */
+  countMax: number;
 }
 
 export interface DigitStat {
@@ -39,7 +41,7 @@ const KEY = 'numberzzz.v1';
 export const DIGIT_ORDER = [1, 7, 4, 0, 6, 9, 2, 3, 5, 8, 10];
 
 const defaults = (): Store => ({
-  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C' },
+  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#E2558C', countMax: 10 },
   stats: {},
   medals: 0,
   sessions: 0,
@@ -99,6 +101,9 @@ export function recordResult(kind: 'trace' | 'write' | 'other', d: number, succe
   recompute(d);
   save();
 }
+
+/** Numerals she can't read yet get a small dot hint on answer buttons (it fades once she writes them). */
+export const needsHint = (n: number) => n > 0 && (store.stats[String(n)]?.level ?? 0) < 2;
 
 export function markSeen(d: number) {
   stat(d);

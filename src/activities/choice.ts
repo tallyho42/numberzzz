@@ -3,9 +3,11 @@ import { h, frag, box, choices, flash, wait, randInt, pick, shuffle } from '../c
 import { card, numberButton } from '../core/ui';
 import { plural, numWord } from '../core/czech';
 import { recordResult } from '../core/progress';
-import { itemGroup, ITEM_NAMES, HORSE_FULL, BARN_SVG, type ItemKind } from '../art/art';
+import { itemGroup, ITEM_NAMES, HORSE_FULL, BARN_SVG, dotPattern, type ItemKind } from '../art/art';
 import { soft } from '../core/sound';
 import type { P } from '../core/geometry';
+
+export { dotPattern };
 
 /** Random non-overlapping positions inside a w×h area. */
 export function placeItems(n: number, w: number, h: number, size: number, avoid: P[] = []): P[] {
@@ -92,32 +94,6 @@ export const count: Activity<{ n: number }> = (api, { n }) => {
   });
   void api.instruct(`Kolik je tu ${ITEM_NAMES[kind].many}? Ťukni na správné číslo.`);
 };
-
-/** Dot pattern for quick recognition: dice faces up to 6, ten-frame above. */
-export function dotPattern(n: number, size: number): string {
-  const c = size / 2;
-  const o = size * 0.3;
-  const dice: Record<number, [number, number][]> = {
-    1: [[0, 0]],
-    2: [[-1, -1], [1, 1]],
-    3: [[-1, -1], [0, 0], [1, 1]],
-    4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
-    5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
-    6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
-  };
-  if (n <= 6) {
-    const r = size * 0.13;
-    return (dice[n] ?? []).map(([x, y]) => `<circle cx="${c + x * o}" cy="${c + y * o}" r="${r}" fill="#F28C28"/>`).join('');
-  }
-  const cell = size / 5.6;
-  const x0 = c - cell * 2.5;
-  const y0 = c - cell;
-  let s = `<rect x="${x0}" y="${y0}" width="${cell * 5}" height="${cell * 2}" rx="6" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="3"/>`;
-  for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + cell * 2}" stroke="#2E6B3A" stroke-width="2"/>`;
-  s += `<path d="M${x0},${y0 + cell} H${x0 + cell * 5}" stroke="#2E6B3A" stroke-width="2"/>`;
-  for (let i = 0; i < n; i++) s += `<circle cx="${x0 + (i % 5) * cell + cell / 2}" cy="${y0 + Math.floor(i / 5) * cell + cell / 2}" r="${cell * 0.34}" fill="#F28C28"/>`;
-  return s;
-}
 
 export const flashCount: Activity<{ n: number }> = (api, { n }) => {
   const c = card(130, 160, 600, 480, 'card glow');

@@ -17,7 +17,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
 
     const header = h('div', { class: 'p-head' }, h('h1', {}, 'Pro rodiče'), h('button', { class: 'p-close', 'aria-label': 'Zavřít', onClick: opts.close }, '✕'));
 
-    const length = h('section', {}, h('h2', {}, 'Délka hraní'), seg([15, 30, 45] as (15 | 30 | 45)[], s.minutes, (v) => `${v} min`, (v) => (s.minutes = v)));
+    const length = h('section', {}, h('h2', {}, 'Délka hraní'), seg([15, 30, 45] as (15 | 30 | 45)[], s.minutes, (v) => `${v} min`, (v) => (s.minutes = v)), h('h2', {}, 'Počítání do'), seg([5, 10], s.countMax, (v) => String(v), (v) => (s.countMax = v)));
 
     const tol = h('input', { type: 'range', min: '1', max: '5', value: String(s.tolerance), id: 'tol' }) as HTMLInputElement;
     tol.addEventListener('change', () => { s.tolerance = Number(tol.value); save(); render(); });
@@ -33,7 +33,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
         },
       }, String(d)),
     ));
-    const digits = h('section', {}, h('h2', {}, 'Čísla, která se učí'), chips, h('p', { class: 'p-note' }, `Pořadí učení: ${DIGIT_ORDER.join(', ')}`));
+    const digits = h('section', {}, h('h2', {}, 'Čísla, která se učí psát'), chips, h('p', { class: 'p-note' }, `Pořadí učení: ${DIGIT_ORDER.join(', ')}`));
 
     const colors = ['#E2558C', '#7B4DD6', '#1F7AE0', '#F28C28'];
     const inkSec = h('section', {}, h('h2', {}, 'Barva inkoustu'), h('div', { class: 'chips' }, ...colors.map((c) =>

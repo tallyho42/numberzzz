@@ -163,11 +163,13 @@ async function stationIntro(st: Station, index: number, total: number, my: numbe
     stage.append(c);
   }
   stage.append(parentCorner(openParent));
-  const text = st.kind === 'new'
-    ? `Teď se naučíme ${digitNoun(st.digit!)}.`
-    : st.kind === 'review'
-      ? `Teď si zopakujeme ${digitNoun(st.digit!)}.`
-      : 'A teď si trochu pohrajeme s čísly.';
+  const text = st.intro && st.digit != null && index > 0
+    ? `Další zastávka! Naučíme se psát ${digitNoun(st.digit)}.`
+    : st.intro && st.digit != null
+    ? `Dnes se naučíme psát ${digitNoun(st.digit)}. A budeme počítat až do ${store.settings.countMax === 5 ? 'pěti' : 'deseti'}.`
+    : st.digit != null
+      ? `Další zastávka! Napíšeme si ${digitNoun(st.digit)} a zase budeme počítat.`
+      : 'Další zastávka! Teď si pohrajeme s čísly.';
   await say(text);
   if (my !== nav) return;
   await wait(600);

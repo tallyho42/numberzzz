@@ -135,6 +135,9 @@ button {
 }
 .num-btn:active { transform: translateY(4px); box-shadow: 0 3px 0 rgba(46, 107, 58, 0.18); }
 .num-btn.right { background: var(--green-light); color: #FFFFFF; }
+.num-btn.hinted { flex-direction: column; gap: 2px; }
+.num-btn.hinted span { margin-top: 4px; }
+.dot-hint rect { stroke-width: 1.5; }
 
 .question-card {
   position: absolute;
