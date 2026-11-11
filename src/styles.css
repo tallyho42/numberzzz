@@ -425,6 +425,26 @@ button {
 .bar { width: 100%; max-width: 26px; border-radius: 8px; }
 .bar-col span { font-family: var(--font-num); font-weight: 700; font-size: 17px; }
 
+/* Landscape only: an upright iPad gets a friendly "turn me" screen. */
+.rotate-hint {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #CFE9F8;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+.rotate-horse { width: 260px; height: 260px; }
+.rotate-tablet { animation: turn 2.4s ease-in-out infinite; }
+@media (orientation: portrait) {
+  .rotate-hint { display: flex; }
+  #stage { visibility: hidden; }
+}
+@keyframes turn { 0%, 25% { transform: rotate(0); } 60%, 100% { transform: rotate(90deg); } }
+
 /* Animations */
 .pop { animation: pop 0.45s cubic-bezier(.2, 1.6, .5, 1); }
 .shake { animation: shake 0.45s ease-in-out; }

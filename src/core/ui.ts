@@ -108,6 +108,36 @@ export function parentCorner(onOpen: () => void): HTMLElement {
   return z;
 }
 
+/** Shown over everything while the iPad is held upright: the game is landscape only. */
+export function rotateHint(): HTMLElement {
+  return h(
+    'div',
+    { class: 'rotate-hint', role: 'alert', 'aria-label': 'Otoč tablet na šířku' },
+    h('img', { src: HORSE_HEAD, alt: '', class: 'rotate-horse' }),
+    frag(`<svg class="rotate-tablet" width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
+      <rect x="70" y="30" width="80" height="120" rx="12" fill="#FFFFFF" stroke="#2E6B3A" stroke-width="6"/>
+      <circle cx="110" cy="138" r="4" fill="#2E6B3A"/>
+      <path d="M40,170 A80,80 0 0 0 180,170" fill="none" stroke="#3DAA5C" stroke-width="7" stroke-linecap="round"/>
+      <path d="M180,170 l-4,-22 M180,170 l-20,-8" stroke="#3DAA5C" stroke-width="7" stroke-linecap="round"/>
+    </svg>`),
+  );
+}
+
+/** Enter fullscreen where the browser allows it (iPad Safari, desktop); ignored elsewhere. */
+export function goFullscreen() {
+  const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+  const doc = document as Document & { webkitFullscreenElement?: Element };
+  if (document.fullscreenElement || doc.webkitFullscreenElement) return;
+  // Where supported (Chrome/Android), also lock to landscape once fullscreen.
+  const lock = () => (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> })?.lock?.('landscape').catch(() => {});
+  try {
+    if (el.requestFullscreen) void el.requestFullscreen({ navigationUI: 'hide' }).then(lock, () => {});
+    else el.webkitRequestFullscreen?.();
+  } catch {
+    /* not supported – the home-screen app is fullscreen anyway */
+  }
+}
+
 /** A soft confetti burst over the stage. */
 export function confetti(parent: HTMLElement, count = 40) {
   const cols = ['#E2558C', '#4A8FE0', '#FFCC33', '#3DAA5C', '#F28C28'];

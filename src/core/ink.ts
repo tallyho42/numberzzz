@@ -40,7 +40,7 @@ export class Ink {
     parent.append(this.canvas);
     this.ctx = this.canvas.getContext('2d')!;
     requestAnimationFrame(() => this.resize());
-    window.addEventListener('resize', this.resize);
+    window.addEventListener('stagefit', this.resize);
     this.canvas.addEventListener('pointerdown', this.down);
     this.canvas.addEventListener('pointermove', this.move);
     this.canvas.addEventListener('pointerup', this.up);
@@ -48,7 +48,7 @@ export class Ink {
   }
 
   destroy() {
-    window.removeEventListener('resize', this.resize);
+    window.removeEventListener('stagefit', this.resize);
   }
 
   set color(c: string) {
