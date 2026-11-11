@@ -63,8 +63,42 @@ export function medalSvg(size: number) {
   return `<img src="${artUrl('medal')}" width="${Math.round(size * 400 / 480)}" height="${size}" alt="" draggable="false">`;
 }
 
-/** Dot pattern for quick recognition: dice faces up to 6, ten-frame above. */
-export function dotPattern(n: number, size: number): string {
+/** Deterministic wobble so hand-drawn shapes look the same every time they are shown. */
+function wob(seed: number) {
+  let x = Math.sin(seed * 12.9898) * 43758.5453;
+  return () => {
+    x = Math.sin(x * 78.233 + 1.7) * 43758.5453;
+    return x - Math.floor(x);
+  };
+}
+
+/** A hand-dabbed blob instead of a perfect circle. */
+function blobDot(cx: number, cy: number, r: number, fill: string, seed: number) {
+  const rnd = wob(seed);
+  const pts = Array.from({ length: 9 }, (_, i) => {
+    const a = (i / 9) * Math.PI * 2;
+    const rr = r * (0.86 + rnd() * 0.26);
+    return [cx + Math.cos(a) * rr * 1.06, cy + Math.sin(a) * rr * 0.94];
+  });
+  const mid = (p: number[], q: number[]) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+  let d = `M${mid(pts[8], pts[0]).join(',')}`;
+  for (let i = 0; i < 9; i++) d += ` Q${pts[i].join(',')} ${mid(pts[i], pts[(i + 1) % 9]).join(',')}`;
+  return `<path d="${d} Z" fill="${fill}" transform="rotate(${(rnd() - 0.5) * 40} ${cx} ${cy})"/>`;
+}
+
+/** A slightly crooked hand-drawn line. */
+function handLine(x1: number, y1: number, x2: number, y2: number, seed: number, stroke: string, w: number) {
+  const rnd = wob(seed);
+  const mx = (x1 + x2) / 2 + (rnd() - 0.5) * w * 1.6;
+  const my = (y1 + y2) / 2 + (rnd() - 0.5) * w * 1.6;
+  return `<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" fill="none" stroke="${stroke}" stroke-width="${w * (0.85 + rnd() * 0.3)}" stroke-linecap="round"/>`;
+}
+
+/**
+ * Dot pattern for quick recognition: dice faces up to 6, ten-frame above.
+ * `hand` draws it like a child's workbook: uneven dabs and crooked lines.
+ */
+export function dotPattern(n: number, size: number, hand = false, color = '#E07B2C'): string {
   const c = size / 2;
   const o = size * 0.3;
   const dice: Record<number, [number, number][]> = {
@@ -75,16 +109,27 @@ export function dotPattern(n: number, size: number): string {
     5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
     6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]],
   };
+  const dot = (x: number, y: number, r: number, i: number) => (hand ? blobDot(x, y, r, color, n * 31 + i) : `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}"/>`);
   if (n <= 6) {
-    const r = size * 0.13;
-    return (dice[n] ?? []).map(([x, y]) => `<circle cx="${c + x * o}" cy="${c + y * o}" r="${r}" fill="#E07B2C"/>`).join('');
+    const r = size * (hand ? 0.14 : 0.13);
+    return (dice[n] ?? []).map(([x, y], i) => dot(c + x * o, c + y * o, r, i)).join('');
   }
   const cell = size / 5.6;
   const x0 = c - cell * 2.5;
   const y0 = c - cell;
-  let s = `<rect x="${x0}" y="${y0}" width="${cell * 5}" height="${cell * 2}" rx="6" fill="#FFFFFF" stroke="#20150E" stroke-width="3"/>`;
-  for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + cell * 2}" stroke="#20150E" stroke-width="2"/>`;
-  s += `<path d="M${x0},${y0 + cell} H${x0 + cell * 5}" stroke="#20150E" stroke-width="2"/>`;
-  for (let i = 0; i < n; i++) s += `<circle cx="${x0 + (i % 5) * cell + cell / 2}" cy="${y0 + Math.floor(i / 5) * cell + cell / 2}" r="${cell * 0.34}" fill="#E07B2C"/>`;
+  const ink = hand ? '#6B5A45' : '#20150E';
+  let s = '';
+  if (hand) {
+    const w = size * 0.022;
+    s += handLine(x0, y0, x0 + cell * 5, y0, n + 1, ink, w) + handLine(x0, y0 + cell * 2, x0 + cell * 5, y0 + cell * 2, n + 2, ink, w);
+    s += handLine(x0, y0, x0, y0 + cell * 2, n + 3, ink, w) + handLine(x0 + cell * 5, y0, x0 + cell * 5, y0 + cell * 2, n + 4, ink, w);
+    for (let i = 1; i < 5; i++) s += handLine(x0 + i * cell, y0, x0 + i * cell, y0 + cell * 2, n + 10 + i, ink, w * 0.7);
+    s += handLine(x0, y0 + cell, x0 + cell * 5, y0 + cell, n + 20, ink, w * 0.7);
+  } else {
+    s += `<rect x="${x0}" y="${y0}" width="${cell * 5}" height="${cell * 2}" rx="6" fill="#FFFFFF" stroke="${ink}" stroke-width="3"/>`;
+    for (let i = 1; i < 5; i++) s += `<path d="M${x0 + i * cell},${y0} V${y0 + cell * 2}" stroke="${ink}" stroke-width="2"/>`;
+    s += `<path d="M${x0},${y0 + cell} H${x0 + cell * 5}" stroke="${ink}" stroke-width="2"/>`;
+  }
+  for (let i = 0; i < n; i++) s += dot(x0 + (i % 5) * cell + cell / 2, y0 + Math.floor(i / 5) * cell + cell / 2, cell * (hand ? 0.36 : 0.34), i);
   return s;
 }

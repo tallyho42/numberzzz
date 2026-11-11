@@ -26,19 +26,20 @@ const gifts: Gift[] = [
   { name: 'mašli', icon: icon(BOW), worn: { on: 'head', svg: at(BOW, 630, 400, 230, -14) } },
   { name: 'hvězdičku', icon: icon(STAR), worn: { on: 'head', svg: at(STAR, 730, 650, 140) } },
   { name: 'zvoneček', icon: icon(BELL), worn: { on: 'body', svg: `<path d="M560,1240 Q730,1310 900,1240" fill="none" stroke="#B4513A" stroke-width="30" stroke-linecap="round"/>${at(BELL, 730, 1330, 170)}` } },
-  { name: 'jablíčko', icon: icon(APPLE), scale: 0.8 },
+  { name: 'jablíčko', icon: icon(APPLE), scale: 0.8, food: true },
   { name: 'zlatou podkovu', icon: icon(SHOE), scale: 0.9 },
   { name: 'srdíčko', icon: icon(HEART), scale: 0.8 },
   { name: 'korunku', icon: icon(CROWN), worn: { on: 'head', svg: at(CROWN, 730, 240, 300) } },
   { name: 'sedlo', icon: icon(SADDLE), scale: 1 },
-  { name: 'mrkev', icon: icon(CARROT), scale: 0.9 },
+  { name: 'mrkev', icon: icon(CARROT), scale: 0.9, food: true },
   { name: 'kytičku', icon: icon(FLOWER), worn: { on: 'head', svg: at(FLOWER, 925, 430, 220, 20) } },
 ];
 
 export const HORSE: Theme = {
   id: 'horse',
   animal: { nom: 'koník', gen: 'koníka', dat: 'koníkovi', ins: 'koníkem', Nom: 'Koník', plural: { one: 'koník', few: 'koníci', many: 'koníků' } },
-  critter: { id: 'horse', vb: HORSE_VB, parts: ['body', 'head', 'earL', 'earR'], pivot: HORSE_PIVOT, face: horseFaceSvg(), call: neigh },
+  critter: { id: 'horse', vb: HORSE_VB, parts: ['body', 'head', 'earL', 'earR'], pivot: HORSE_PIVOT, face: horseFaceSvg(), call: neigh, song: neigh,
+    anchor: { mouth: [730, 1180], nose: [730, 1070], top: [730, 240], ground: [735, 1890] } },
   head: artUrl('horse-face'),
   full: artUrl('horse-full'),
   earless: artUrl('horse-earless'),

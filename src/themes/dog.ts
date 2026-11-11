@@ -2,7 +2,7 @@ import type { Theme, Gift } from './types';
 import { DOG_VB, PIVOT } from '../art/dogShapes';
 import { dogFaceSvg } from '../art/dog';
 import { artUrl } from '../core/critter';
-import { bark } from '../core/sound';
+import { bark, howl } from '../core/sound';
 import { paintedImg } from '../paint/runtime';
 
 const INK = '#20150E';
@@ -22,12 +22,13 @@ const TREATS: [string, string][] = [
   ['dort', `<rect x="14" y="52" width="72" height="36" rx="6" fill="#EDE0C4"/><path d="M14,52 L86,52 L86,62 C80,70 74,58 68,64 C62,72 56,58 50,64 C44,72 38,58 32,64 C26,72 20,58 14,62 Z" fill="#D9617F"/><rect x="46" y="26" width="8" height="26" fill="#7FA7C4"/><path d="M50,10 C56,18 56,24 50,26 C44,24 44,18 50,10 Z" fill="#E2B13F"/><circle cx="30" cy="48" r="5" fill="#B4513A"/><circle cx="70" cy="48" r="5" fill="#B4513A"/>`],
 ];
 
-const gifts: Gift[] = TREATS.map(([name, svg], i) => ({ name, icon: icon(svg), scale: 0.42 + (0.58 * i) / 9 }));
+const gifts: Gift[] = TREATS.map(([name, svg], i) => ({ name, icon: icon(svg), scale: 0.42 + (0.58 * i) / 9, food: true }));
 
 export const DOG: Theme = {
   id: 'dog',
   animal: { nom: 'pejsek', gen: 'pejska', dat: 'pejskovi', ins: 'pejskem', Nom: 'Pejsek', plural: { one: 'pejsek', few: 'pejsci', many: 'pejsků' } },
-  critter: { id: 'dog', vb: DOG_VB, parts: ['tail', 'body', 'head', 'earL', 'earR'], pivot: PIVOT, face: dogFaceSvg('face'), bodyInk: dogFaceSvg('legs'), call: () => bark(2) },
+  critter: { id: 'dog', vb: DOG_VB, parts: ['tail', 'body', 'head', 'earL', 'earR'], pivot: PIVOT, face: dogFaceSvg('face'), bodyInk: dogFaceSvg('legs'), call: () => bark(1), song: () => howl(1.7), floppy: true,
+    anchor: { mouth: [800, 930], nose: [725, 760], top: [728, 300], ground: [735, 1880] } },
   head: artUrl('dog-face'),
   full: artUrl('dog-full'),
   earless: artUrl('dog-earless'),

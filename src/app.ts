@@ -1,5 +1,5 @@
 import { h, onTap, frag, wait, pick, box } from './core/dom';
-import { meadow, topBar, parentCorner, confetti, card, companion, roundButton, goFullscreen, W, H } from './core/ui';
+import { meadow, topBar, parentCorner, confetti, card, companion, roundButton, goFullscreen, give, W, H } from './core/ui';
 import { say, stop, unlockVoice } from './core/voice';
 import { chime, fanfare, unlockSound, wrong, star, magic, munch, whoosh } from './core/sound';
 import { store, save, newSessionId, markSeen } from './core/progress';
@@ -56,7 +56,7 @@ export function home() {
   stage.append(meadow());
   const pet = companion(150, 40, 500);
   stage.append(pet);
-  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('tilt'), 900);
+  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('curious'), 900);
   stage.append(themePicker());
   const play = h('button', { class: 'play-btn', 'aria-label': 'Hrát', html: ICONS.play(110) });
   onTap(play, () => {
@@ -214,7 +214,7 @@ async function runSession() {
   stage.append(meadow());
   const pet = companion(380, 40, 520);
   stage.append(pet);
-  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('call'), 300);
+  setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('hops'), 300);
   await say(`${hello('Ahoj')} Jdeme spolu na výlet za čísly.`);
   for (let pi = 0; pi < plan.length; pi++) {
     if (my !== nav) return;
@@ -265,8 +265,13 @@ function medal(more = false): Promise<void> {
       setTimeout(magic, 700);
       if (t.id === 'dog') setTimeout(munch, 1600);
     }
-    if (gift) stage.append(h('div', { class: 'gift-pop pop', role: 'img', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) }));
-    setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('wiggle'), 1200);
+    if (gift) {
+      const gp = h('div', { class: 'gift-pop pop', role: 'button', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) });
+      const c = (pet as HTMLElement & { critter?: Critter }).critter;
+      if (c) onTap(gp, () => void give(c, gp.firstElementChild as HTMLElement, { food: gift.food ?? true }, false).then(() => gp.remove()));
+      stage.append(gp);
+    }
+    setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('hops'), 1200);
     const stableBtn = roundButton(`<img src="${t.home.art}" alt="" width="96" height="90">`, `Domeček – ${t.home.nom}`, () => { resolve(); showStable(); }, 140);
     Object.assign(stableBtn.style, { position: 'absolute', right: '210px', bottom: '50px' });
     if (more) {
@@ -282,10 +287,10 @@ function medal(more = false): Promise<void> {
     void (async () => {
       await say(`${withName('Hotovo', '!', true)} Zasloužíš si medaili.`);
       if (my !== nav) return;
-      if (gift) await say(`${t.animal.Nom} dostal ${gift.name}.${more ? '' : ` Podívej se ${t.home.acc}.`}`);
+      if (gift) await say(`${t.animal.Nom} dostal ${gift.name}. Ťukni na ${gift.food ? 'pamlsek' : 'dárek'} a dej mu ${gift.food ? 'ho' : 'ho'}!`);
       else await say(`${t.animal.Nom} už má ${t.id === 'dog' ? 'všechny pamlsky' : 'všechny dárky'}! Můžeš si vybrat nové zvířátko.`);
       if (my !== nav) return;
-      (pet as HTMLElement & { critter?: Critter }).critter?.trick(t.id === 'dog' ? 'call' : 'tongue');
+      (pet as HTMLElement & { critter?: Critter }).critter?.trick('howl');
       if (my === nav && more) await say('Jdeme dál?');
     })();
   });

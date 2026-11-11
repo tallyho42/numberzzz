@@ -3,6 +3,7 @@ import { ICONS, STAR_PATH, dotPattern, medalSvg } from '../art/art';
 import { theme, giftsIn, type Theme, type Gift } from '../themes';
 import { critter, type Critter } from './critter';
 import { star } from './sound';
+import { paintedImg } from '../paint/runtime';
 import { needsHint } from './progress';
 
 export const W = 1180;
@@ -102,7 +103,9 @@ export function companion(left: number, bottom: number, height = 240, extraClass
     let x = x0;
     for (const g of list) {
       const s = Math.round(base * (g.scale ?? 0.8));
-      el.append(h('div', { class: 'companion-gift', style: { left: `${Math.round(x)}px`, top: `${Math.round(y - s)}px`, width: `${s}px`, height: `${s}px` }, html: g.icon(s) }));
+      const ge = h('div', { class: 'companion-gift', role: 'button', 'aria-label': `Dát ${t.animal.dat} ${g.name}`, style: { left: `${Math.round(x)}px`, top: `${Math.round(y - s)}px`, width: `${s}px`, height: `${s}px` }, html: g.icon(s) });
+      onTap(ge, () => void give(c, ge, g));
+      el.append(ge);
       x += s * (side ? 0.95 : 0.78);
     }
   };
@@ -116,20 +119,60 @@ export function companion(left: number, bottom: number, height = 240, extraClass
   return el;
 }
 
+/**
+ * Give a treat or present to the animal: food flies into its mouth and gets eaten,
+ * then the treat appears back in its place (presents stay visible); other presents make it happy.
+ */
+export async function give(c: Critter, item: HTMLElement, g: { food?: boolean }, keep = true) {
+  if (item.dataset.busy) return;
+  item.dataset.busy = '1';
+  if (g.food) {
+    const from = item.getBoundingClientRect();
+    const to = c.mouthPoint();
+    const k = from.width / (item.offsetWidth || from.width) || 1;
+    const dx = (to.x - (from.left + from.width / 2)) / k;
+    const dy = (to.y - (from.top + from.height / 2)) / k;
+    await item
+      .animate(
+        [
+          { transform: 'translate(0,0) scale(1) rotate(0)' },
+          { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 80}px) scale(1.1) rotate(-20deg)`, offset: 0.5 },
+          { transform: `translate(${dx}px, ${dy}px) scale(0.35) rotate(10deg)` },
+        ],
+        { duration: 650, easing: 'ease-in', fill: 'forwards' },
+      )
+      .finished.catch(() => {});
+    item.style.visibility = 'hidden';
+    item.getAnimations().forEach((a) => a.cancel());
+    await c.eat();
+    if (keep) {
+      item.style.visibility = '';
+      await item.animate([{ transform: 'scale(0.2)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.2,1.6,.5,1)' }).finished.catch(() => {});
+    }
+  } else {
+    await item.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 450 }).finished.catch(() => {});
+    await c.trick('hops');
+  }
+  delete item.dataset.busy;
+}
+
+/** Small brush for the yellow dot hints: soft ragged edges, a few specks. */
+const DOT_BRUSH = { angle: 60, dry: 0.42, zone: 3, edge: 1.1, bristle: 2.4, grain: 0.5, tone: 0.4, speck: 0.35, speckRange: 4 };
+
 /** Big round number button used by all "pick the number" activities. */
 export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void, size = 150): HTMLButtonElement {
   const hint = needsHint(n);
   const fs = Math.round(size * (n >= 10 ? 0.5 : 0.66) * (hint ? 0.8 : 1));
   const b = h('button', { class: `num-btn ${hint ? 'hinted' : ''}`, 'aria-label': `Číslo ${n}`, style: { width: `${size}px`, height: `${size}px`, fontSize: `${fs}px` } }, h('span', {}, String(n)));
   if (hint) {
-    const dots = (s: number) => dotPattern(n, s).replaceAll('#E07B2C', '#E2B13F');
+    const dots = (s: number) => dotPattern(n, s, true, '#E2B13F');
     if (n <= 6) {
       const hs = Math.round(size * 0.34);
-      b.append(frag(`<svg class="dot-hint" width="${hs}" height="${hs}" viewBox="0 0 ${hs} ${hs}" aria-hidden="true">${dots(hs)}</svg>`));
+      b.append(h('span', { class: 'dot-hint', html: paintedImg(dots(hs), [0, 0, hs, hs], hs, hs, DOT_BRUSH) }));
     } else {
       // Ten-frame is wide and flat: crop the square pattern to its middle band.
       const w = Math.round(size * 0.66);
-      b.append(frag(`<svg class="dot-hint" width="${w}" height="${Math.round(w * 0.4)}" viewBox="0 ${w * 0.3} ${w} ${w * 0.4}" aria-hidden="true">${dots(w)}</svg>`));
+      b.append(h('span', { class: 'dot-hint', html: paintedImg(dots(w), [0, w * 0.3, w, w * 0.4], w, w * 0.4, DOT_BRUSH) }));
     }
   }
   onTap(b, () => onPick(b));

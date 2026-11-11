@@ -47,4 +47,34 @@ fit();
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 
+// iPad Safari ignores user-scalable=no: a quick double tap zooms in and there is no way back.
+// Cancel the second tap of a double tap (taps are handled on pointerup, so nothing is lost)…
+let lastTouchEnd = 0;
+document.addEventListener(
+  'touchend',
+  (e) => {
+    const now = Date.now();
+    const t = e.target as HTMLElement | null;
+    const typing = t?.closest('input, textarea, select');
+    if (!typing && now - lastTouchEnd < 400) e.preventDefault();
+    lastTouchEnd = now;
+  },
+  { passive: false },
+);
+document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+// …and if the page got zoomed anyway, snap it back.
+const viewportMeta = document.querySelector<HTMLMetaElement>('meta[name=viewport]');
+function unzoom() {
+  const vv = window.visualViewport;
+  if (!vv || vv.scale <= 1.01 || !viewportMeta) return;
+  const content = viewportMeta.content;
+  viewportMeta.content = `${content.replace(/,?\s*maximum-scale=[^,]*/, '')}, maximum-scale=1.0`;
+  setTimeout(() => {
+    viewportMeta.content = content;
+    refit();
+  }, 300);
+}
+window.visualViewport?.addEventListener('resize', unzoom);
+window.visualViewport?.addEventListener('scroll', unzoom);
+
 initApp(stage);

@@ -9,6 +9,8 @@ export interface Gift {
   icon: (size: number) => string;
   /** Size on the grass relative to the largest present (treats grow from tiny to big). */
   scale?: number;
+  /** Something the animal eats when Meda gives it (treats, apples). */
+  food?: boolean;
   /** Worn by the animal: SVG in its art frame, on the head or the body. */
   worn?: { svg: string; on: 'head' | 'body' };
 }

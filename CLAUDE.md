@@ -6,6 +6,7 @@ Webová hra (HTML/TS) na čísla 0–10 pro pětiletou Medu, iPad na šířku, o
 - Meda neumí číst: **všechny pokyny hlasem česky** (Web Speech API cs-CZ, později nahrávky rodičů – jedno audio na text). Na obrazovce jen obrázky, čísla, ikony.
 - Žádné tresty ani červené křížky. Chyba = jemné „zkusíme to znovu“, po 2 neúspěších ukázka.
 - Hvězdička za obrazovku, medaile za úroveň. Úroveň trvá 10–15 min a skončí.
+- Dvojité ťuknutí nesmí zoomovat Safari (main.ts ruší druhý touchend a případný zoom vrací).
 - Velké cíle (≥ 60 pt), minimalistické UI, jemné animace (respektovat reduce-motion).
 - Konvence sešitů: zelená tečka = začátek tahu, šipka = směr, šedý tečkovaný vzor, výrazný inkoust.
 - Vše v UI i hlasu česky.
@@ -28,7 +29,7 @@ Původní směr „Louka“ (https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz) 
 - `brush.ts`: suchý štětec – z plochého SVG udělá malovanou vrstvu (směr tahů, `dry`, `zone`, `edge`, `bristle`, `grain`, `tone`, `speck`, `clean` pro papírové karty).
 - Velké věci (zvířata po dílech, pozadí, domečky, karta, skvrny tlačítek, medaile, ikony) se pečou do `public/art/*.webp` v ateliéru: `npm run dev` → `/atelier.html?m=none`, v konzoli `await bakeAll()` (porovnání s předlohou: `await compare()` → `public/art/zz-preview.png`, nemazat do gitu; `atelier/ref.webp` je jen lokálně). Ikony: `await bakeIcons()` a přesunout z `public/art` do `public/`.
 - Malé věci (předměty, pamlsky, dárky, balónky, obrázky spojovaček) maluje `runtime.ts` za běhu do cache; než je hotovo, ukazuje se ploché SVG.
-- Zvíře = `core/critter.ts`: díly (ocas, tělo, hlava, uši) jako obrázky + inkoustový obličej SVG se všemi výrazy. Samo dýchá, mrká, kouká, vrtí ocasem; na ťuknutí dělá kousky (štěkne/zařehtá, jazyk, naklonění hlavy, skok, vrtění, šilhání, uši, otočka, kýchnutí). Tvary: `art/dogShapes.ts`, `art/horseShapes.ts`.
+- Zvíře = `core/critter.ts`: díly (ocas, tělo, hlava, uši) jako obrázky + inkoustový obličej SVG se všemi výrazy; každý díl drží pózu (`Rig`), takže pohyby navazují. Samo dýchá, mrká, kouká, čenichá, vrtí ocasem. Ťuknutí = delší sestava o několika krocích s efekty (srdíčka, noty, hvězdičky, kapky, prach): radostné skoky, otřepání, vytí, honění ocasu, kýchnutí, výzva ke hře, zvědavé naklánění, olizování, kuk za ušima. Ťuknutí na pamlsek u zvířete (i nový pamlsek u medaile) = přiletí mu do pusy, sní ho a pamlsek se vrátí na místo.
 
 ## Aktivity
 Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samostatně ($P recognizer, ověření očekávané číslice), oprav koníka (jen v testeru).

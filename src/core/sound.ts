@@ -258,3 +258,71 @@ export const sneeze = () => {
   tone(500, 0, 0.45, 0.04, 'sine', 900);
   noise(0.5, 0.25, 3000, 0.16, 0.7, 1200);
 };
+
+/** Long "auuuu" howl (or anything with a voice-like slide). */
+export const howl = (dur = 1.6) => {
+  const dest = out();
+  if (!ctx || !dest) return;
+  const t0 = ctx.currentTime;
+  const o = ctx.createOscillator();
+  const lfo = ctx.createOscillator();
+  const lg = ctx.createGain();
+  const f = ctx.createBiquadFilter();
+  const g = ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(380, t0);
+  o.frequency.exponentialRampToValueAtTime(720, t0 + dur * 0.35);
+  o.frequency.exponentialRampToValueAtTime(560, t0 + dur * 0.8);
+  o.frequency.exponentialRampToValueAtTime(420, t0 + dur);
+  lfo.frequency.value = 6;
+  lg.gain.value = 14;
+  lfo.connect(lg).connect(o.frequency);
+  f.type = 'lowpass';
+  f.frequency.value = 1300;
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(0.13, t0 + 0.15);
+  g.gain.setValueAtTime(0.13, t0 + dur * 0.8);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(f).connect(g).connect(dest);
+  o.start(t0);
+  lfo.start(t0);
+  o.stop(t0 + dur + 0.05);
+  lfo.stop(t0 + dur + 0.05);
+};
+
+/** Sniff: two short airy puffs. */
+export const sniff = () => {
+  noise(0, 0.07, 3500, 0.06, 1.5);
+  noise(0.11, 0.07, 3800, 0.06, 1.5);
+};
+
+/** Breath in before a sneeze. */
+export const inhale = () => noise(0, 0.6, 900, 0.05, 0.8, 2500);
+
+/** The sneeze itself. */
+export const achoo = () => {
+  tone(700, 0, 0.12, 0.06, 'triangle', 420);
+  noise(0.02, 0.3, 2800, 0.18, 0.6, 1000);
+};
+
+/** Panting with the tongue out. */
+export const pant = (times = 4) => {
+  for (let i = 0; i < times; i++) noise(i * 0.22, 0.12, 1500, 0.06, 0.9);
+};
+
+/** Wet-dog shake: fast flappy rattle. */
+export const shake = () => {
+  for (let i = 0; i < 9; i++) noise(i * 0.075, 0.06, 900 + (i % 2) * 400, 0.08, 1);
+};
+
+/** Soft thud of landing. */
+export const thud = () => tone(160, 0, 0.12, 0.12, 'sine', 70);
+
+/** Chomp: one bite. */
+export const chomp = () => noise(0, 0.09, 1100, 0.15, 1.3);
+
+/** Peekaboo reveal. */
+export const peek = () => {
+  tone(660, 0, 0.12, 0.08, 'triangle', 990);
+  tone(990, 0.12, 0.2, 0.08, 'triangle');
+};
