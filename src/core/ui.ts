@@ -2,6 +2,7 @@ import { h, onTap, frag, box, flash } from './dom';
 import { ICONS, STAR_PATH, dotPattern, medalSvg } from '../art/art';
 import { theme, giftsIn, type Theme, type Gift } from '../themes';
 import { critter, type Critter } from './critter';
+import { star } from './sound';
 import { needsHint } from './progress';
 
 export const W = 1180;
@@ -56,6 +57,7 @@ export function topBar(onSpeaker: () => void, onSkip: () => void): TopBar {
     starDone(i) {
       const s = stars.children[i];
       if (s) {
+        star();
         s.classList.add('on');
         flash(s, 'pop');
       }

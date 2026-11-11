@@ -34,6 +34,7 @@ Původní směr „Louka“ (https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz) 
 Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samostatně ($P recognizer, ověření očekávané číslice), oprav koníka (jen v testeru).
 Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, dokresli N věcí, kolik se schovalo, tajné kouzlo, spojovačka 1–10, ťukni na číslo (balónky, bez teček), nakrm zvířátko (dát přesně N), kde je víc/míň, hod kostkou (skákat po kamíncích), chybí kamínek (pořadí čísel). Bleskový pohled byl odebrán (nefungoval).
 - Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
+- Zvuky (`core/sound.ts`, Web Audio, bez souborů): ťuknutí na každé tlačítko, „oh-oh“ při každém `api.fail()`, žebřík tónů při počítání (`count(n)`), jiskra za tečku cesty, marimba za vyřešenou obrazovku, bubínek + fanfára u medaile, kouzlo + chroupání u dárku, balónek, kostka, kousky zvířete. Vypínač v rodičovském nastavení.
 - Hlas oslovuje dítě jménem (oslovení v 5. pádě v rodičovském nastavení, výchozí „Medo“).
 
 ## Témata a odměny

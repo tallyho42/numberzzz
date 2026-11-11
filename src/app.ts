@@ -1,7 +1,7 @@
 import { h, onTap, frag, wait, pick, box } from './core/dom';
 import { meadow, topBar, parentCorner, confetti, card, companion, roundButton, goFullscreen, W, H } from './core/ui';
 import { say, stop, unlockVoice } from './core/voice';
-import { chime, fanfare, unlockSound } from './core/sound';
+import { chime, fanfare, unlockSound, wrong, star, magic, munch, whoosh } from './core/sound';
 import { store, save, newSessionId, markSeen } from './core/progress';
 import { planSession, sampleScreen, ACTIVITY_LABELS, type Station } from './core/session';
 import { praise, digitNoun, withName, hello } from './core/czech';
@@ -89,6 +89,8 @@ function themePicker(): HTMLElement {
       if (on) return;
       setTheme(t.id);
       unlockVoice();
+      unlockSound();
+      whoosh();
       home();
       void say(`${hello('Ahoj')} Teď budeme sbírat ${t.id === 'dog' ? 'pamlsky' : 'dárky'} pro ${t.animal.gen}.`);
     } }, h('img', { src: t.head, alt: '' }));
@@ -171,6 +173,7 @@ function runScreen(spec: ScreenSpec, starIndex: number, steps: ('w' | 'c')[], my
       success: () => void finish(true),
       fail: () => {
         fails++;
+        wrong();
       },
       setUndo: (fn) => bar.setUndo(fn),
     };
@@ -185,6 +188,7 @@ const stepKinds = (st: Station) => st.screens.map((s) => (s.type === 'trace' || 
 /** Start of a medal path: the digit to write, the path of eight dots and the medal at its end. */
 async function pathIntro(st: Station, index: number, my: number) {
   stage.innerHTML = '';
+  whoosh();
   stage.append(meadow());
   stage.append(companion(70, 30, 380));
   const bar = topBar(() => {}, () => {});
@@ -257,6 +261,10 @@ function medal(more = false): Promise<void> {
     stage.append(pet);
     confetti(stage, 60);
     fanfare();
+    if (gift) {
+      setTimeout(magic, 700);
+      if (t.id === 'dog') setTimeout(munch, 1600);
+    }
     if (gift) stage.append(h('div', { class: 'gift-pop pop', role: 'img', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) }));
     setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('wiggle'), 1200);
     const stableBtn = roundButton(`<img src="${t.home.art}" alt="" width="96" height="90">`, `Domeček – ${t.home.nom}`, () => { resolve(); showStable(); }, 140);

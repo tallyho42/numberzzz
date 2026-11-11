@@ -1,46 +1,141 @@
+import { store } from './progress';
+
 let ctx: AudioContext | null = null;
+let master: GainNode | null = null;
 
 export function unlockSound() {
   if (!ctx) {
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (AC) ctx = new AC();
+    if (AC) {
+      ctx = new AC();
+      master = ctx.createGain();
+      const comp = ctx.createDynamicsCompressor();
+      master.connect(comp).connect(ctx.destination);
+    }
   }
   void ctx?.resume();
 }
 
-function tone(freq: number, start: number, dur: number, vol = 0.12, type: OscillatorType = 'sine') {
-  if (!ctx) return;
+/** Where every sound goes: silent when sounds are switched off in the parent screen. */
+function out(): AudioNode | null {
+  if (!ctx || !master) return null;
+  master.gain.value = store.settings.sound === false ? 0 : 1;
+  return master;
+}
+
+function tone(freq: number, start: number, dur: number, vol = 0.12, type: OscillatorType = 'sine', slideTo?: number) {
+  const dest = out();
+  if (!ctx || !dest) return;
   const t0 = ctx.currentTime + start;
   const o = ctx.createOscillator();
   const g = ctx.createGain();
   o.type = type;
-  o.frequency.value = freq;
+  o.frequency.setValueAtTime(freq, t0);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
   g.gain.setValueAtTime(0, t0);
-  g.gain.linearRampToValueAtTime(vol, t0 + 0.02);
+  g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g).connect(ctx.destination);
+  o.connect(g).connect(dest);
   o.start(t0);
   o.stop(t0 + dur + 0.05);
 }
 
-/** Soft rising chime for a correct answer. */
+/** A marimba-like note: sine plus a quiet octave that dies fast. */
+function mallet(freq: number, start: number, vol = 0.12, dur = 0.45) {
+  tone(freq, start, dur, vol);
+  tone(freq * 4, start, 0.08, vol * 0.25);
+}
+
+/** Filtered noise: rustles, whooshes, pops and crunches. */
+function noise(start: number, dur: number, freq: number, vol = 0.1, q = 1, sweepTo?: number) {
+  const dest = out();
+  if (!ctx || !dest) return;
+  const t0 = ctx.currentTime + start;
+  const n = ctx.createBufferSource();
+  const buf = ctx.createBuffer(1, Math.max(1, Math.round(ctx.sampleRate * dur)), ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  n.buffer = buf;
+  const f = ctx.createBiquadFilter();
+  f.type = 'bandpass';
+  f.frequency.setValueAtTime(freq, t0);
+  if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t0 + dur);
+  f.Q.value = q;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(vol, t0 + Math.min(0.02, dur / 3));
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  n.connect(f).connect(g).connect(dest);
+  n.start(t0);
+}
+
+// Pentatonic ladder (C major) for counting: each next item a step higher.
+const LADDER = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.5, 1567.98, 1760, 2093];
+
+/** Soft wooden knock for any button. */
+export const tap = () => {
+  tone(520, 0, 0.07, 0.07, 'triangle', 380);
+  noise(0, 0.03, 2500, 0.03, 2);
+};
+
+/** Screen solved / right answer: a bright little marimba run. */
 export const chime = () => {
-  tone(1046.5, 0, 0.35);
-  tone(1318.5, 0.09, 0.35);
-  tone(1568, 0.18, 0.5);
+  mallet(783.99, 0, 0.11);
+  mallet(987.77, 0.08, 0.11);
+  mallet(1174.66, 0.16, 0.12);
+  mallet(1567.98, 0.26, 0.13, 0.7);
 };
 
 /** Tiny pop when something gets marked. */
 export const pop = () => tone(880, 0, 0.12, 0.08, 'triangle');
 
-/** Gentle low "hmm" for a miss — never harsh. */
+/** Counting one more thing: the n-th step up the ladder (1-based). */
+export const count = (n: number) => mallet(LADDER[Math.max(0, Math.min(LADDER.length - 1, n - 1))], 0, 0.1, 0.3);
+
+/** Gentle "oh-oh" for a miss – never harsh. */
 export const soft = () => {
-  tone(392, 0, 0.18, 0.06, 'triangle');
-  tone(349, 0.12, 0.25, 0.05, 'triangle');
+  tone(440, 0, 0.16, 0.07, 'triangle', 415);
+  tone(349.23, 0.15, 0.3, 0.07, 'triangle', 330);
+};
+export const wrong = soft;
+
+/** A step of the medal path got filled: a sparkle. */
+export const star = () => {
+  [1567.98, 2093, 2637].forEach((f, i) => tone(f, i * 0.05, 0.25, 0.05));
 };
 
+/** Medal: drum roll, fanfare and a shimmer on top. */
 export const fanfare = () => {
-  [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, i * 0.12, 0.5, 0.1));
+  for (let i = 0; i < 10; i++) noise(i * 0.045, 0.06, 180, 0.08, 0.8);
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => mallet(f, 0.5 + i * 0.12, 0.12, 0.5));
+  tone(1046.5, 1.0, 1.0, 0.08, 'triangle');
+  tone(1318.5, 1.0, 1.0, 0.06, 'triangle');
+  tone(1567.98, 1.0, 1.0, 0.06, 'triangle');
+  for (let i = 0; i < 8; i++) tone(2093 + i * 260, 1.1 + i * 0.05, 0.2, 0.025);
+};
+
+/** The present appears: a magic shimmer. */
+export const magic = () => {
+  for (let i = 0; i < 12; i++) tone(LADDER[i % LADDER.length] * 1.5, i * 0.04, 0.35, 0.035);
+};
+
+/** Moving on to the next screen. */
+export const whoosh = () => noise(0, 0.45, 400, 0.07, 0.7, 2600);
+
+/** A balloon flies away: pop and a rising whistle. */
+export const balloon = () => {
+  noise(0, 0.08, 1800, 0.18, 0.6);
+  tone(600, 0.05, 0.6, 0.05, 'sine', 1800);
+};
+
+/** Dice rattling on the table. */
+export const rattle = () => {
+  for (let i = 0; i < 7; i++) noise(i * 0.07 + Math.random() * 0.02, 0.035, 2200 + Math.random() * 1200, 0.1, 3);
+};
+
+/** Crunch crunch: the animal eats a treat. */
+export const munch = () => {
+  for (let i = 0; i < 3; i++) noise(i * 0.22, 0.12, 900 + i * 150, 0.14, 1.2);
 };
 
 /** One soft cartoon "woof": a falling growly tone with a puff of noise, at time offset `start`. */
@@ -138,4 +233,28 @@ export const slurp = () => {
   o.connect(g).connect(ctx.destination);
   o.start(t0);
   o.stop(t0 + 0.2);
+};
+
+/** Curious "hm?" for the head tilt. */
+export const wonder = () => tone(330, 0, 0.35, 0.08, 'triangle', 520);
+
+/** Happy trill for the wiggle. */
+export const trill = () => {
+  for (let i = 0; i < 6; i++) tone(i % 2 ? 1318.5 : 1046.5, i * 0.07, 0.1, 0.05, 'triangle');
+};
+
+/** Silly wobble for crossed eyes. */
+export const wobble = () => {
+  for (let i = 0; i < 4; i++) tone(i % 2 ? 300 : 420, i * 0.1, 0.12, 0.06, 'sine');
+};
+
+/** Ear flaps. */
+export const flap = (times = 4) => {
+  for (let i = 0; i < times; i++) noise(i * 0.27, 0.09, 700, 0.07, 0.8);
+};
+
+/** "Hap-čí!" */
+export const sneeze = () => {
+  tone(500, 0, 0.45, 0.04, 'sine', 900);
+  noise(0.5, 0.25, 3000, 0.16, 0.7, 1200);
 };

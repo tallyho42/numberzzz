@@ -5,7 +5,7 @@ import { card } from '../core/ui';
 import { plural, numWord, numAcc, numNom } from '../core/czech';
 import { recordResult, store } from '../core/progress';
 import { itemGroup, itemSvg, ITEM_NAMES, dotPattern, ICONS } from '../art/art';
-import { chime, pop, soft } from '../core/sound';
+import { chime, count, balloon, rattle } from '../core/sound';
 import { theme, giftsIn } from '../themes';
 import { answerButtons, countAloud, placeItems } from './choice';
 
@@ -32,12 +32,11 @@ export const tapnum: Activity<{ n: number }> = (api, { n }) => {
       if (m === n) {
         done = true;
         b.classList.add('fly');
-        pop();
+        balloon();
         recordResult('other', n, fails < 2);
         setTimeout(() => api.success(), 700);
       } else {
         fails++;
-        soft();
         flash(b, 'shake');
         api.fail();
         void api.say(`To je ${numWord(m)}. Hledáme číslo ${numWord(n)}.`);
@@ -89,8 +88,9 @@ export const feed: Activity<{ n: number }> = (api, { n }) => {
       inTrough[free] = b;
       b.style.left = `${slots[free].x - 41}px`;
       b.style.top = `${slots[free].y - 41}px`;
-      pop();
-      void api.say(numWord(update()));
+      const k = update();
+      count(k);
+      void api.say(numWord(k));
     });
     c.append(b);
   });
@@ -104,7 +104,6 @@ export const feed: Activity<{ n: number }> = (api, { n }) => {
       api.success();
     } else {
       fails++;
-      soft();
       api.fail();
       void api.say(`V korýtku ${k >= 2 && k <= 4 ? 'jsou' : 'je'} ${numNom(k, name.g)} ${plural(k, name)}. ${t.animal.Nom} chce ${numAcc(n, name.g)} ${plural(n, name)}.`);
     }
@@ -136,7 +135,6 @@ export const compare: Activity<{ a: number; b: number; less: boolean }> = (api, 
         api.success();
       } else {
         fails++;
-        soft();
         flash(el, 'shake');
         api.fail();
         if (fails === 2) {
@@ -181,13 +179,13 @@ export const dice: Activity<Record<string, never>> = (api) => {
   onTap(die, async () => {
     if (rolling || left > 0) return;
     rolling = true;
+    rattle();
     let v = 1;
     for (let k = 0; k < 8; k++) {
       v = randInt(1, 6);
       die.innerHTML = dieFace(v);
       await wait(70 + k * 15);
     }
-    pop();
     left = Math.min(v, STEPS - pos);
     rolling = false;
     await api.say(`Na kostce je ${numWord(v)}. Ťukej na kamínky.`);
@@ -203,7 +201,7 @@ export const dice: Activity<Record<string, never>> = (api) => {
     token.style.left = `${stones[i].x - 60}px`;
     token.style.top = `${stones[i].y - 118}px`;
     stoneEls[i].classList.add('visited');
-    pop();
+    count(counted);
     void api.say(numWord(counted));
     mark();
     if (left === 0) {

@@ -3,7 +3,7 @@
  * It breathes, blinks, looks around and wags; a tap makes it do a random trick.
  */
 import { h } from './dom';
-import { boing, slurp } from './sound';
+import { boing, slurp, wonder, trill, wobble, flap, whoosh, sneeze } from './sound';
 
 export type Part = 'tail' | 'body' | 'head' | 'earL' | 'earR';
 
@@ -98,7 +98,7 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
       el.classList.add('fast');
       return mood('tongue joy', 1700).then(() => el.classList.remove('fast'));
     },
-    tilt: () => Promise.all([mood('wonder', 1300), anim(head, [{ transform: 'rotate(0)' }, { transform: 'rotate(13deg)', offset: 0.25 }, { transform: 'rotate(13deg)', offset: 0.75 }, { transform: 'rotate(0)' }], 1300)]),
+    tilt: () => (wonder(), Promise.all([mood('wonder', 1300), anim(head, [{ transform: 'rotate(0)' }, { transform: 'rotate(13deg)', offset: 0.25 }, { transform: 'rotate(13deg)', offset: 0.75 }, { transform: 'rotate(0)' }], 1300)])),
     jump: () => {
       boing();
       return Promise.all([
@@ -114,16 +114,18 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
       ]);
     },
     wiggle: () => {
+      trill();
       el.classList.add('fast');
       return Promise.all([
         anim(inner, [0, -5, 5, -5, 5, -3, 0].map((d) => ({ transform: `rotate(${d}deg)` })), 1000),
         mood('joy tongue', 1000),
       ]).then(() => el.classList.remove('fast'));
     },
-    cross: () => mood('cross tongue', 1500),
-    ears: () => flapEars(4, -16, 1100),
-    spin: () => anim(inner, [{ transform: 'rotateY(0)' }, { transform: 'rotateY(360deg)' }], 900),
+    cross: () => (wobble(), mood('cross tongue', 1500)),
+    ears: () => (flap(4), flapEars(4, -16, 1100)),
+    spin: () => (whoosh(), anim(inner, [{ transform: 'rotateY(0)' }, { transform: 'rotateY(360deg)' }], 900)),
     sneeze: async () => {
+      sneeze();
       await Promise.all([anim(head, [{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(-6deg) scale(1.03)' }], 500, 'ease-out'), mood('wonder', 500)]);
       await Promise.all([mood('joy', 500), anim(head, [{ transform: 'rotate(-6deg) scale(1.03)' }, { transform: 'rotate(5deg) translateY(3%) scale(0.98)', offset: 0.25 }, { transform: 'rotate(0) scale(1)' }], 500)]);
     },

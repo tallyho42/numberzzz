@@ -5,7 +5,7 @@ import { plural, numWord } from '../core/czech';
 import { recordResult } from '../core/progress';
 import { itemGroup, ITEM_NAMES, dotPattern, type ItemKind } from '../art/art';
 import { theme } from '../themes';
-import { soft } from '../core/sound';
+import { count as countSound } from '../core/sound';
 import type { P } from '../core/geometry';
 
 export { dotPattern };
@@ -48,7 +48,6 @@ export function answerButtons(
             opts.onCorrect();
           } else {
             fails++;
-            soft();
             flash(b, 'shake');
             api.fail();
             void api.say(`To je ${numWord(n)}. Zkus to ještě jednou.`).then(() => opts.onWrong?.(fails));
@@ -69,6 +68,7 @@ export async function countAloud(api: ActivityApi, parent: HTMLElement, pts: P[]
     const b = h('div', { class: 'count-badge pop', style: { left: `${pts[i].x + offset.x}px`, top: `${pts[i].y + offset.y}px` } }, String(i + 1));
     parent.append(b);
     badges.push(b);
+    countSound(i + 1);
     await api.say(numWord(i + 1));
     await wait(150);
   }

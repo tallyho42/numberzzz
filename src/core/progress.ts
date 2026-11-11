@@ -6,6 +6,8 @@ export interface Settings {
   tolerance: number;
   digits: number[];
   ink: string;
+  /** Sound effects on/off (the voice is separate). */
+  sound?: boolean;
   /** Counting activities use numbers 1..countMax. */
   countMax: number;
   /** How the voice addresses the child (Czech vocative, e.g. "Medo"); empty = no name. */
@@ -51,7 +53,7 @@ const LOG_KEY = 'numberzzz.v1.log';
 export const DIGIT_ORDER = [1, 7, 4, 0, 6, 9, 2, 3, 5, 8, 10];
 
 const defaults = (): Store => ({
-  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#D9617F', countMax: 10, name: 'Medo' },
+  settings: { minutes: 15, tolerance: 2, digits: [...DIGIT_ORDER], ink: '#D9617F', countMax: 10, name: 'Medo', sound: true },
   stats: {},
   medals: 0,
   medalsBy: {},

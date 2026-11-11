@@ -1,3 +1,4 @@
+import { tap } from './sound';
 type Child = Node | string | null | undefined | false;
 
 /** Small element factory. `style` may be an object, `on*` props become listeners, `html` sets innerHTML. */
@@ -40,10 +41,12 @@ export function onTap(el: HTMLElement, fn: () => void) {
     const pad = 12;
     if (e.clientX < r.left - pad || e.clientX > r.right + pad || e.clientY < r.top - pad || e.clientY > r.bottom + pad) return;
     lastTap = Date.now();
+    tap();
     fn();
   });
   el.addEventListener('click', () => {
     if (Date.now() - lastTap < 800) return;
+    tap();
     fn();
   });
 }

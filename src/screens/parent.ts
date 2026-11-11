@@ -12,7 +12,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
   const render = () => {
     root.innerHTML = '';
     const s = store.settings;
-    const seg = <T extends number>(values: T[], cur: T, label: (v: T) => string, set: (v: T) => void) =>
+    const seg = <T extends number | boolean>(values: T[], cur: T, label: (v: T) => string, set: (v: T) => void) =>
       h('div', { class: 'seg' }, ...values.map((v) => h('button', { class: v === cur ? 'on' : '', onClick: () => { set(v); save(); render(); } }, label(v))));
 
     const header = h('div', { class: 'p-head' }, h('h1', {}, 'Pro rodiče'), h('button', { class: 'p-close', 'aria-label': 'Zavřít', onClick: opts.close }, '✕'));
@@ -21,6 +21,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
 
     const nameIn = h('input', { type: 'text', value: s.name, placeholder: 'např. Medo', id: 'childname', autocomplete: 'off', class: 'p-text' }) as HTMLInputElement;
     nameIn.addEventListener('change', () => { s.name = nameIn.value.trim(); save(); });
+    const soundSec = h('section', {}, h('h2', {}, 'Zvuky (ťuknutí, správně, medaile…)'), seg([true, false], s.sound !== false, (v) => (v ? 'Zapnuto' : 'Vypnuto'), (v) => (s.sound = v)));
     const nameSec = h('section', {}, h('label', { for: 'childname' }, 'Oslovení (5. pád, hlas ho říká)'), nameIn);
 
     const tol = h('input', { type: 'range', min: '1', max: '5', value: String(s.tolerance), id: 'tol' }) as HTMLInputElement;
@@ -72,7 +73,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
     const data = h('section', {}, h('h2', {}, 'Data'), h('div', { class: 'p-row' }, exportBtn, resetBtn),
       h('p', { class: 'p-note' }, hasCzechVoice() ? 'Český hlas: nalezen.' : 'Český hlas nenalezen – v iPadu: Nastavení › Zpřístupnění › Předčítání › Hlasy › Čeština.'));
 
-    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, nameSec, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, data)));
+    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, nameSec, soundSec, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, data)));
   };
   render();
 }

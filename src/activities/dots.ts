@@ -5,7 +5,7 @@ import { pickFresh } from '../core/progress';
 import { card, horseGuide } from '../core/ui';
 import { acceptPointer, localPoint, capture } from '../core/pointer';
 import { numWord } from '../core/czech';
-import { pop } from '../core/sound';
+import { count } from '../core/sound';
 
 const W = 620;
 const H = 600;
@@ -204,7 +204,7 @@ export const dots: Activity<Record<string, never>> = (api) => {
     if (n && Math.hypot(p.x - n[0], p.y - n[1]) < 34) {
       lines.insertAdjacentHTML('beforeend', `<line x1="${PTS[k][0]}" y1="${PTS[k][1]}" x2="${n[0]}" y2="${n[1]}" stroke="${api.ink}" stroke-width="10" stroke-linecap="round"/>`);
       k++;
-      pop();
+      count(k + 1);
       setRing();
       void api.say(numWord(k + 1));
       if (k >= PTS.length - 1) {

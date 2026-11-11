@@ -3,7 +3,7 @@ import { h, flash, pick, wait } from '../core/dom';
 import { card } from '../core/ui';
 import { numWord, digitNoun } from '../core/czech';
 import { recordResult, pickFresh } from '../core/progress';
-import { pop, soft } from '../core/sound';
+import { count } from '../core/sound';
 
 export const PICTURES: { name: string; color: string; mask: string[] }[] = [
   { name: 'srdíčko', color: '#C8433A', mask: ['00000000', '01100110', '11111111', '11111111', '01111110', '00111100', '00011000', '00000000'] },
@@ -30,6 +30,7 @@ export const color: Activity<{ digit: number }> = (api, { digit }) => {
   c.append(grid);
   api.layer.append(c);
   let left = 0;
+  let colored = 0;
   let fails = 0;
   let done = false;
   const handlers = new Map<Element, () => void>();
@@ -65,8 +66,8 @@ export const color: Activity<{ digit: number }> = (api, { digit }) => {
         if (target) {
           b.classList.add('colored');
           b.style.background = pic.color;
-          pop();
           left--;
+          count(++colored);
           if (left === 0) {
             done = true;
             grid.classList.add('revealed');
@@ -77,7 +78,6 @@ export const color: Activity<{ digit: number }> = (api, { digit }) => {
           }
         } else {
           fails++;
-          soft();
           flash(b, 'shake');
           api.fail();
           void api.say(`To je ${numWord(n)}. Hledáme ${digitNoun(digit)}.`);

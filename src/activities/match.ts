@@ -6,7 +6,7 @@ import { acceptPointer, localPoint, capture } from '../core/pointer';
 import { itemGroup, type ItemKind } from '../art/art';
 import { dotPattern } from './choice';
 import { recordResult } from '../core/progress';
-import { soft, pop } from '../core/sound';
+import { pop } from '../core/sound';
 import { placeItems } from './choice';
 
 const W = 1000;
@@ -120,7 +120,6 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
         api.success();
       }
     } else {
-      soft();
       api.fail();
       line.classList.add('fade-out');
       setTimeout(() => line.remove(), 700);
