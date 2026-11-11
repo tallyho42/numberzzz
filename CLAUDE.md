@@ -29,7 +29,7 @@ Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očeká
 - Odměna: medaile odemykají věci do koníkovy stáje (sbírka, ne nekonečná hra).
 
 ## Session
-Psaní a počítání jsou oddělené: psaní = jedno nové číslo + 1–2 k opakování (bez opakování a ≥30 min přibude druhé nové); počítání/poznávání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje. Každá zastávka (~4 obrazovky) procvičuje psaní jen jednoho čísla (obtahování/psaní/oprava), mezi tím počítání. Psaní a počítání se střídají, stejná aktivita nikdy dvakrát za sebou, délka se plní podle odhadu minut na aktivitu, zastávky po ~4 obrazovkách. Začít snadno, na konci znovu napsat nové číslo a skončit hrou. Nepřečtená čísla mají na tlačítkách tečkovou nápovědu (zmizí od úrovně 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
+Psaní a počítání jsou oddělené: psaní = jedno nové číslo + 1–2 k opakování (bez opakování a ≥30 min přibude druhé nové); počítání/poznávání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje. Každá zastávka (~4 obrazovky) procvičuje psaní jen jednoho čísla (obtahování/psaní/oprava), mezi tím počítání. Psaní a počítání se střídají, stejná aktivita nikdy dvakrát za sebou, délka se plní podle odhadu minut na aktivitu, zastávky po ~4 obrazovkách. Začít snadno, na konci znovu napsat nové číslo a skončit hrou. Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
 
 ## Tvary číslic
 Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou zdroj pravdy pro obtahování i šablony rozpoznávání. Desítka = „1“ + „0“ s posunem 0,82 šířky.

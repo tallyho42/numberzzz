@@ -129,8 +129,13 @@ export function recordResult(kind: 'trace' | 'write' | 'other', d: number, succe
   save();
 }
 
-/** Numerals she can't read yet get a small dot hint on answer buttons (it fades once she writes them). */
-export const needsHint = (n: number) => n > 0 && (store.stats[String(n)]?.level ?? 0) < 2;
+/**
+ * Answer buttons show a small dot hint while she can't read the numerals yet. All buttons or none:
+ * a hint missing on just one number (say 1, written well first) looks like a mistake, so the dots
+ * go only once every number in the counting range has reached level 2.
+ */
+export const needsHint = (n: number) =>
+  n > 0 && Array.from({ length: store.settings.countMax }, (_, i) => i + 1).some((d) => (store.stats[String(d)]?.level ?? 0) < 2);
 
 export function markSeen(d: number) {
   stat(d);
