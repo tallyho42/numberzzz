@@ -34,6 +34,12 @@ Obtahování číslice, psaní samostatně ($P/$Q recognizer, ověření očeká
 ## Tvary číslic
 Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou zdroj pravdy pro obtahování i šablony rozpoznávání. Desítka = „1“ + „0“ s posunem 0,82 šířky.
 
+## Vývoj
+- `npm run dev` (Vite, i na iPadu v síti), `npm run build` = typová kontrola + build do `dist/`.
+- Push do `main` → GitHub Action nasadí na GitHub Pages: https://tallyho42.github.io/numberzzz/ (repo je veřejné).
+- Rychlé otevření jedné aktivity: `#zkus=<typ>-<číslo>` (např. `#zkus=trace-3`), dále `#zkus=medaile|staj|rodice`.
+- Kód: `src/core` (ink, recognizer $P, voice, progress, session), `src/activities` (jedna aktivita = funkce `(api, params)`), `src/screens`, `src/art` (koník jako SVG).
+
 ## Postup
 1. Prototyp obtahování jedné číslice – ukázat uživateli na iPadu před pokračováním.
 2. Engine + téma „koně“ + obtahování, psaní, kolik jich je, spojovačka.
