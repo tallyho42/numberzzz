@@ -9,6 +9,7 @@ import { chime, count, balloon, rattle } from '../core/sound';
 import { theme, giftsIn } from '../themes';
 import { toIt } from '../themes/types';
 import { answerButtons, countAloud, placeItems } from './choice';
+import { crossable } from './cross';
 
 const BALLOON_COLORS = ['#D9617F', '#7FA7C4', '#E2B13F', '#6E9B4C', '#E07B2C', '#8C6BB0'];
 
@@ -127,6 +128,7 @@ export const compare: Activity<{ a: number; b: number; less: boolean }> = (api, 
     const size = Math.max(n, a, b) <= 5 ? 96 : 76;
     const pts = placeItems(n, 390, 470, size);
     el.append(frag(`<svg width="390" height="470" viewBox="0 0 390 470" aria-hidden="true">${pts.map((p) => itemGroup(kind, p.x, p.y, size / 40, randInt(-20, 20))).join('')}</svg>`));
+    crossable(el, pts, size, api.ink);
     onTap(el, async () => {
       if (done) return;
       if (n === want) {

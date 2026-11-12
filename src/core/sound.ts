@@ -19,7 +19,7 @@ export function unlockSound() {
 /** Where every sound goes: silent when sounds are switched off in the parent screen. */
 function out(): AudioNode | null {
   if (!ctx || !master) return null;
-  master.gain.value = store.settings.sound === false ? 0 : 1;
+  master.gain.value = store.settings.sound === false ? 0 : 1.2;
   return master;
 }
 
@@ -345,3 +345,6 @@ export const sparkle = () => {
 
 /** Hiding in the shell (and popping out again). */
 export const tuck = () => tone(500, 0, 0.18, 0.08, 'sine', 180);
+
+/** One brush stroke crossing a picture off. */
+export const swish = () => noise(0, 0.2, 1800, 0.09, 0.9, 700);

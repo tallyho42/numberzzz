@@ -38,8 +38,9 @@ function masks(t: Theme) {
     return d.data[(y * W + x) * 4 + 3] > 80;
   };
   /** On the part or close to it (so a crown just above the head still counts). */
-  const near = (p: string, fx: number, fy: number, r = 0.05) => {
-    for (let a = 0; a < 8; a++) if (at(p, fx + Math.cos(a) * r, fy + Math.sin(a) * r * 0.7)) return true;
+  const near = (p: string, fx: number, fy: number) => {
+    for (const r of [0.05, 0.1, 0.14])
+      for (let a = 0; a < 12; a++) if (at(p, fx + Math.cos((a * Math.PI) / 6) * r, fy + Math.sin((a * Math.PI) / 6) * r * 0.7)) return true;
     return at(p, fx, fy);
   };
   return (fx: number, fy: number): 'head' | 'body' | null => {
@@ -93,7 +94,10 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
       const g = (e.target as Element).closest?.('.worn-item');
       if (!g) return;
       e.stopPropagation();
-      startDrag(e, Number(g.getAttribute('data-gift')), slots[Number(g.getAttribute('data-gift'))]);
+      // Keep the spot where the finger took hold, so the accessory does not jump under it.
+      const r = g.querySelector('image')?.getBoundingClientRect();
+      const grab = r ? { x: e.clientX - (r.left + r.width / 2), y: e.clientY - (r.top + r.height / 2) } : undefined;
+      startDrag(e, Number(g.getAttribute('data-gift')), slots[Number(g.getAttribute('data-gift'))], grab);
     },
     true,
   );
@@ -106,7 +110,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
     return { x: (x - r.left) / k, y: (y - r.top) / k, k };
   };
 
-  function startDrag(e: PointerEvent, i: number, home: HTMLElement) {
+  function startDrag(e: PointerEvent, i: number, home: HTMLElement, grab = { x: 0, y: 0 }) {
     if (dragging || !home) return;
     e.preventDefault();
     dragging = true;
@@ -117,7 +121,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
     const ghost = h('div', { class: 'drag-ghost', style: { width: `${px}px`, height: `${px}px`, transform: `rotate(${rot}deg) scale(1.08)` }, html: g.icon(px) });
     stage.append(ghost);
     const move = (x: number, y: number) => {
-      const p = toStage(x, y);
+      const p = toStage(x - grab.x, y - grab.y);
       ghost.style.left = `${p.x - px / 2}px`;
       ghost.style.top = `${p.y - px / 2}px`;
     };
@@ -134,7 +138,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
-      void drop(i, ghost, px, ev.clientX, ev.clientY, home).finally(() => (dragging = false));
+      void drop(i, ghost, px, ev.clientX - grab.x, ev.clientY - grab.y, home).finally(() => (dragging = false));
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);

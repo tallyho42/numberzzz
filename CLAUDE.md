@@ -35,7 +35,7 @@ Původní směr „Louka“ (https://claude.ai/artifact/B6paPUN6ZV5eYHhxzxF1Kz) 
 Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samostatně ($P recognizer, ověření očekávané číslice), oprav koníka (jen v testeru).
 Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, dokresli N věcí, kolik se schovalo, tajné kouzlo, spojovačka 1–10, ťukni na číslo (balónky, bez teček), nakrm zvířátko (dát přesně N), kde je víc/míň, hod kostkou (skákat po kamíncích), chybí kamínek (pořadí čísel). Bleskový pohled byl odebrán (nefungoval).
 - Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
-- Zvuky (`core/sound.ts`, Web Audio, bez souborů): ťuknutí na každé tlačítko, „oh-oh“ při každém `api.fail()`, žebřík tónů při počítání (`count(n)`), jiskra za tečku cesty, marimba za vyřešenou obrazovku, bubínek + fanfára u medaile, kouzlo + chroupání u dárku, balónek, kostka, kousky zvířete. Vypínač v rodičovském nastavení.
+- Zvuky (`core/sound.ts`, Web Audio, bez souborů, hlasitost 1,2): ťuknutí na každé tlačítko, „oh-oh“ při každém `api.fail()`, žebřík tónů při počítání (`count(n)`), jiskra za tečku cesty, marimba za vyřešenou obrazovku, bubínek + fanfára u medaile, kouzlo + chroupání u dárku, balónek, kostka, kousky zvířete. Vypínač v rodičovském nastavení.
 - Jméno (5. pád v rodičovském nastavení, výchozí „Medo“) zazní jen v pozdravu „Ahoj Medo!“: na začátku cesty za medailí a jednou po otevření hry. Jinde se neoslovuje.
 
 ## Témata a odměny
@@ -50,7 +50,8 @@ Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, d
 - Hra = několik cest k medaili (15 min ≈ 1, 30 min ≈ 3, 45 min ≈ 4). Cesta: počítání · obtahování s čárkami · 2× počítání · obtahování jen se slabou číslicí · 2× počítání · psaní bez nápovědy → medaile + dárek. Bez samolepek.
 - V jedné cestě se píše jedno číslo; cesty střídají nové číslo a opakování (bez opakování a ≥2 cest přibude druhé nové). Počítání = celý rozsah 1–10 (nastavitelné), každé číslo jednou, než se opakuje; stejná aktivita nikdy dvakrát za sebou, max. jedna dlouhá hra (kouzlo, spojovačka, kostka) na cestu. Začít snadno.
 - Nahoře pruh cesty: tečka za obrazovku (psaní růžové, počítání zelené), na konci medaile.
-- Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
+- Čísla na tlačítkách mají tečkovou nápovědu – vždy všechna, nebo žádné (zmizí, až mají všechna čísla v rozsahu počítání úroveň 2). Kde se počítají obrázky (kolik jich je, najdi a spočítej, kolik se schovalo), jsou tlačítka jen s číslem.
+- Přeškrtávání (`activities/cross.ts`): ve všech cvičeních s počítáním obrázků (kolik jich je, najdi a spočítej, kde je víc, spojování, kolik se schovalo) jde spočítaný obrázek ťuknutím (u „najdi“ tužkou) přeškrtnout jedním malovaným tahem štětce; další ťuknutí tah smaže. Žádné fajfky. Pořadí psaní: 1, 7, 4 → 0, 6, 9 → 2, 3, 5 → 8 → 10.
 
 ## Tvary číslic
 Kostry tahů (rámeček 100×160, cesta = tah, začátek = zelená tečka) jsou zdroj pravdy pro obtahování i šablony rozpoznávání. Desítka = „1“ + „0“ s posunem 0,82 šířky.

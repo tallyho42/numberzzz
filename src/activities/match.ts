@@ -8,6 +8,7 @@ import { dotPattern } from './choice';
 import { recordResult } from '../core/progress';
 import { pop } from '../core/sound';
 import { placeItems } from './choice';
+import { crossable } from './cross';
 
 const W = 1000;
 const H = 600;
@@ -15,11 +16,12 @@ const ROWS = [110, 300, 490];
 const LA = 318; // left anchor x
 const RA = 742; // right anchor x
 
-function representation(n: number, kind: 'items' | 'dice', cy: number, item: ItemKind): string {
+function representation(n: number, kind: 'items' | 'dice', cy: number, item: ItemKind, spots: { x: number; y: number; size: number }[]): string {
   if (kind === 'dice') {
     return `<g transform="translate(125,${cy - 55})"><rect width="110" height="110" rx="20" fill="#FFFFFF" stroke="#20150E" stroke-width="4"/>${dotPattern(n, 110).replaceAll('#E07B2C', '#20150E')}</g>`;
   }
   const pts = placeItems(n, 220, 130, n > 6 ? 46 : 62);
+  for (const p of pts) spots.push({ x: 70 + p.x, y: cy - 65 + p.y, size: n > 6 ? 46 : 62 });
   return pts.map((p) => itemGroup(item, 70 + p.x, cy - 65 + p.y, n > 6 ? 1.05 : 1.35)).join('');
 }
 
@@ -47,10 +49,11 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
   // Scaled down from the right so the animal in the bottom-left corner stays visible.
   Object.assign(c.style, { transform: 'scale(0.9)', transformOrigin: 'right top' });
   const tiles = ROWS.map((cy) => `<rect x="60" y="${cy - 75}" width="240" height="150" rx="28" fill="#FBF7EF" stroke="#EDE4D3" stroke-width="2"/><rect x="760" y="${cy - 75}" width="160" height="150" rx="28" fill="#FBF7EF" stroke="#EDE4D3" stroke-width="2"/>`).join('');
+  const spots: { x: number; y: number; size: number }[] = [];
   const reps = left
     .map((n, i) => {
       const k = kinds[i];
-      return k === 'frame' ? tenFrame(n, ROWS[i]) : representation(n, k, ROWS[i], item);
+      return k === 'frame' ? tenFrame(n, ROWS[i]) : representation(n, k, ROWS[i], item, spots);
     })
     .join('');
   const digits = right.map((n, i) => `<text x="840" y="${ROWS[i] + 38}" text-anchor="middle" font-family="Andika, system-ui, sans-serif" font-weight="700" font-size="110" fill="#20150E">${n}</text>`).join('');
@@ -58,6 +61,7 @@ export const match: Activity<{ nums: number[] }> = (api, { nums }) => {
   const svg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;touch-action:none" role="img" aria-label="Spoj skupiny se správným číslem">
     ${tiles}${reps}${digits}<g class="lines"></g><line class="drag" stroke="${api.ink}" stroke-width="10" stroke-linecap="round" visibility="hidden"/>${anchors}</svg>`);
   c.append(svg);
+  if (spots.length) crossable(c, spots, Math.min(...spots.map((p) => p.size)), api.ink);
   api.layer.append(c);
   const lines = svg.querySelector('.lines')!;
   const drag = svg.querySelector('.drag') as SVGLineElement;

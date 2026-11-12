@@ -4,9 +4,9 @@ import { h, frag, randInt, shuffle } from '../core/dom';
 import { card } from '../core/ui';
 import { Ink } from '../core/ink';
 import { placeItems, answerButtons, countAloud } from './choice';
+import { crossable } from './cross';
 import { itemGroup, itemSvg, ITEM_NAMES, type ItemKind } from '../art/art';
 import { recordResult } from '../core/progress';
-import { pop } from '../core/sound';
 import { resampleStep } from '../core/geometry';
 
 /** Find & count: scattered items of several kinds; tick them off with the pencil, then pick the number. */
@@ -25,7 +25,6 @@ export const find: Activity<{ n: number }> = (api, { n }) => {
   const H = 600;
   const c = card(230, 140, W, H);
   c.append(frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">${items.map((it) => itemGroup(it.kind, it.x, it.y, size / 40, it.r)).join('')}</svg>`));
-  const marks = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;pointer-events:none" aria-hidden="true"></svg>`);
   api.layer.append(c);
 
   const ink = new Ink(c, W, H, {
@@ -37,14 +36,14 @@ export const find: Activity<{ n: number }> = (api, { n }) => {
         if (it.checked) continue;
         if (sp.some((p) => Math.hypot(p.x - it.x, p.y - it.y) < size * 0.42)) {
           it.checked = true;
-          pop();
-          marks.insertAdjacentHTML('beforeend', `<path class="tick" d="M${it.x - 22},${it.y + 2} l14,14 l30,-32" fill="none" stroke="${api.ink}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`);
+          marks.set(items.indexOf(it), true);
         }
       }
       void ink.fade(s, 500);
     },
   });
-  c.append(marks);
+  // The pencil draws over the pictures (a tap or a stroke over one strikes it through).
+  const marks = crossable(c, items, size, api.ink, { tap: false });
 
   const q = h('div', { class: 'question-card', role: 'img', 'aria-label': `Kolik je ${ITEM_NAMES[target].many}?`, html: `${itemSvg(target, 96)}<span>?</span>` });
   q.style.left = '890px';
@@ -55,6 +54,7 @@ export const find: Activity<{ n: number }> = (api, { n }) => {
     left: 920,
     top: 298,
     size: 140,
+    dots: false,
     onCorrect: () => {
       recordResult('other', n, true);
       api.success();
@@ -67,6 +67,6 @@ export const find: Activity<{ n: number }> = (api, { n }) => {
     },
   });
   const name = ITEM_NAMES[target];
-  void api.instruct(`Najdi všechny ${name.few} a spočítej je. Můžeš si je tužkou odškrtávat. Kolik je ${name.many}?`);
+  void api.instruct(`Najdi všechny ${name.few} a spočítej je. Spočítané si můžeš přeškrtnout. Kolik je ${name.many}?`);
   return () => ink.destroy();
 };

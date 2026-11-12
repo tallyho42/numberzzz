@@ -90,7 +90,9 @@ export function wornSvgs(t: Theme, height: number, skip = -1): { head: string; b
     const p = placement(t, i);
     if (!p || i === skip) continue;
     const img = paintedImage(t.gifts[i].art, [0, 0, 100, 100], p.x, p.y, p.size, p.size * k, undefined, p.rot ? `rotate(${p.rot} ${p.x} ${p.y})` : '');
-    out[p.on] += `<g class="worn-item" data-gift="${i}">${img}</g>`;
+    // An invisible circle round each one makes small accessories easy to grab with a finger.
+    const grab = `<circle cx="${p.x}" cy="${p.y}" r="${Math.max(p.size * 0.5, 90)}" fill="#000" fill-opacity="0"/>`;
+    out[p.on] += `<g class="worn-item" data-gift="${i}">${grab}${img}</g>`;
   }
   return out;
 }
@@ -175,8 +177,8 @@ export async function give(c: Critter, item: HTMLElement, g: { food?: boolean; s
 const DOT_BRUSH = { angle: 60, dry: 0.42, zone: 3, edge: 1.1, bristle: 2.4, grain: 0.5, tone: 0.4, speck: 0.35, speckRange: 4 };
 
 /** Big round number button used by all "pick the number" activities. */
-export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void, size = 150): HTMLButtonElement {
-  const hint = needsHint(n);
+export function numberButton(n: number, onPick: (btn: HTMLButtonElement) => void, size = 150, dots = true): HTMLButtonElement {
+  const hint = dots && needsHint(n);
   const fs = Math.round(size * (n >= 10 ? 0.5 : 0.66) * (hint ? 0.8 : 1));
   const b = h('button', { class: `num-btn ${hint ? 'hinted' : ''}`, 'aria-label': `Číslo ${n}`, style: { width: `${size}px`, height: `${size}px`, fontSize: `${fs}px` } }, h('span', {}, String(n)));
   if (hint) {

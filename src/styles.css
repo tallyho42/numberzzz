@@ -127,6 +127,7 @@ button {
 .critter { position: relative; cursor: pointer; touch-action: none; }
 .c-all, .c-part { position: absolute; inset: 0; }
 .c-all { transform-origin: 50% 100%; will-change: transform; }
+.critter .c-part { pointer-events: none; }
 .critter img, .critter svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; -webkit-user-drag: none; }
 .c-body, .c-front { transform-origin: 50% 100%; animation: breathe-soft 3.6s ease-in-out infinite; }
 .c-tail { animation: wag 1.1s ease-in-out infinite; }
@@ -185,6 +186,10 @@ button {
 .num-btn.hinted { flex-direction: column; gap: 2px; }
 .num-btn.hinted span { margin-top: 4px; }
 .dot-hint { display: flex; pointer-events: none; }
+.cross-layer { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.cross-hit { position: absolute; border-radius: 50%; pointer-events: auto; touch-action: none; cursor: pointer; }
+.cross-mark { position: absolute; pointer-events: none; }
+.cross-mark img { display: block; width: 100%; height: 100%; }
 .dot-hint img { display: block; }
 
 .question-card {

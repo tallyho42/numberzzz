@@ -2,11 +2,12 @@ import type { Activity, ActivityApi } from './types';
 import { h, onTap, frag, box, choices, flash, wait, randInt, pick, shuffle } from '../core/dom';
 import { card, numberButton } from '../core/ui';
 import { plural, numWord } from '../core/czech';
-import { recordResult } from '../core/progress';
+import { recordResult, store } from '../core/progress';
 import { itemGroup, ITEM_NAMES, dotPattern, type ItemKind } from '../art/art';
 import { theme } from '../themes';
 import { fem } from '../themes/types';
 import { count as countSound } from '../core/sound';
+import { crossable } from './cross';
 import type { P } from '../core/geometry';
 
 export { dotPattern };
@@ -31,7 +32,7 @@ export function placeItems(n: number, w: number, h: number, size: number, avoid:
 export function answerButtons(
   api: ActivityApi,
   correct: number,
-  opts: { left: number; top: number; row?: boolean; size?: number; min?: number; max?: number; onWrong?: (fails: number) => void; onCorrect: () => void },
+  opts: { left: number; top: number; row?: boolean; size?: number; min?: number; max?: number; dots?: boolean; onWrong?: (fails: number) => void; onCorrect: () => void },
 ) {
   const size = opts.size ?? 150;
   const wrap = h('div', { class: opts.row ? 'answers row' : 'answers', style: box(opts.left, opts.top) });
@@ -55,6 +56,7 @@ export function answerButtons(
           }
         },
         size,
+        opts.dots ?? true,
       ),
     );
   }
@@ -82,10 +84,12 @@ export const count: Activity<{ n: number }> = (api, { n }) => {
   const size = n <= 5 ? 130 : 100;
   const pts = placeItems(n, 600, 560, size);
   c.append(frag(`<svg width="600" height="560" viewBox="0 0 600 560" aria-hidden="true">${pts.map((p) => itemGroup(kind, p.x, p.y, size / 40, randInt(-25, 25))).join('')}</svg>`));
+  crossable(c, pts, size, api.ink);
   api.layer.append(c);
   answerButtons(api, n, {
     left: 880,
     top: 150,
+    dots: false,
     onCorrect: () => {
       recordResult('other', n, true);
       api.success();
@@ -94,7 +98,7 @@ export const count: Activity<{ n: number }> = (api, { n }) => {
       if (fails === 2) void countAloud(api, c, pts, { x: -22, y: -60 });
     },
   });
-  void api.instruct(`Kolik je tu ${ITEM_NAMES[kind].many}? Ťukni na správné číslo.`);
+  void api.instruct(`Kolik je tu ${ITEM_NAMES[kind].many}? Spočítané si můžeš ťuknutím přeškrtnout. Pak ťukni na správné číslo.`);
 };
 
 const SPOTS: P[] = [
@@ -115,6 +119,7 @@ function meadowScene(left: number, ponies: number[], doorOpen: boolean, question
   );
   void doorOpen;
   for (const i of ponies) c.append(h('img', { src: theme().full, alt: '', style: { ...box(SPOTS[i].x + 22, SPOTS[i].y - 30, 92, 130) } }));
+  crossable(c, ponies.map((i) => ({ x: SPOTS[i].x + 68, y: SPOTS[i].y + 35 })), 100, store.settings.ink);
   return c;
 }
 
@@ -132,6 +137,7 @@ export const hide: Activity<{ total: number; hidden: number }> = (api, { total, 
     left: 590 - (3 * 136 + 2 * 40) / 2,
     top: 600,
     row: true,
+    dots: false,
     size: 136,
     min: 1,
     max: Math.max(3, total),
