@@ -97,7 +97,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
       // Keep the spot where the finger took hold, so the accessory does not jump under it.
       const r = g.querySelector('image')?.getBoundingClientRect();
       const grab = r ? { x: e.clientX - (r.left + r.width / 2), y: e.clientY - (r.top + r.height / 2) } : undefined;
-      startDrag(e, Number(g.getAttribute('data-gift')), slots[Number(g.getAttribute('data-gift'))], grab);
+      startDrag(e, Number(g.getAttribute('data-gift')), slots[Number(g.getAttribute('data-gift'))], grab, true);
     },
     true,
   );
@@ -110,7 +110,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
     return { x: (x - r.left) / k, y: (y - r.top) / k, k };
   };
 
-  function startDrag(e: PointerEvent, i: number, home: HTMLElement, grab = { x: 0, y: 0 }) {
+  function startDrag(e: PointerEvent, i: number, home: HTMLElement, grab = { x: 0, y: 0 }, moving = false) {
     if (dragging || !home) return;
     e.preventDefault();
     dragging = true;
@@ -138,7 +138,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
-      void drop(i, ghost, px, ev.clientX - grab.x, ev.clientY - grab.y, home).finally(() => (dragging = false));
+      void drop(i, ghost, px, ev.clientX - grab.x, ev.clientY - grab.y, home, moving).finally(() => (dragging = false));
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
@@ -153,7 +153,7 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
     await ghost.animate([{ transform: base }, { transform: `translate(${b.x - a.x}px, ${b.y - a.y}px) ${base} scale(${scale})` }], { duration: ms, easing: 'ease-in', fill: 'forwards' }).finished.catch(() => {});
   }
 
-  async function drop(i: number, ghost: HTMLElement, px: number, x: number, y: number, home: HTMLElement) {
+  async function drop(i: number, ghost: HTMLElement, px: number, x: number, y: number, home: HTMLElement, moving = false) {
     const g = t.gifts[i];
     const r = c.el.getBoundingClientRect();
     const fx = (x - r.left) / r.width;
@@ -178,7 +178,9 @@ export function stableScreen(stage: HTMLElement, onHome: () => void) {
       place(t, i, { x: Math.round(vb[0] + fx * vb[2]), y: Math.round(vb[1] + fy * vb[3]), on });
       c.setWorn(wornSvgs(t, ANIMAL_H));
       ghost.remove();
-      await c.pleased();
+      // Moving an accessory it already wears: no happy dance, so it can be picked up again at once.
+      if (moving) pop();
+      else void c.pleased(); // the next present can be dragged right away
     } else {
       // Dropped away from the animal: it comes off and goes back to the shelf.
       place(t, i, null);
