@@ -4,10 +4,10 @@ import { say, stop, unlockVoice } from './core/voice';
 import { chime, fanfare, unlockSound, wrong, star, magic, munch, whoosh } from './core/sound';
 import { store, save, newSessionId, markSeen } from './core/progress';
 import { planSession, sampleScreen, ACTIVITY_LABELS, type Station } from './core/session';
-import { praise, digitNoun, withName, hello } from './core/czech';
+import { praise, digitNoun, greetStart, greetOnce } from './core/czech';
 import { ICONS, medalSvg } from './art/art';
 import type { Critter } from './core/critter';
-import { THEMES, theme, setTheme, medalsIn, completed, awardMedal } from './themes';
+import { THEMES, theme, setTheme, medalsIn, giftsIn, completed, awardMedal } from './themes';
 import { reward, past, toIt } from './themes/types';
 import type { ActivityApi, ScreenSpec } from './activities/types';
 import { trace } from './activities/trace';
@@ -93,7 +93,7 @@ function themePicker(): HTMLElement {
       unlockSound();
       whoosh();
       home();
-      void say(`${hello('Ahoj')} Teď budeme sbírat ${reward(t).many} pro ${t.animal.gen}.`);
+      void say(`${greetOnce()}Teď budeme sbírat ${reward(t).many} pro ${t.animal.gen}.`);
     } }, h('img', { src: t.head, alt: '' }));
     if (completed(t)) b.append(h('span', { class: 'theme-done', html: ICONS.check(30, '#FFFFFF') }));
     wrap.append(b);
@@ -106,7 +106,7 @@ function showStable() {
   stableScreen(stage, home);
   stage.append(parentCorner(openParent));
   const t = theme();
-  void say(`${hello('Ahoj')} Tohle je ${t.home.of} ${t.home.nom}. ${medalsIn() ? `Za každou tvoji medaili dostane ${t.animal.nom} ${reward(t).one}.` : `Za medaile tu budou ${reward(t).many} pro ${t.animal.gen}.`} Ťukni na ${t.animal.gen}!`);
+  void say(`${greetOnce()}Tohle je ${t.home.of} ${t.home.nom}. ${giftsIn(t) ? `Vezmi dobrotu nebo ozdobu a přetáhni ji ${t.animal.dat.startsWith('k') ? 'ke' : 'k'} ${t.animal.dat}.` : `Za medaile tu budou ${reward(t).many} pro ${t.animal.gen}.`}`);
 }
 
 const ACTIVITIES: Record<ScreenSpec['type'], (api: ActivityApi, spec: any) => void | (() => void)> = {
@@ -201,7 +201,7 @@ async function pathIntro(st: Station, index: number, my: number) {
   const t = theme();
   const text = index === 0
     ? `Jdeme pro medaili! ${st.intro ? 'Naučíme se psát' : 'Budeme psát'} ${digitNoun(st.digit)} a budeme počítat. Za medaili dostane ${t.animal.nom} ${reward(t).one}.`
-    : `${withName('Další medaile čeká')} Teď budeme psát ${digitNoun(st.digit)}.`;
+    : `Další medaile čeká! Teď budeme psát ${digitNoun(st.digit)}.`;
   await say(text);
   if (my !== nav) return;
   await wait(500);
@@ -215,7 +215,7 @@ async function runSession() {
   const pet = companion(380, 40, 520);
   stage.append(pet);
   setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('hops'), 300);
-  await say(`${hello('Ahoj')} Jdeme spolu na výlet za čísly.`);
+  await say(`${greetStart()} Jdeme spolu na výlet za čísly.`);
   for (let pi = 0; pi < plan.length; pi++) {
     if (my !== nav) return;
     const st = plan[pi];
@@ -268,7 +268,7 @@ function medal(more = false): Promise<void> {
     if (gift) {
       const gp = h('div', { class: 'gift-pop pop', role: 'button', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) });
       const c = (pet as HTMLElement & { critter?: Critter }).critter;
-      if (c) onTap(gp, () => void give(c, gp.firstElementChild as HTMLElement, { food: gift.food }, false).then(() => gp.remove()));
+      if (c) onTap(gp, () => void give(c, gp.firstElementChild as HTMLElement, gift, false).then(() => gp.remove()));
       stage.append(gp);
     }
     setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('hops'), 1200);
@@ -285,7 +285,7 @@ function medal(more = false): Promise<void> {
     }
     stage.append(parentCorner(openParent));
     void (async () => {
-      await say(`${withName('Hotovo', '!', true)} Zasloužíš si medaili.`);
+      await say('Hotovo! Zasloužíš si medaili.');
       if (my !== nav) return;
       if (gift) await say(`${t.animal.Nom} ${past(t, 'dostal')} ${gift.name}. ${gift.food ? `Ťukni na ${gift.name} a dej ${toIt(t)} ochutnat!` : `Ťukni na ${gift.name}!`}`);
       else await say(`${t.animal.Nom} už má všechny ${reward(t).many}! Můžeš si vybrat nové zvířátko.`);

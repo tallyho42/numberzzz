@@ -3,7 +3,7 @@ import { HORSE } from './horse';
 import { DOG } from './dog';
 import { TURTLE } from './turtle';
 import { UNICORN } from './unicorn';
-import { store, save } from '../core/progress';
+import { store, save, type Placement } from '../core/progress';
 
 export type { Theme, Gift } from './types';
 
@@ -46,6 +46,29 @@ export function awardMedal() {
  * The total medal count in the statistics stays, it records how much she has played.
  */
 export function resetRewards(t: Theme) {
-  delete store.medalsBy[t.id];
+  setRewards(t, 0);
+}
+
+/** Parent screen: set how many presents an animal has (0–8). Accessories it loses go back to their usual spot. */
+export function setRewards(t: Theme, n: number) {
+  const k = Math.max(0, Math.min(t.gifts.length, n));
+  store.medalsBy[t.id] = k;
+  const placed = store.placed?.[t.id];
+  if (placed) for (const i of Object.keys(placed)) if (Number(i) >= k) delete placed[Number(i)];
+  save();
+}
+
+/** Where accessory `i` sits now (its usual spot unless Meda moved it), or null when taken off. */
+export function placement(t: Theme, i: number): (Placement & { size: number; rot: number }) | null {
+  const w = t.gifts[i]?.worn;
+  if (!w) return null;
+  const p = store.placed?.[t.id]?.[i];
+  if (p === null) return null;
+  return { ...(p ?? w), size: w.size, rot: w.rot ?? 0 };
+}
+
+/** Put accessory `i` on a spot (or take it off with null). */
+export function place(t: Theme, i: number, p: Placement | null) {
+  store.placed = { ...store.placed, [t.id]: { ...store.placed?.[t.id], [i]: p } };
   save();
 }

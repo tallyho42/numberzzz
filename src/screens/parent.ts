@@ -3,8 +3,7 @@ import { store, save, stat, resetProgress, DIGIT_ORDER } from '../core/progress'
 import { ACTIVITY_LABELS, sampleScreen } from '../core/session';
 import { hasCzechVoice } from '../core/voice';
 import type { ScreenSpec } from '../activities/types';
-import { THEMES, giftsIn, resetRewards } from '../themes';
-import { reward } from '../themes/types';
+import { THEMES, giftsIn, resetRewards, setRewards } from '../themes';
 
 /** Parent screen (text allowed here): settings, stats, stroke log export and an activity tester. */
 export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryScreen: (s: ScreenSpec) => void }) {
@@ -75,21 +74,25 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
     const rewards = h('section', {}, h('h2', {}, 'Odměny zvířátek'),
       ...THEMES.map((t) => {
         const n = giftsIn(t);
+        const set = (k: number) => { setRewards(t, k); render(); };
         return h('div', { class: 'p-reward' },
           h('img', { src: t.head, alt: '' }),
-          h('span', {}, `${t.animal.Nom}: ${n} / ${t.gifts.length} (${reward(t).many})`),
+          h('span', {}, t.animal.Nom),
+          h('button', { class: 'p-step', 'aria-label': 'Ubrat', disabled: n > 0 ? null : 'disabled', onClick: () => set(n - 1) }, '−'),
+          h('b', { class: 'p-count' }, `${n} / ${t.gifts.length}`),
+          h('button', { class: 'p-step', 'aria-label': 'Přidat', disabled: n < t.gifts.length ? null : 'disabled', onClick: () => set(n + 1) }, '+'),
           h('button', {
             class: 'p-danger',
             disabled: n ? null : 'disabled',
             onClick: () => {
-              if (confirm(`Vynulovat odměny – ${t.animal.nom} začne sbírat ${reward(t).many} znovu od začátku?`)) {
+              if (confirm(`Vynulovat odměny – ${t.animal.nom} začne sbírat dárky znovu od začátku?`)) {
                 resetRewards(t);
                 render();
               }
             },
           }, 'Vynulovat'));
       }),
-      h('p', { class: 'p-note' }, 'Vezme zvířátku medaile a dárky, takže je může sbírat znovu. Postup v číslech zůstává.'));
+      h('p', { class: 'p-note' }, 'Kolik dárků zvířátko má (střídají se doplňky a pamlsky). Postup v číslech zůstává.'));
     const data = h('section', {}, h('h2', {}, 'Data'), h('div', { class: 'p-row' }, exportBtn, resetBtn),
       h('p', { class: 'p-note' }, hasCzechVoice() ? 'Český hlas: nalezen.' : 'Český hlas nenalezen – v iPadu: Nastavení › Zpřístupnění › Předčítání › Hlasy › Čeština.'));
 

@@ -1,18 +1,20 @@
 import type { ItemKind } from '../art/art';
 import type { CritterDef } from '../core/critter';
 
-/** A present the child earns with a medal (max 10 per theme). */
+/** A present the child earns with a medal (8 per theme): treats to eat and accessories to wear. */
 export interface Gift {
   /** Accusative, as in "Koník dostal mašli." */
   name: string;
+  /** Flat drawing in a 100×100 frame (painted by the brush when shown). */
+  art: string;
   /** Painted picture at the given pixel size. */
   icon: (size: number) => string;
-  /** Size on the grass relative to the largest present (treats grow from tiny to big). */
+  /** Size on the grass and shelf relative to the largest present (treats grow from small to huge). */
   scale?: number;
-  /** Something the animal eats when Meda gives it (treats, apples). */
+  /** A treat: the animal eats it. */
   food?: boolean;
-  /** Worn by the animal: SVG in its art frame, on the head or the body. */
-  worn?: { svg: string; on: 'head' | 'body' };
+  /** An accessory: its usual spot (art frame), size in frame units, tilt and the part it sits on. */
+  worn?: { x: number; y: number; size: number; rot?: number; on: 'head' | 'body' };
 }
 
 /**
@@ -23,7 +25,7 @@ export interface Theme {
   id: string;
   /** Czech forms of the animal's name. */
   animal: { nom: string; gen: string; dat: string; ins: string; Nom: string; g: 'm' | 'f'; plural: { one: string; few: string; many: string } };
-  /** What the presents are called (default "dárek / dárky"; the dog gets "pamlsek / pamlsky"). */
+  /** What the presents are called (default "dárek / dárky"). */
   reward?: { one: string; many: string };
   /** Bowl in "Dokresli … do misky" (genitive). */
   bowl: string;

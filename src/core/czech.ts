@@ -35,14 +35,26 @@ const RETRY = ['Zkusíme to znovu', 'Skoro! Ještě jednou', 'Nevadí, zkusíme 
 /** The child's name in the vocative ("Medo"), set on the parent screen. */
 const childName = () => store.settings.name.trim();
 
-/** Add the child's name: "Výborně" → "Výborně, Medo!" (always when `always`, otherwise about half the time). */
-export function withName(text: string, end = '!', always = false): string {
-  const n = childName();
-  return n && (always || Math.random() < 0.6) ? `${text}, ${n}${end}` : `${text}${end}`;
+/** Praise and other lines stay without the name: the name is only in the greeting. */
+export function withName(text: string, end = '!'): string {
+  return `${text}${end}`;
 }
 
 /** "Ahoj Medo!" style: the name right after a short opener. */
 export const hello = (opener: string) => (childName() ? `${opener} ${childName()}!` : `${opener}!`);
+
+let greeted = false;
+/** The greeting at the start of a session (always) … */
+export function greetStart() {
+  greeted = true;
+  return hello('Ahoj');
+}
+/** … and once after opening the game, before whatever is said first (empty afterwards). */
+export function greetOnce() {
+  if (greeted) return '';
+  greeted = true;
+  return `${hello('Ahoj')} `;
+}
 
 export const praise = () => withName(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
 export const retry = () => withName(RETRY[Math.floor(Math.random() * RETRY.length)], '.');

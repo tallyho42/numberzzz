@@ -36,14 +36,15 @@ Psaní: obtahování číslice (s čárkami / jen slabá číslice), psaní samo
 Počítání: kolik jich je, najdi a spočítej, spojování skupin s čísly, dokresli N věcí, kolik se schovalo, tajné kouzlo, spojovačka 1–10, ťukni na číslo (balónky, bez teček), nakrm zvířátko (dát přesně N), kde je víc/míň, hod kostkou (skákat po kamíncích), chybí kamínek (pořadí čísel). Bleskový pohled byl odebrán (nefungoval).
 - Dokresli: počítají se jen stopy uvnitř velkých, jasně vyznačených zón. Věci na pevném místě = zóna na každou věc; volné věci = jedna zóna + shlukování. Tečka se počítá jako věc.
 - Zvuky (`core/sound.ts`, Web Audio, bez souborů): ťuknutí na každé tlačítko, „oh-oh“ při každém `api.fail()`, žebřík tónů při počítání (`count(n)`), jiskra za tečku cesty, marimba za vyřešenou obrazovku, bubínek + fanfára u medaile, kouzlo + chroupání u dárku, balónek, kostka, kousky zvířete. Vypínač v rodičovském nastavení.
-- Hlas oslovuje dítě jménem (oslovení v 5. pádě v rodičovském nastavení, výchozí „Medo“).
+- Jméno (5. pád v rodičovském nastavení, výchozí „Medo“) zazní jen v pozdravu „Ahoj Medo!“: na začátku cesty za medailí a jednou po otevření hry. Jinde se neoslovuje.
 
 ## Témata a odměny
 - Téma = zvířátko (`src/themes`): koník (stáj; mrkev, jablko, podkova), pejsek (bouda; kost, míček, párek), želvička (jezírko; jahoda, lísteček, mušlička) a jednorožec (zámek; dortíček, diamant, srdíčko). Přepínač na úvodní obrazovce, splněné téma má zlatou fajfku. Po dokončení koníka začíná malovaná verze pejskem.
 - Téma nese i gramatiku (`animal.g` → „dostal/dostala“, „mu/jí“), slovo pro odměny (pejsek „pamlsky“, jinak „dárky“), misku a sloveso na louce. Želvička nemá uši → „Dokresli uši“ se u ní mění na misku; místo kuk za ušima schová hlavu do krunýře (díl `front` = bříško před hlavou).
-- Rodičovská obrazovka: „Odměny zvířátek“ vynuluje medaile a dárky jednoho zvířete (celkový počet medailí ve statistice zůstává).
-- Každé téma má vlastní předměty k počítání a 10 dárků; medaile se počítají po tématech, každá odemkne další dárek. Pejsek dostává pamlsky od malých po velké (granulka, piškot, sušenka, párek, sýr, kostička, tyčinka, velká kost, stehýnko, dort) a na trávě rostou podle úrovně.
-- Zvířátko je vidět na každé obrazovce (levý dolní roh) se všemi dárky: nošené na něm, ostatní vedle na trávě; doma (stáj/bouda) jsou všechny dárky na obrázku.
+- Rodičovská obrazovka: „Odměny zvířátek“ nastaví plus/mínus, kolik dárků zvíře má (0–8), nebo je vynuluje (celkový počet medailí ve statistice zůstává).
+- Každé téma má vlastní předměty k počítání a 8 dárků (`src/themes/rewards.ts`): střídá se doplněk a pamlsek (doplněk, pamlsek, …), pamlsky rostou od malého po obří dort. Doplňky: pejsek obojek/mašle/šátek/kšiltovka, koník ohlávka/mašle/zvoneček/korunka, želvička čepička/kytička/korálky/mašle, jednorožec hvězdička/věneček/náhrdelník/mašle. Medaile se počítají po tématech, každá odemkne další dárek.
+- Doma (stáj, bouda…) se dárky z poličky přetahují ke zvířátku: pamlsek sní (víc soust a radosti u velkých), doplněk zůstane, kam ho Meda položí (`store.placed`, na hlavě nebo těle podle průhlednosti dílů) a ukazuje se na všech obrazovkách. Nasazený doplněk jde vzít a přesunout; puštěný mimo zvířátko se sundá.
+- Zvířátko je vidět na každé obrazovce (levý dolní roh) s doplňky na sobě a pamlsky vedle na trávě (ťuknutím mu je dá).
 
 ## Session
 - Hra = několik cest k medaili (15 min ≈ 1, 30 min ≈ 3, 45 min ≈ 4). Cesta: počítání · obtahování s čárkami · 2× počítání · obtahování jen se slabou číslicí · 2× počítání · psaní bez nápovědy → medaile + dárek. Bez samolepek.

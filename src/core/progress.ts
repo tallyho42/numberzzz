@@ -33,6 +33,9 @@ export interface StrokeRecord {
   strokes: { x: number; y: number; t: number; p: number }[][];
 }
 
+/** An accessory's spot on the animal, in the animal's art frame. */
+export interface Placement { x: number; y: number; on: 'head' | 'body' }
+
 interface Store {
   settings: Settings;
   stats: Record<string, DigitStat>;
@@ -44,6 +47,8 @@ interface Store {
   theme: string;
   /** One-off migrations and switches. */
   flags?: Record<string, boolean>;
+  /** Where Meda put each accessory, per theme and present index (null = taken off; missing = its usual spot). */
+  placed?: Record<string, Record<number, Placement | null>>;
   sessions: number;
   log: StrokeRecord[];
 }

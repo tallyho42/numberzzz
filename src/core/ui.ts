@@ -1,9 +1,9 @@
 import { h, onTap, frag, box, flash } from './dom';
 import { ICONS, STAR_PATH, dotPattern, medalSvg } from '../art/art';
-import { theme, giftsIn, type Theme, type Gift } from '../themes';
+import { theme, giftsIn, placement, type Theme, type Gift } from '../themes';
 import { critter, type Critter } from './critter';
 import { star } from './sound';
-import { paintedImg } from '../paint/runtime';
+import { paintedImg, paintedImage } from '../paint/runtime';
 import { needsHint } from './progress';
 
 export const W = 1180;
@@ -80,21 +80,36 @@ export function horseGuide(left: number, bottom: number, size = 300): HTMLElemen
 }
 
 /**
+ * SVG of the accessories the animal wears, split by the part they sit on. Each one is a
+ * `<g data-gift="i">` so the home screen can pick it up and move it.
+ */
+export function wornSvgs(t: Theme, height: number, skip = -1): { head: string; body: string } {
+  const out = { head: '', body: '' };
+  const k = height / t.critter.vb[3];
+  for (let i = 0; i < giftsIn(t); i++) {
+    const p = placement(t, i);
+    if (!p || i === skip) continue;
+    const img = paintedImage(t.gifts[i].art, [0, 0, 100, 100], p.x, p.y, p.size, p.size * k, undefined, p.rot ? `rotate(${p.rot} ${p.x} ${p.y})` : '');
+    out[p.on] += `<g class="worn-item" data-gift="${i}">${img}</g>`;
+  }
+  return out;
+}
+
+/**
  * The theme's animal, alive, with every present it has earned so far: worn ones on it,
  * the others lying on the grass at its feet (treats grow from tiny to big). Shown on every screen.
  * `height` is the animal's height in px.
  */
 export function companion(left: number, bottom: number, height = 240, extraClass = '', t: Theme = theme()): HTMLElement {
   const got = t.gifts.slice(0, giftsIn(t));
-  const wornOn = (on: 'head' | 'body') => got.filter((g) => g.worn?.on === on).map((g) => g.worn!.svg).join('');
-  const c = critter(t.critter, height, { head: wornOn('head'), body: wornOn('body') });
+  const c = critter(t.critter, height, wornSvgs(t, height));
   const width = parseFloat(c.el.style.width);
   const el = h('div', { class: `companion ${extraClass}`, style: { position: 'absolute', left: `${left}px`, bottom: `${bottom}px`, width: `${width}px`, height: `${height}px` } });
   el.append(c.el);
   (el as HTMLElement & { critter?: Critter }).critter = c;
   // Floor presents in two rows, small ones in front, big ones behind: at the feet in the corner,
   // spread on the grass beside the animal on the big screens.
-  const floor = got.filter((g) => !g.worn);
+  const floor = got.filter((g) => g.food);
   const side = height >= 360;
   const base = height * (side ? 0.25 : 0.3);
   const front = floor.slice(0, Math.ceil(floor.length / 2));
@@ -123,7 +138,7 @@ export function companion(left: number, bottom: number, height = 240, extraClass
  * Give a treat or present to the animal: food flies into its mouth and gets eaten,
  * then the treat appears back in its place (presents stay visible); other presents make it happy.
  */
-export async function give(c: Critter, item: HTMLElement, g: { food?: boolean }, keep = true) {
+export async function give(c: Critter, item: HTMLElement, g: { food?: boolean; scale?: number }, keep = true) {
   if (item.dataset.busy) return;
   item.dataset.busy = '1';
   if (g.food) {
@@ -144,14 +159,14 @@ export async function give(c: Critter, item: HTMLElement, g: { food?: boolean },
       .finished.catch(() => {});
     item.style.visibility = 'hidden';
     item.getAnimations().forEach((a) => a.cancel());
-    await c.eat();
+    await c.eat(g.scale);
     if (keep) {
       item.style.visibility = '';
       await item.animate([{ transform: 'scale(0.2)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.2,1.6,.5,1)' }).finished.catch(() => {});
     }
   } else {
     await item.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 450 }).finished.catch(() => {});
-    await c.trick('hops');
+    await c.pleased();
   }
   delete item.dataset.busy;
 }

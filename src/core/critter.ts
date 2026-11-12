@@ -42,8 +42,12 @@ export interface Critter {
   el: HTMLElement;
   /** Do a routine now (a random fresh one if not given). */
   trick(name?: Trick): Promise<void>;
-  /** Eat a treat (or happily take a present). */
-  eat(): Promise<void>;
+  /** Eat a treat; `size` 0–1 (bigger treats take more bites and make it happier). */
+  eat(size?: number): Promise<void>;
+  /** A short happy reaction (got an accessory). */
+  pleased(): Promise<void>;
+  /** Replace the worn accessories (SVG in the art frame). */
+  setWorn(worn: { head?: string; body?: string }): void;
   /** Where the mouth is, in client px (for flying treats). */
   mouthPoint(): { x: number; y: number };
 }
@@ -122,7 +126,7 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     inner.append(parts.tail);
   }
   const hasFront = def.parts.includes('front');
-  parts.body = h('div', { class: 'c-part c-body', html: svg(def.bodyInk ?? '') + (worn.body && !hasFront ? svg(worn.body) : '') });
+  parts.body = h('div', { class: 'c-part c-body', html: svg(def.bodyInk ?? '') + (hasFront ? '' : svg('', 'c-worn c-worn-body')) });
   parts.body.prepend(img('body'));
   inner.append(parts.body);
   const headEl = h('div', { class: 'c-part c-head', style: { transformOrigin: origin(def.pivot.head) } }, img('head'));
@@ -132,13 +136,19 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     parts[ear] = h('div', { class: `c-part c-${ear}`, style: { transformOrigin: origin(def.pivot[ear]) } }, img(ear));
     headEl.append(parts[ear]!);
   }
-  if (worn.head) headEl.insertAdjacentHTML('beforeend', svg(worn.head));
+  headEl.insertAdjacentHTML('beforeend', svg('', 'c-worn c-worn-head'));
   inner.append(headEl);
   if (hasFront) {
-    parts.front = h('div', { class: 'c-part c-front', html: svg(def.frontInk ?? '') + (worn.body ? svg(worn.body) : '') });
+    parts.front = h('div', { class: 'c-part c-front', html: svg(def.frontInk ?? '') + svg('', 'c-worn c-worn-body') });
     parts.front.prepend(img('front'));
     inner.append(parts.front);
   }
+
+  function setWorn(w: { head?: string; body?: string }) {
+    el.querySelector('.c-worn-head')!.innerHTML = w.head ?? '';
+    el.querySelector('.c-worn-body')!.innerHTML = w.body ?? '';
+  }
+  setWorn(worn);
 
   const all = new Rig(inner);
   const head = new Rig(headEl);
@@ -413,13 +423,16 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     }
   }
 
-  async function eat() {
+  async function eat(size = 0.6) {
     while (busy) await sleep(100);
     busy = true;
     try {
       tailFast(true);
+      mood('wonder', true);
       await Promise.all([head.to({ y: 2, r: 4 }, 250), earL.to({ r: -10 }, 250), earR.to({ r: 10 }, 250)]);
-      for (let i = 0; i < 4; i++) {
+      mood('wonder', false);
+      const bites = 3 + Math.round(size * 4);
+      for (let i = 0; i < bites; i++) {
         snd.chomp();
         mood('bark', true);
         await head.path([{ y: 2.8, r: 6 }, { y: 2, r: 4 }], 200);
@@ -432,9 +445,37 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
       snd.slurp();
       await tongue.path([{ y: -70, sy: 0.55 }, {}], 450);
       mood('joy', true);
-      hearts(4);
+      hearts(3 + Math.round(size * 3));
       await hop(10);
+      if (size >= 0.8) {
+        // A big treat: an extra happy spin jump and a cheer.
+        def.call();
+        snd.boing();
+        await all.to({ y: -18, ry: 360 }, 450, 'ease-out');
+        all.set({ ry: 0 });
+        await all.to({ y: 0 }, 260, 'ease-in');
+        snd.thud();
+        dust();
+        hearts(3);
+      }
       await sleep(400);
+    } finally {
+      await settle();
+      busy = false;
+    }
+  }
+
+  async function pleased() {
+    while (busy) await sleep(100);
+    busy = true;
+    try {
+      mood('joy', true);
+      tailFast(true);
+      snd.peek();
+      await Promise.all([earL.to({ r: -14 }, 200), earR.to({ r: 14 }, 200), head.path([{ r: -6 }, { r: 6 }, {}], 500)]);
+      hearts(3);
+      await hop(10);
+      await sleep(300);
     } finally {
       await settle();
       busy = false;
@@ -474,5 +515,5 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     }
   })();
 
-  return { el, trick, eat, mouthPoint };
+  return { el, trick, eat, pleased, setWorn, mouthPoint };
 }
