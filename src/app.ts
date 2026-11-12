@@ -8,6 +8,7 @@ import { praise, digitNoun, withName, hello } from './core/czech';
 import { ICONS, medalSvg } from './art/art';
 import type { Critter } from './core/critter';
 import { THEMES, theme, setTheme, medalsIn, completed, awardMedal } from './themes';
+import { reward, past, toIt } from './themes/types';
 import type { ActivityApi, ScreenSpec } from './activities/types';
 import { trace } from './activities/trace';
 import { write, fix } from './activities/write';
@@ -92,7 +93,7 @@ function themePicker(): HTMLElement {
       unlockSound();
       whoosh();
       home();
-      void say(`${hello('Ahoj')} Teď budeme sbírat ${t.id === 'dog' ? 'pamlsky' : 'dárky'} pro ${t.animal.gen}.`);
+      void say(`${hello('Ahoj')} Teď budeme sbírat ${reward(t).many} pro ${t.animal.gen}.`);
     } }, h('img', { src: t.head, alt: '' }));
     if (completed(t)) b.append(h('span', { class: 'theme-done', html: ICONS.check(30, '#FFFFFF') }));
     wrap.append(b);
@@ -105,8 +106,7 @@ function showStable() {
   stableScreen(stage, home);
   stage.append(parentCorner(openParent));
   const t = theme();
-  const what = t.id === 'dog' ? 'pamlsek' : 'dárek';
-  void say(`${hello('Ahoj')} Tohle je ${t.home.of} ${t.home.nom}. ${medalsIn() ? `Za každou tvoji medaili dostane ${t.animal.nom} ${what}.` : `Za medaile tu budou ${t.id === 'dog' ? 'pamlsky' : 'dárky'} pro ${t.animal.gen}.`} Ťukni na ${t.animal.gen}!`);
+  void say(`${hello('Ahoj')} Tohle je ${t.home.of} ${t.home.nom}. ${medalsIn() ? `Za každou tvoji medaili dostane ${t.animal.nom} ${reward(t).one}.` : `Za medaile tu budou ${reward(t).many} pro ${t.animal.gen}.`} Ťukni na ${t.animal.gen}!`);
 }
 
 const ACTIVITIES: Record<ScreenSpec['type'], (api: ActivityApi, spec: any) => void | (() => void)> = {
@@ -200,7 +200,7 @@ async function pathIntro(st: Station, index: number, my: number) {
   stage.append(c, parentCorner(openParent));
   const t = theme();
   const text = index === 0
-    ? `Jdeme pro medaili! ${st.intro ? 'Naučíme se psát' : 'Budeme psát'} ${digitNoun(st.digit)} a budeme počítat. Za medaili dostane ${t.animal.nom} ${t.id === 'dog' ? 'pamlsek' : 'dárek'}.`
+    ? `Jdeme pro medaili! ${st.intro ? 'Naučíme se psát' : 'Budeme psát'} ${digitNoun(st.digit)} a budeme počítat. Za medaili dostane ${t.animal.nom} ${reward(t).one}.`
     : `${withName('Další medaile čeká')} Teď budeme psát ${digitNoun(st.digit)}.`;
   await say(text);
   if (my !== nav) return;
@@ -268,7 +268,7 @@ function medal(more = false): Promise<void> {
     if (gift) {
       const gp = h('div', { class: 'gift-pop pop', role: 'button', 'aria-label': gift.name, html: gift.icon(Math.round(110 + 60 * (gift.scale ?? 0.8))) });
       const c = (pet as HTMLElement & { critter?: Critter }).critter;
-      if (c) onTap(gp, () => void give(c, gp.firstElementChild as HTMLElement, { food: gift.food ?? true }, false).then(() => gp.remove()));
+      if (c) onTap(gp, () => void give(c, gp.firstElementChild as HTMLElement, { food: gift.food }, false).then(() => gp.remove()));
       stage.append(gp);
     }
     setTimeout(() => (pet as HTMLElement & { critter?: Critter }).critter?.trick('hops'), 1200);
@@ -287,8 +287,8 @@ function medal(more = false): Promise<void> {
     void (async () => {
       await say(`${withName('Hotovo', '!', true)} Zasloužíš si medaili.`);
       if (my !== nav) return;
-      if (gift) await say(`${t.animal.Nom} dostal ${gift.name}. Ťukni na ${gift.food ? 'pamlsek' : 'dárek'} a dej mu ${gift.food ? 'ho' : 'ho'}!`);
-      else await say(`${t.animal.Nom} už má ${t.id === 'dog' ? 'všechny pamlsky' : 'všechny dárky'}! Můžeš si vybrat nové zvířátko.`);
+      if (gift) await say(`${t.animal.Nom} ${past(t, 'dostal')} ${gift.name}. ${gift.food ? `Ťukni na ${gift.name} a dej ${toIt(t)} ochutnat!` : `Ťukni na ${gift.name}!`}`);
+      else await say(`${t.animal.Nom} už má všechny ${reward(t).many}! Můžeš si vybrat nové zvířátko.`);
       if (my !== nav) return;
       (pet as HTMLElement & { critter?: Critter }).critter?.trick('howl');
       if (my === nav && more) await say('Jdeme dál?');

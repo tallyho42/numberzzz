@@ -128,7 +128,7 @@ button {
 .c-all, .c-part { position: absolute; inset: 0; }
 .c-all { transform-origin: 50% 100%; will-change: transform; }
 .critter img, .critter svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; -webkit-user-drag: none; }
-.c-body { transform-origin: 50% 100%; animation: breathe-soft 3.6s ease-in-out infinite; }
+.c-body, .c-front { transform-origin: 50% 100%; animation: breathe-soft 3.6s ease-in-out infinite; }
 .c-tail { animation: wag 1.1s ease-in-out infinite; }
 .critter.fast .c-tail { animation-duration: 0.28s; }
 .critter .joy, .critter .m-open, .critter .m-tongue { display: none; }
@@ -454,6 +454,11 @@ button {
 .p-row select, .p-row button { height: 50px; border-radius: 14px; border: 2px solid #DCEBD8; background: #FFFFFF; font-size: 17px; padding: 0 14px; }
 .p-row .p-primary { background: var(--green); color: #FFFFFF; border-color: var(--green); font-weight: 700; }
 .p-row .p-danger { color: #A8352B; }
+.p-reward { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+.p-reward img { width: 44px; height: 44px; object-fit: contain; }
+.p-reward span { flex: 1; font-size: 17px; }
+.p-reward button { height: 44px; border-radius: 14px; border: 2px solid #DCEBD8; background: #FFFFFF; font-size: 16px; padding: 0 14px; color: #A8352B; }
+.p-reward button:disabled { opacity: 0.4; }
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .bar { width: 100%; max-width: 26px; border-radius: 8px; }

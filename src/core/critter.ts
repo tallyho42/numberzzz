@@ -2,13 +2,13 @@
  * The theme animal, alive: painted parts (baked images) stacked with crisp ink details on top.
  * It breathes, blinks, looks around and wags; a tap starts a longer routine of several moves
  * (happy hops, wet-dog shake, howl, chasing its tail, sneeze, play bow, curious tilts, licks,
- * peekaboo with its ears). Treats given to it get eaten with chomps and crumbs.
+ * peekaboo with its ears or inside its shell). Treats given to it get eaten with chomps and crumbs.
  */
 import { h } from './dom';
 import * as snd from './sound';
 import { paintedImg } from '../paint/runtime';
 
-export type Part = 'tail' | 'body' | 'head' | 'earL' | 'earR';
+export type Part = 'tail' | 'body' | 'head' | 'earL' | 'earR' | 'front';
 type Pt = readonly [number, number];
 
 export interface CritterDef {
@@ -21,10 +21,14 @@ export interface CritterDef {
   anchor: { mouth: Pt; nose: Pt; top: Pt; ground: Pt };
   /** Long floppy ears that can cover the eyes (peekaboo). */
   floppy?: boolean;
+  /** A shell to hide the head in (peekaboo for the turtle): the `front` part covers the head. */
+  shell?: boolean;
   /** Ink details over the head (all expressions; CSS shows the current one). */
   face: string;
   /** Ink details over the body (e.g. leg lines). */
   bodyInk?: string;
+  /** Ink details over the front part (in front of the head). */
+  frontInk?: string;
   /** Its voice: one bark / neigh. */
   call: () => void;
   /** Long voice (howl / whinny). */
@@ -117,7 +121,8 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     parts.tail = h('div', { class: 'c-part c-tail', style: { transformOrigin: origin(def.pivot.tail) } }, img('tail'));
     inner.append(parts.tail);
   }
-  parts.body = h('div', { class: 'c-part c-body', html: svg(def.bodyInk ?? '') + (worn.body ? svg(worn.body) : '') });
+  const hasFront = def.parts.includes('front');
+  parts.body = h('div', { class: 'c-part c-body', html: svg(def.bodyInk ?? '') + (worn.body && !hasFront ? svg(worn.body) : '') });
   parts.body.prepend(img('body'));
   inner.append(parts.body);
   const headEl = h('div', { class: 'c-part c-head', style: { transformOrigin: origin(def.pivot.head) } }, img('head'));
@@ -129,6 +134,11 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
   }
   if (worn.head) headEl.insertAdjacentHTML('beforeend', svg(worn.head));
   inner.append(headEl);
+  if (hasFront) {
+    parts.front = h('div', { class: 'c-part c-front', html: svg(def.frontInk ?? '') + (worn.body ? svg(worn.body) : '') });
+    parts.front.prepend(img('front'));
+    inner.append(parts.front);
+  }
 
   const all = new Rig(inner);
   const head = new Rig(headEl);
@@ -326,6 +336,7 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     },
     // Peekaboo: ears over the eyes, peek out, hide again, then pop out with a jump.
     peekaboo: async () => {
+      if (def.shell) return hideInShell();
       if (!def.floppy) return routines.curious();
       await Promise.all([earL.to({ r: -56 }, 350, "ease-out"), earR.to({ r: 54 }, 350, "ease-out"), head.to({ y: 1 }, 350)]);
       await sleep(700);
@@ -348,6 +359,34 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     },
   };
 
+  // Turtle peekaboo: pull the head into the shell, peek out and look around, hide again, pop out.
+  async function hideInShell() {
+    mood('wonder', true);
+    snd.tuck();
+    await head.to({ y: 31, sy: 0.96 }, 380, 'ease-in');
+    mood('wonder', false);
+    await all.path([{ x: -0.8 }, { x: 0.8 }, { x: -0.5 }, { x: 0 }], 500);
+    await sleep(500);
+    snd.peek();
+    await head.to({ y: 14 }, 350, 'ease-out');
+    await pupils.to({ x: -14 }, 250);
+    await sleep(350);
+    await pupils.to({ x: 14 }, 300);
+    await sleep(350);
+    await pupils.rest(200);
+    snd.tuck();
+    await head.to({ y: 31 }, 220, 'ease-in');
+    await sleep(800);
+    snd.peek();
+    mood('joy', true);
+    tailFast(true);
+    await head.to({ y: -4, sy: 1.04 }, 260, 'ease-out');
+    void bark(1);
+    await Promise.all([head.to({ y: 0, sy: 1 }, 200), hop(14)]);
+    hearts(2);
+    await sleep(500);
+  }
+
   let busy = false;
   const recent: Trick[] = [];
   async function settle() {
@@ -360,7 +399,7 @@ export function critter(def: CritterDef, height: number, worn: { head?: string; 
     busy = true;
     let t = name;
     if (!t) {
-      const fresh = TRICKS.filter((x) => !recent.includes(x) && (def.floppy || x !== 'peekaboo'));
+      const fresh = TRICKS.filter((x) => !recent.includes(x) && (def.floppy || def.shell || x !== 'peekaboo'));
       t = fresh[Math.floor(Math.random() * fresh.length)];
     }
     recent.push(t);

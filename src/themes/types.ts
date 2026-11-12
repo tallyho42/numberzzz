@@ -22,16 +22,22 @@ export interface Gift {
 export interface Theme {
   id: string;
   /** Czech forms of the animal's name. */
-  animal: { nom: string; gen: string; dat: string; ins: string; Nom: string; plural: { one: string; few: string; many: string } };
+  animal: { nom: string; gen: string; dat: string; ins: string; Nom: string; g: 'm' | 'f'; plural: { one: string; few: string; many: string } };
+  /** What the presents are called (default "dárek / dárky"; the dog gets "pamlsek / pamlsky"). */
+  reward?: { one: string; many: string };
+  /** Bowl in "Dokresli … do misky" (genitive). */
+  bowl: string;
+  /** What a few / many of them do on the meadow ("se pásli" / "se páslo"). */
+  meadow: [string, string];
   critter: CritterDef;
   /** Painted head (buttons, medal, tokens). */
   head: string;
   /** Small painted full figure (several of them in "Kolik se schovalo"). */
   full: string;
-  /** Head without ears for "Dokresli uši" and the ear zones on the 560×560 picture. */
-  earless: string;
-  earZones: { cx: number; cy: number; rx: number; ry: number }[];
-  /** The animal's home: "stáj" / "bouda", its painting and possessive ("koníkova"). */
+  /** Head without ears for "Dokresli uši" and the ear zones on the 560×560 picture (none for the turtle). */
+  earless?: string;
+  earZones?: { cx: number; cy: number; rx: number; ry: number }[];
+  /** The animal's home: "stáj" / "bouda", its painting and possessive ("koníkova"); `acc` answers "kam" ("do stáje"). */
   home: { nom: string; loc: string; acc: string; art: string; of: string };
   /** Things counted in activities (3 kinds). */
   items: [ItemKind, ItemKind, ItemKind];
@@ -39,3 +45,9 @@ export interface Theme {
   food: ItemKind;
   gifts: Gift[];
 }
+
+/** Grammar helpers for the animal: "dostal / dostala", "mu / jí". */
+export const fem = (t: Theme) => t.animal.g === 'f';
+export const toIt = (t: Theme) => (fem(t) ? 'jí' : 'mu');
+export const past = (t: Theme, verb: string) => verb + (fem(t) ? 'a' : '');
+export const reward = (t: Theme) => t.reward ?? { one: 'dárek', many: 'dárky' };

@@ -155,7 +155,7 @@ function woof(start: number, pitch = 1) {
   g.gain.setValueAtTime(0, t0);
   g.gain.linearRampToValueAtTime(0.32, t0 + 0.015);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.2);
-  o.connect(f).connect(g).connect(ctx.destination);
+  o.connect(f).connect(g).connect(out()!);
   o.start(t0);
   o.stop(t0 + 0.25);
   const n = ctx.createBufferSource();
@@ -166,7 +166,7 @@ function woof(start: number, pitch = 1) {
   const ng = ctx.createGain();
   ng.gain.value = 0.1;
   n.connect(f);
-  n.connect(ng).connect(ctx.destination);
+  n.connect(ng).connect(out()!);
   n.start(t0);
 }
 
@@ -186,13 +186,13 @@ export const boing = () => {
   o.frequency.exponentialRampToValueAtTime(330, t0 + 0.4);
   g.gain.setValueAtTime(0.12, t0);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
-  o.connect(g).connect(ctx.destination);
+  o.connect(g).connect(out()!);
   o.start(t0);
   o.stop(t0 + 0.5);
 };
 
 /** A whinny: wobbly falling tone. */
-export const neigh = () => {
+export const neigh = (pitch = 1) => {
   if (!ctx) return;
   const t0 = ctx.currentTime;
   const o = ctx.createOscillator();
@@ -201,8 +201,8 @@ export const neigh = () => {
   const f = ctx.createBiquadFilter();
   const g = ctx.createGain();
   o.type = 'sawtooth';
-  o.frequency.setValueAtTime(900, t0);
-  o.frequency.exponentialRampToValueAtTime(380, t0 + 0.9);
+  o.frequency.setValueAtTime(900 * pitch, t0);
+  o.frequency.exponentialRampToValueAtTime(380 * pitch, t0 + 0.9);
   lfo.frequency.value = 14;
   lg.gain.value = 60;
   lfo.connect(lg).connect(o.frequency);
@@ -212,7 +212,7 @@ export const neigh = () => {
   g.gain.setValueAtTime(0, t0);
   g.gain.linearRampToValueAtTime(0.16, t0 + 0.05);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1);
-  o.connect(f).connect(g).connect(ctx.destination);
+  o.connect(f).connect(g).connect(out()!);
   o.start(t0);
   lfo.start(t0);
   o.stop(t0 + 1.05);
@@ -230,7 +230,7 @@ export const slurp = () => {
   o.frequency.exponentialRampToValueAtTime(1200, t0 + 0.15);
   g.gain.setValueAtTime(0.08, t0);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
-  o.connect(g).connect(ctx.destination);
+  o.connect(g).connect(out()!);
   o.start(t0);
   o.stop(t0 + 0.2);
 };
@@ -326,3 +326,22 @@ export const peek = () => {
   tone(660, 0, 0.12, 0.08, 'triangle', 990);
   tone(990, 0.12, 0.2, 0.08, 'triangle');
 };
+
+/** The turtle's voice: a tiny happy "pip-pip". */
+export const squeak = () => {
+  tone(1100, 0, 0.09, 0.07, 'triangle', 1500);
+  tone(1250, 0.11, 0.1, 0.07, 'triangle', 1700);
+};
+
+/** The turtle's song: a slow, cheerful hum up and down. */
+export const hum = () => {
+  [392, 440, 523.25, 587.33, 523.25, 659.25].forEach((f, i) => mallet(f, i * 0.26, 0.09, 0.4));
+};
+
+/** Unicorn magic: a glittering run with a high whinny. */
+export const sparkle = () => {
+  for (let i = 0; i < 7; i++) tone(LADDER[(i * 2) % LADDER.length] * 2, i * 0.05, 0.25, 0.03, 'triangle');
+};
+
+/** Hiding in the shell (and popping out again). */
+export const tuck = () => tone(500, 0, 0.18, 0.08, 'sine', 180);

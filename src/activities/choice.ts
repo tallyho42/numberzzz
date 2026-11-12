@@ -5,6 +5,7 @@ import { plural, numWord } from '../core/czech';
 import { recordResult } from '../core/progress';
 import { itemGroup, ITEM_NAMES, dotPattern, type ItemKind } from '../art/art';
 import { theme } from '../themes';
+import { fem } from '../themes/types';
 import { count as countSound } from '../core/sound';
 import type { P } from '../core/geometry';
 
@@ -140,6 +141,6 @@ export const hide: Activity<{ total: number; hidden: number }> = (api, { total, 
     },
   });
   const few = total >= 2 && total <= 4;
-  const verb = t.id === 'dog' ? (few ? 'si hráli' : 'si hrálo') : few ? 'se pásli' : 'se páslo';
-  void api.instruct(`Na louce ${verb} ${total} ${plural(total, forms)}. Pak někteří odešli ${t.home.acc}. Kolik se jich schovalo?`);
+  const verb = t.meadow[few ? 0 : 1];
+  void api.instruct(`Na louce ${verb} ${total} ${plural(total, forms)}. Pak ${fem(t) ? 'některé odešly' : 'někteří odešli'} ${t.home.acc}. Kolik se jich schovalo?`);
 };

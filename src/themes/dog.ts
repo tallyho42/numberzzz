@@ -26,7 +26,10 @@ const gifts: Gift[] = TREATS.map(([name, svg], i) => ({ name, icon: icon(svg), s
 
 export const DOG: Theme = {
   id: 'dog',
-  animal: { nom: 'pejsek', gen: 'pejska', dat: 'pejskovi', ins: 'pejskem', Nom: 'Pejsek', plural: { one: 'pejsek', few: 'pejsci', many: 'pejsků' } },
+  animal: { nom: 'pejsek', gen: 'pejska', dat: 'pejskovi', ins: 'pejskem', Nom: 'Pejsek', g: 'm', plural: { one: 'pejsek', few: 'pejsci', many: 'pejsků' } },
+  reward: { one: 'pamlsek', many: 'pamlsky' },
+  bowl: 'misky',
+  meadow: ['si hráli', 'si hrálo'],
   critter: { id: 'dog', vb: DOG_VB, parts: ['tail', 'body', 'head', 'earL', 'earR'], pivot: PIVOT, face: dogFaceSvg('face'), bodyInk: dogFaceSvg('legs'), call: () => bark(1), song: () => howl(1.7), floppy: true,
     anchor: { mouth: [800, 930], nose: [725, 760], top: [728, 300], ground: [735, 1880] } },
   head: artUrl('dog-face'),

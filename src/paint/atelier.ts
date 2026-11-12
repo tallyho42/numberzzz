@@ -8,6 +8,8 @@ import { paint, type Layer } from './brush';
 import { DOG_PARTS, DOG_VB } from '../art/dogShapes';
 import { dogFaceSvg } from '../art/dog';
 import { HORSE_PARTS, HORSE_VB, horseFaceSvg } from '../art/horseShapes';
+import { TURTLE_PARTS, TURTLE_VB, turtleFaceSvg, turtleFrontInk } from '../art/turtleShapes';
+import { UNICORN_PARTS, UNICORN_VB, unicornFaceSvg } from '../art/unicornShapes';
 import { SCENE_LAYERS, UI_ART } from '../art/sceneArt';
 
 const out = document.getElementById('out')!;
@@ -67,6 +69,7 @@ interface CritterArt {
   order: string[];
   face: string;
   bodyInk?: string;
+  frontInk?: string;
   /** Square crop around the head for buttons and the medal. */
   headBox: number[];
 }
@@ -74,6 +77,8 @@ interface CritterArt {
 const CRITTERS: CritterArt[] = [
   { id: 'dog', vb: DOG_VB, parts: DOG_PARTS, order: ['tail', 'body', 'head', 'earL', 'earR'], face: dogFaceSvg('face'), bodyInk: dogFaceSvg('legs'), headBox: [150, 170, 1210, 1210] },
   { id: 'horse', vb: HORSE_VB, parts: HORSE_PARTS, order: ['body', 'head', 'earL', 'earR'], face: horseFaceSvg(), headBox: [180, 140, 1100, 1100] },
+  { id: 'turtle', vb: TURTLE_VB, parts: TURTLE_PARTS, order: ['tail', 'body', 'head', 'front'], face: turtleFaceSvg(), frontInk: turtleFrontInk(), headBox: [400, 420, 660, 660] },
+  { id: 'unicorn', vb: UNICORN_VB, parts: UNICORN_PARTS, order: ['body', 'head', 'earL', 'earR'], face: unicornFaceSvg(), headBox: [180, 140, 1100, 1100] },
 ];
 
 async function bakeCritter(a: CritterArt, doSave: boolean) {
@@ -85,19 +90,21 @@ async function bakeCritter(a: CritterArt, doSave: boolean) {
     if (doSave) await save(`${a.id}-${part}`, painted[part]);
   }
   const ears = a.order.filter((p) => p.startsWith('ear')).map((p) => painted[p]);
-  const full = await flatten([...(painted.tail ? [painted.tail] : []), painted.body, a.bodyInk ?? '', painted.head, a.face, ...ears], a.vb, w, h);
-  const headOnly = await flatten([painted.head, a.face, ...ears], a.vb, w, h);
-  const earless = await flatten([painted.head, a.face], a.vb, w, h);
+  const front = painted.front ? [painted.front, a.frontInk ?? ''] : [];
+  const full = await flatten([...(painted.tail ? [painted.tail] : []), painted.body, a.bodyInk ?? '', painted.head, a.face, ...ears, ...front], a.vb, w, h);
+  const headOnly = await flatten([painted.head, a.face, ...ears, ...front], a.vb, w, h);
   const face = crop(headOnly, a.vb, a.headBox, 360);
   const small = crop(full, a.vb, a.vb, 260);
-  const bare = crop(earless, a.vb, a.headBox, 560);
   show(full, `${a.id} celý`);
   show(face, `${a.id} hlava`, 160);
-  show(bare, `${a.id} bez uší`, 160);
   if (doSave) {
     await save(`${a.id}-face`, face);
     await save(`${a.id}-full`, small);
-    await save(`${a.id}-earless`, bare);
+  }
+  if (ears.length) {
+    const bare = crop(await flatten([painted.head, a.face], a.vb, w, h), a.vb, a.headBox, 560);
+    show(bare, `${a.id} bez uší`, 160);
+    if (doSave) await save(`${a.id}-earless`, bare);
   }
   return full;
 }
@@ -142,7 +149,20 @@ async function bakeIcons() {
   return 'ok';
 }
 
-Object.assign(window, { bakeIcons, bakeAll, compare, bakeCritter, bakeScenes, CRITTERS });
+/** Paint (and optionally save) only the named animals and scenes. */
+async function bakeOnly(names: string[], doSave = true) {
+  out.innerHTML = '';
+  for (const a of CRITTERS) if (names.includes(a.id)) await bakeCritter(a, doSave);
+  for (const s of [...SCENE_LAYERS, ...UI_ART]) {
+    if (!names.includes(s.name)) continue;
+    const c = await paint(s.layers, s.vb, s.px);
+    show(c, s.name, Math.min(480, s.vb[2] / 2));
+    if (doSave) await save(s.name, c);
+  }
+  return 'ok';
+}
+
+Object.assign(window, { bakeIcons, bakeAll, bakeOnly, compare, bakeCritter, bakeScenes, CRITTERS });
 const mode = new URLSearchParams(location.search).get('m');
 if (mode === 'scenes') await bakeScenes(false);
 else if (mode !== 'none') await bakeAll(false);

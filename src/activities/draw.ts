@@ -34,7 +34,7 @@ const inZone = (s: Stroke, test: (p: P) => boolean) => s.pts.filter(test).length
 /** Two ears on fixed spots: one large, clearly marked zone per ear. */
 function ears(api: Parameters<Activity<{ n: number }>>[0]) {
   const t = theme();
-  const zones = t.earZones;
+  const zones = t.earZones ?? [];
   const c = card(215, 136, W, H);
   const zoneSvg = frag(`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0" aria-hidden="true">
     ${zones.map((z, i) => `<ellipse class="zone" data-i="${i}" cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}"/>`).join('')}
@@ -170,11 +170,11 @@ function trough(api: Parameters<Activity<{ n: number }>>[0], n: number) {
     }
   });
   const word = plural(n, { one: 'zrníčko', few: 'zrníčka', many: 'zrníček' });
-  void api.instruct(`Dokresli ${theme().animal.dat} do ${theme().id === 'dog' ? 'misky' : 'žlabu'} ${n === 1 ? 'jedno' : n === 2 ? 'dvě' : numWord(n)} ${word}. Stačí tečky.`);
+  void api.instruct(`Dokresli ${theme().animal.dat} do ${theme().bowl} ${n === 1 ? 'jedno' : n === 2 ? 'dvě' : numWord(n)} ${word}. Stačí tečky.`);
   return () => {
     clearTimeout(timer);
     ink.destroy();
   };
 }
 
-export const draw: Activity<{ n: number }> = (api, { n }) => (n === 2 ? ears(api) : trough(api, n));
+export const draw: Activity<{ n: number }> = (api, { n }) => (n === 2 && theme().earless ? ears(api) : trough(api, n));

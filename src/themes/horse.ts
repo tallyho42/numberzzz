@@ -37,7 +37,9 @@ const gifts: Gift[] = [
 
 export const HORSE: Theme = {
   id: 'horse',
-  animal: { nom: 'koník', gen: 'koníka', dat: 'koníkovi', ins: 'koníkem', Nom: 'Koník', plural: { one: 'koník', few: 'koníci', many: 'koníků' } },
+  animal: { nom: 'koník', gen: 'koníka', dat: 'koníkovi', ins: 'koníkem', Nom: 'Koník', g: 'm', plural: { one: 'koník', few: 'koníci', many: 'koníků' } },
+  bowl: 'žlabu',
+  meadow: ['se pásli', 'se páslo'],
   critter: { id: 'horse', vb: HORSE_VB, parts: ['body', 'head', 'earL', 'earR'], pivot: HORSE_PIVOT, face: horseFaceSvg(), call: neigh, song: neigh,
     anchor: { mouth: [730, 1180], nose: [730, 1070], top: [730, 240], ground: [735, 1890] } },
   head: artUrl('horse-face'),

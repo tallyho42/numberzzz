@@ -1,4 +1,5 @@
 import { theme } from '../themes';
+import { past, toIt } from '../themes/types';
 import type { Activity, ActivityApi } from './types';
 import { h, frag, wait, reducedMotion } from '../core/dom';
 import { card, horseGuide, companion } from '../core/ui';
@@ -146,6 +147,6 @@ export const fix: Activity<{ digit: number }> = (api, { digit }) => {
     void api.say('Děkuju! Teď už to vím.');
     api.success();
   });
-  void api.instruct(`${theme().animal.Nom} napsal ${digitNoun(digit)}, ale nějak se mu to popletlo. Napiš mu ji správně.`);
+  void api.instruct(`${theme().animal.Nom} ${past(theme(), 'napsal')} ${digitNoun(digit)}, ale nějak se ${toIt(theme())} to popletlo. Napiš ${toIt(theme())} ji správně.`);
   return cleanup;
 };

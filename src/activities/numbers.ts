@@ -7,6 +7,7 @@ import { recordResult, store } from '../core/progress';
 import { itemGroup, itemSvg, ITEM_NAMES, dotPattern, ICONS } from '../art/art';
 import { chime, count, balloon, rattle } from '../core/sound';
 import { theme, giftsIn } from '../themes';
+import { toIt } from '../themes/types';
 import { answerButtons, countAloud, placeItems } from './choice';
 
 const BALLOON_COLORS = ['#D9617F', '#7FA7C4', '#E2B13F', '#6E9B4C', '#E07B2C', '#8C6BB0'];
@@ -110,7 +111,7 @@ export const feed: Activity<{ n: number }> = (api, { n }) => {
   });
   c.append(tick);
   update();
-  void api.instruct(`${t.animal.Nom} má hlad. Dej mu do korýtka ${numAcc(n, name.g)} ${plural(n, name)}. Pak ťukni na fajfku.`);
+  void api.instruct(`${t.animal.Nom} má hlad. Dej ${toIt(t)} do korýtka ${numAcc(n, name.g)} ${plural(n, name)}. Pak ťukni na fajfku.`);
 };
 
 /** 3 · Kde je víc: two plates, tap the one with more (or fewer). */

@@ -1,12 +1,14 @@
 import type { Theme } from './types';
 import { HORSE } from './horse';
 import { DOG } from './dog';
+import { TURTLE } from './turtle';
+import { UNICORN } from './unicorn';
 import { store, save } from '../core/progress';
 
 export type { Theme, Gift } from './types';
 
 /** All themes in the order they are offered on the home screen. */
-export const THEMES: Theme[] = [HORSE, DOG];
+export const THEMES: Theme[] = [HORSE, DOG, TURTLE, UNICORN];
 
 // The painted version starts with the dog once the horse is finished.
 if (!store.flags?.painted) {
@@ -37,4 +39,13 @@ export function awardMedal() {
   save();
   const n = medalsIn(t);
   return n <= t.gifts.length ? t.gifts[n - 1] : undefined;
+}
+
+/**
+ * Parent screen: take back all medals and presents of one animal (it starts collecting again).
+ * The total medal count in the statistics stays, it records how much she has played.
+ */
+export function resetRewards(t: Theme) {
+  delete store.medalsBy[t.id];
+  save();
 }

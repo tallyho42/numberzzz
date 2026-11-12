@@ -1,6 +1,6 @@
 import { paintedImg, paintedImage } from '../paint/runtime';
 import { artUrl } from '../core/critter';
-export type ItemKind = 'carrot' | 'apple' | 'horseshoe' | 'bone' | 'ball' | 'sausage';
+export type ItemKind = 'carrot' | 'apple' | 'horseshoe' | 'bone' | 'ball' | 'sausage' | 'strawberry' | 'leaf' | 'shell' | 'cupcake' | 'gem' | 'heart';
 
 const INK = '#20150E';
 
@@ -19,6 +19,17 @@ const ITEM_BODY: Record<ItemKind, string> = {
   ball: `<circle r="14" fill="#C8433A"/><path d="M-13,-5 C-4,-1 4,-1 13,-5 M-13,5 C-4,9 4,9 13,5" fill="none" stroke="#F2E6CC" stroke-width="3.4"/>`,
   sausage: `<g transform="rotate(-18) scale(1.3)"><path d="M-16,-3 C-16,-8 -12,-9 0,-8 C12,-9 16,-8 16,-3 C16,3 12,6 0,5 C-12,6 -16,3 -16,-3 Z" fill="#B9533C"/>
     <path d="M-16,-2 L-20,-4 M-20,0 L-16,-1 M16,-2 L20,-4 M20,0 L16,-1" stroke="${INK}" stroke-width="1.2" stroke-linecap="round"/></g>`,
+  strawberry: `<path d="M0,-9 C10,-12 17,-6 15,3 C13,12 5,18 0,19 C-5,18 -13,12 -15,3 C-17,-6 -10,-12 0,-9 Z" fill="#D9473F"/>
+    <path d="M0,-9 L-9,-14 L-3,-10 L0,-17 L3,-10 L9,-14 Z" fill="#5E8C3A"/>
+    <g fill="#F2D978"><circle cx="-6" cy="-1" r="1.2"/><circle cx="5" cy="-2" r="1.2"/><circle cx="0" cy="5" r="1.2"/><circle cx="-7" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="0" cy="13" r="1.2"/></g>`,
+  leaf: `<g transform="rotate(-30)"><path d="M0,-19 C12,-12 16,2 10,12 C6,18 -6,18 -10,12 C-16,2 -12,-12 0,-19 Z" fill="#7DA44A"/>
+    <path d="M0,-14 L0,20 M0,-4 L7,-9 M0,4 L8,-1 M0,-4 L-7,-9 M0,4 L-8,-1" stroke="#C9DB94" stroke-width="1.6" stroke-linecap="round"/></g>`,
+  shell: `<path d="M0,-16 C14,-16 20,-2 17,8 L-17,8 C-20,-2 -14,-16 0,-16 Z" fill="#EDB59B"/><path d="M-8,8 L8,8 L6,15 L-6,15 Z" fill="#D48E73"/>
+    <path d="M0,-15 L0,8 M-8,-12 L-5,8 M8,-12 L5,8 M-14,-5 L-11,8 M14,-5 L11,8" stroke="#B9664E" stroke-width="1.4" stroke-linecap="round"/>`,
+  cupcake: `<path d="M-12,2 L12,2 L9,18 L-9,18 Z" fill="#7FA7C4"/><path d="M-6,2 L-5,18 M0,2 L0,18 M6,2 L5,18" stroke="#5C86A5" stroke-width="1.4"/>
+    <path d="M-15,3 C-17,-6 -10,-10 -5,-10 C-4,-16 4,-16 5,-10 C10,-10 17,-6 15,3 Z" fill="#F2B6C6"/><circle cx="0" cy="-15" r="4" fill="#C8433A"/>`,
+  gem: `<path d="M-15,-6 L-8,-14 L8,-14 L15,-6 L0,16 Z" fill="#7FA7C4"/><path d="M-15,-6 L15,-6 M-8,-14 L-4,-6 L0,16 M8,-14 L4,-6 L0,16" stroke="#C9DDEB" stroke-width="1.5" stroke-linejoin="round" fill="none"/>`,
+  heart: `<path d="M0,16 C-6,11 -16,4 -16,-5 C-16,-11 -11,-15 -6,-15 C-3,-15 -1,-13 0,-10 C1,-13 3,-15 6,-15 C11,-15 16,-11 16,-5 C16,4 6,11 0,16 Z" fill="#D9617F"/>`,
 };
 
 export const ITEM_NAMES: Record<ItemKind, { one: string; few: string; many: string; g: 'm' | 'f' | 'n' }> = {
@@ -28,6 +39,12 @@ export const ITEM_NAMES: Record<ItemKind, { one: string; few: string; many: stri
   bone: { one: 'kost', few: 'kosti', many: 'kostí', g: 'f' },
   ball: { one: 'míček', few: 'míčky', many: 'míčků', g: 'm' },
   sausage: { one: 'párek', few: 'párky', many: 'párků', g: 'm' },
+  strawberry: { one: 'jahoda', few: 'jahody', many: 'jahod', g: 'f' },
+  leaf: { one: 'lísteček', few: 'lístečky', many: 'lístečků', g: 'm' },
+  shell: { one: 'mušlička', few: 'mušličky', many: 'mušliček', g: 'f' },
+  cupcake: { one: 'dortíček', few: 'dortíčky', many: 'dortíčků', g: 'm' },
+  gem: { one: 'diamant', few: 'diamanty', many: 'diamantů', g: 'm' },
+  heart: { one: 'srdíčko', few: 'srdíčka', many: 'srdíček', g: 'n' },
 };
 
 const ITEM_VB: [number, number, number, number] = [-24, -24, 48, 48];

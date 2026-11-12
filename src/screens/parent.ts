@@ -3,6 +3,8 @@ import { store, save, stat, resetProgress, DIGIT_ORDER } from '../core/progress'
 import { ACTIVITY_LABELS, sampleScreen } from '../core/session';
 import { hasCzechVoice } from '../core/voice';
 import type { ScreenSpec } from '../activities/types';
+import { THEMES, giftsIn, resetRewards } from '../themes';
+import { reward } from '../themes/types';
 
 /** Parent screen (text allowed here): settings, stats, stroke log export and an activity tester. */
 export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryScreen: (s: ScreenSpec) => void }) {
@@ -70,10 +72,28 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
       },
     }, 'Stáhnout záznamy tahů');
     const resetBtn = h('button', { class: 'p-danger', onClick: () => { if (confirm('Opravdu smazat všechen postup a medaile?')) { resetProgress(); render(); } } }, 'Vymazat postup');
+    const rewards = h('section', {}, h('h2', {}, 'Odměny zvířátek'),
+      ...THEMES.map((t) => {
+        const n = giftsIn(t);
+        return h('div', { class: 'p-reward' },
+          h('img', { src: t.head, alt: '' }),
+          h('span', {}, `${t.animal.Nom}: ${n} / ${t.gifts.length} (${reward(t).many})`),
+          h('button', {
+            class: 'p-danger',
+            disabled: n ? null : 'disabled',
+            onClick: () => {
+              if (confirm(`Vynulovat odměny – ${t.animal.nom} začne sbírat ${reward(t).many} znovu od začátku?`)) {
+                resetRewards(t);
+                render();
+              }
+            },
+          }, 'Vynulovat'));
+      }),
+      h('p', { class: 'p-note' }, 'Vezme zvířátku medaile a dárky, takže je může sbírat znovu. Postup v číslech zůstává.'));
     const data = h('section', {}, h('h2', {}, 'Data'), h('div', { class: 'p-row' }, exportBtn, resetBtn),
       h('p', { class: 'p-note' }, hasCzechVoice() ? 'Český hlas: nalezen.' : 'Český hlas nenalezen – v iPadu: Nastavení › Zpřístupnění › Předčítání › Hlasy › Čeština.'));
 
-    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, nameSec, soundSec, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, data)));
+    root.append(header, h('div', { class: 'p-grid' }, h('div', { class: 'p-col' }, nameSec, soundSec, length, strict, digits, inkSec), h('div', { class: 'p-col' }, tester, stats, rewards, data)));
   };
   render();
 }
