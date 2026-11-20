@@ -23,6 +23,8 @@ export interface Gift {
  */
 export interface Theme {
   id: string;
+  /** Name on the parent screen when two animals share one ("Jednorožec 2"). */
+  label?: string;
   /** Czech forms of the animal's name. */
   animal: { nom: string; gen: string; dat: string; ins: string; Nom: string; g: 'm' | 'f'; plural: { one: string; few: string; many: string } };
   /** What the presents are called (default "dárek / dárky"). */
@@ -36,7 +38,7 @@ export interface Theme {
   head: string;
   /** Small painted full figure (several of them in "Kolik se schovalo"). */
   full: string;
-  /** Head without ears for "Dokresli uši" and the ear zones on the 560×560 picture (none for the turtle). */
+  /** Head without ears for "Dokresli uši" and the ear zones on the 560×560 picture (optional: an animal without ears gets the bowl instead). */
   earless?: string;
   earZones?: { cx: number; cy: number; rx: number; ry: number }[];
   /** The animal's home: "stáj" / "bouda", its painting and possessive ("koníkova"); `acc` answers "kam" ("do stáje"). */

@@ -8,7 +8,7 @@ import { paint, type Layer } from './brush';
 import { DOG_PARTS, DOG_VB } from '../art/dogShapes';
 import { dogFaceSvg } from '../art/dog';
 import { HORSE_PARTS, HORSE_VB, horseFaceSvg } from '../art/horseShapes';
-import { TURTLE_PARTS, TURTLE_VB, turtleFaceSvg, turtleFrontInk } from '../art/turtleShapes';
+import { UNICORN2_PARTS, UNICORN2_VB, unicorn2FaceSvg } from '../art/unicorn2Shapes';
 import { UNICORN_PARTS, UNICORN_VB, unicornFaceSvg } from '../art/unicornShapes';
 import { SCENE_LAYERS, UI_ART } from '../art/sceneArt';
 
@@ -77,7 +77,7 @@ interface CritterArt {
 const CRITTERS: CritterArt[] = [
   { id: 'dog', vb: DOG_VB, parts: DOG_PARTS, order: ['tail', 'body', 'head', 'earL', 'earR'], face: dogFaceSvg('face'), bodyInk: dogFaceSvg('legs'), headBox: [150, 170, 1210, 1210] },
   { id: 'horse', vb: HORSE_VB, parts: HORSE_PARTS, order: ['body', 'head', 'earL', 'earR'], face: horseFaceSvg(), headBox: [180, 140, 1100, 1100] },
-  { id: 'turtle', vb: TURTLE_VB, parts: TURTLE_PARTS, order: ['tail', 'body', 'head', 'front'], face: turtleFaceSvg(), frontInk: turtleFrontInk(), headBox: [400, 420, 660, 660] },
+  { id: 'unicorn2', vb: UNICORN2_VB, parts: UNICORN2_PARTS, order: ['body', 'head', 'earL', 'earR'], face: unicorn2FaceSvg(), headBox: [180, 140, 1100, 1100] },
   { id: 'unicorn', vb: UNICORN_VB, parts: UNICORN_PARTS, order: ['body', 'head', 'earL', 'earR'], face: unicornFaceSvg(), headBox: [180, 140, 1100, 1100] },
 ];
 

@@ -1,19 +1,25 @@
 import type { Theme } from './types';
 import { HORSE } from './horse';
 import { DOG } from './dog';
-import { TURTLE } from './turtle';
+import { UNICORN2 } from './unicorn2';
 import { UNICORN } from './unicorn';
 import { store, save, type Placement } from '../core/progress';
 
 export type { Theme, Gift } from './types';
 
 /** All themes in the order they are offered on the home screen. */
-export const THEMES: Theme[] = [HORSE, DOG, TURTLE, UNICORN];
+export const THEMES: Theme[] = [HORSE, DOG, UNICORN, UNICORN2];
 
 // The painted version starts with the dog once the horse is finished.
 if (!store.flags?.painted) {
   store.flags = { ...store.flags, painted: true };
   if ((store.medalsBy.horse ?? 0) >= HORSE.gifts.length && store.theme === 'horse') store.theme = 'dog';
+  save();
+}
+
+// The turtle was removed: whoever had it picked starts with the dog.
+if (store.theme === 'turtle') {
+  store.theme = 'dog';
   save();
 }
 

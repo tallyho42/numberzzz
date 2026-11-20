@@ -1,6 +1,6 @@
 import { paintedImg, paintedImage } from '../paint/runtime';
 import { artUrl } from '../core/critter';
-export type ItemKind = 'carrot' | 'apple' | 'horseshoe' | 'bone' | 'ball' | 'sausage' | 'strawberry' | 'leaf' | 'shell' | 'cupcake' | 'gem' | 'heart';
+export type ItemKind = 'carrot' | 'apple' | 'horseshoe' | 'bone' | 'ball' | 'sausage' | 'strawberry' | 'leaf' | 'shell' | 'cupcake' | 'gem' | 'heart' | 'star' | 'lollipop';
 
 const INK = '#20150E';
 
@@ -29,6 +29,8 @@ const ITEM_BODY: Record<ItemKind, string> = {
   cupcake: `<path d="M-12,2 L12,2 L9,18 L-9,18 Z" fill="#7FA7C4"/><path d="M-6,2 L-5,18 M0,2 L0,18 M6,2 L5,18" stroke="#5C86A5" stroke-width="1.4"/>
     <path d="M-15,3 C-17,-6 -10,-10 -5,-10 C-4,-16 4,-16 5,-10 C10,-10 17,-6 15,3 Z" fill="#F2B6C6"/><circle cx="0" cy="-15" r="4" fill="#C8433A"/>`,
   gem: `<path d="M-15,-6 L-8,-14 L8,-14 L15,-6 L0,16 Z" fill="#7FA7C4"/><path d="M-15,-6 L15,-6 M-8,-14 L-4,-6 L0,16 M8,-14 L4,-6 L0,16" stroke="#C9DDEB" stroke-width="1.5" stroke-linejoin="round" fill="none"/>`,
+  star: `<path d="M0,-18 L5,-6 L18,-5 L8,3 L11,16 L0,9 L-11,16 L-8,3 L-18,-5 L-5,-6 Z" fill="#E2B13F"/>`,
+  lollipop: `<path d="M0,4 L0,22" stroke="#EDE0C4" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-6" r="12" fill="#E86A9A"/><path d="M0,-6 m-7,0 a7,7 0 1 1 7,7 a4,4 0 1 1 -4,-4" fill="none" stroke="#F7D2DC" stroke-width="2.6" stroke-linecap="round"/>`,
   heart: `<path d="M0,16 C-6,11 -16,4 -16,-5 C-16,-11 -11,-15 -6,-15 C-3,-15 -1,-13 0,-10 C1,-13 3,-15 6,-15 C11,-15 16,-11 16,-5 C16,4 6,11 0,16 Z" fill="#D9617F"/>`,
 };
 
@@ -45,6 +47,8 @@ export const ITEM_NAMES: Record<ItemKind, { one: string; few: string; many: stri
   cupcake: { one: 'dortíček', few: 'dortíčky', many: 'dortíčků', g: 'm' },
   gem: { one: 'diamant', few: 'diamanty', many: 'diamantů', g: 'm' },
   heart: { one: 'srdíčko', few: 'srdíčka', many: 'srdíček', g: 'n' },
+  star: { one: 'hvězdička', few: 'hvězdičky', many: 'hvězdiček', g: 'f' },
+  lollipop: { one: 'lízátko', few: 'lízátka', many: 'lízátek', g: 'n' },
 };
 
 const ITEM_VB: [number, number, number, number] = [-24, -24, 48, 48];

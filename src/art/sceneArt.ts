@@ -60,25 +60,6 @@ export const SCENE_LAYERS: Baked[] = [
     ],
   },
   {
-    name: 'home-turtle',
-    vb: [0, 0, 600, 560],
-    px: 900,
-    layers: [
-      // reeds behind the pond
-      { svg: `<g fill="#6E8A45"><path d="M430,420 C426,320 432,220 446,150 L456,150 C448,230 446,330 452,420 Z"/><path d="M470,420 C474,330 490,250 512,190 L522,194 C504,260 494,340 494,420 Z"/><path d="M400,420 C390,350 380,290 360,240 L370,236 C394,290 410,350 420,420 Z"/><path d="M120,430 C116,360 122,300 136,250 L146,252 C136,310 136,370 142,430 Z"/></g>`, brush: { angle: 85, dry: 0.4, zone: 8, edge: 3, bristle: 14, grain: 2.5, tone: 0.3, seed: 171 } },
-      { svg: `<g fill="#7A4A26"><rect x="438" y="130" width="22" height="70" rx="11"/><rect x="503" y="172" width="20" height="62" rx="10"/><rect x="348" y="226" width="18" height="50" rx="9" transform="rotate(-20 357 251)"/></g>`, brush: { angle: 90, dry: 0.35, zone: 8, edge: 2, bristle: 6, grain: 2.5, tone: 0.3, seed: 172 } },
-      // grassy bank
-      { svg: `<path d="M20,420 C120,380 480,380 580,420 L580,540 L20,540 Z" fill="${SAGE}"/>`, brush: { angle: 0, dry: 0.42, zone: 20, edge: 4, bristle: 30, grain: 3, tone: 0.3, seed: 173 } },
-      // water
-      { svg: `<ellipse cx="300" cy="455" rx="250" ry="78" fill="${SKY}"/>`, brush: { angle: 0, dry: 0.36, zone: 26, edge: 4, bristle: 30, grain: 3, tone: 0.3, seed: 174 } },
-      { svg: `<g fill="#B9D2E2"><rect x="150" y="430" width="120" height="10" rx="5"/><rect x="330" y="462" width="90" height="9" rx="4"/><rect x="200" y="490" width="70" height="8" rx="4"/></g>`, brush: { angle: 0, dry: 0.5, zone: 6, edge: 2, bristle: 20, grain: 2, tone: 0.1, seed: 175 } },
-      // lily pads with a pink flower, a stone
-      { svg: `<g fill="#5E8C3A"><path d="M380,440 A44,22 0 1 0 424,440 L402,440 Z"/><path d="M120,470 A36,18 0 1 0 156,470 L138,470 Z"/></g>`, brush: { angle: 0, dry: 0.35, zone: 10, edge: 3, bristle: 10, grain: 2.5, tone: 0.3, seed: 176 } },
-      { svg: `<g fill="${ROSE}"><circle cx="402" cy="424" r="13"/><circle cx="390" cy="430" r="10"/><circle cx="414" cy="430" r="10"/></g><circle cx="402" cy="428" r="6" fill="${MUSTARD}"/>`, brush: { angle: 30, dry: 0.3, zone: 6, edge: 2, bristle: 4, grain: 2, tone: 0.2, seed: 177 } },
-      { svg: `<path d="M40,420 C40,380 80,360 120,366 C160,372 176,400 170,428 Z" fill="#9C978C"/>`, brush: { angle: 20, dry: 0.36, zone: 16, edge: 3, bristle: 10, grain: 3, tone: 0.3, seed: 178 } },
-    ],
-  },
-  {
     name: 'home-unicorn',
     vb: [0, 0, 600, 560],
     px: 900,
@@ -92,6 +73,19 @@ export const SCENE_LAYERS: Baked[] = [
       // door and windows
       { svg: `<path d="M240,530 L240,420 A60,60 0 0 1 360,420 L360,530 Z" fill="#8E5B2A"/><g fill="${SKY}"><path d="M118,330 L118,290 A17,17 0 0 1 152,290 L152,330 Z"/><path d="M448,330 L448,290 A17,17 0 0 1 482,290 L482,330 Z"/><path d="M283,340 L283,310 A17,17 0 0 1 317,310 L317,340 Z"/></g>`, brush: { angle: 90, dry: 0.3, zone: 10, edge: 3, bristle: 8, grain: 2.5, tone: 0.2, seed: 185 } },
       { svg: `<rect x="40" y="520" width="520" height="22" fill="${SAGE}"/>`, brush: { angle: 0, dry: 0.5, zone: 10, edge: 4, bristle: 40, grain: 3, tone: 0.3, seed: 186 } },
+    ],
+  },
+  {
+    name: 'home-unicorn2',
+    vb: [0, 0, 600, 560],
+    px: 900,
+    layers: [
+      // a fluffy cloud the castle stands on
+      { svg: `<g fill="#FFFFFF"><circle cx="150" cy="480" r="70"/><circle cx="250" cy="455" r="90"/><circle cx="370" cy="460" r="85"/><circle cx="460" cy="485" r="65"/><rect x="100" y="470" width="420" height="70" rx="35"/></g>`, brush: { angle: 0, dry: 0.35, zone: 20, edge: 4, bristle: 14, grain: 3, tone: 0.05, seed: 191, clean: true } },
+      { svg: `<g fill="#DCEAF5"><rect x="190" y="230" width="220" height="230"/><rect x="120" y="170" width="90" height="290"/><rect x="390" y="170" width="90" height="290"/></g>`, brush: { angle: 90, dry: 0.36, zone: 22, edge: 4, bristle: 12, grain: 3, tone: 0.2, seed: 192 } },
+      { svg: `<g fill="#8E6CC4"><path d="M108,176 L165,40 L222,176 Z"/><path d="M378,176 L435,40 L492,176 Z"/><path d="M220,236 L300,120 L380,236 Z"/></g>`, brush: { angle: 70, dry: 0.4, zone: 20, edge: 4, bristle: 18, grain: 3, tone: 0.3, speck: 0.2, seed: 193 } },
+      { svg: `<g fill="${MUSTARD}"><path d="M165,42 L165,8 L194,18 L165,28 Z"/><path d="M435,42 L435,8 L464,18 L435,28 Z"/><circle cx="300" cy="118" r="10"/></g>`, brush: { angle: 0, dry: 0.3, zone: 6, edge: 2, bristle: 6, grain: 2, tone: 0.2, seed: 194 } },
+      { svg: `<path d="M255,460 L255,370 A45,45 0 0 1 345,370 L345,460 Z" fill="#E86A9A"/><g fill="#F2B6C6"><path d="M150,300 L150,264 A15,15 0 0 1 180,264 L180,300 Z"/><path d="M420,300 L420,264 A15,15 0 0 1 450,264 L450,300 Z"/><path d="M285,310 L285,282 A15,15 0 0 1 315,282 L315,310 Z"/></g>`, brush: { angle: 90, dry: 0.3, zone: 10, edge: 3, bristle: 8, grain: 2.5, tone: 0.2, seed: 195 } },
     ],
   },
 ];

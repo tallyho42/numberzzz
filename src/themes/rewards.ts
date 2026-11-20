@@ -41,7 +41,18 @@ export const ART = {
     `<rect x="10" y="38" width="80" height="54" rx="7" fill="#EDE0C4"/>` +
     ['#D9617F', '#E2B13F', '#8FAA66', '#7FA7C4'].map((c, i) => `<rect x="10" y="${48 + i * 11}" width="80" height="8" fill="${c}"/>`).join('') +
     `<path d="M10,38 L90,38 L90,46 C80,52 70,42 60,48 C50,54 40,42 30,48 C20,54 14,44 10,46 Z" fill="#F2B6C6"/><rect x="46" y="14" width="8" height="24" fill="#A487C9"/><path d="M50,0 C56,8 56,12 50,14 C44,12 44,8 50,0 Z" fill="#E2B13F"/>`,
+  lollipop: `<path d="M50,52 L50,94" stroke="#EDE0C4" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="34" r="26" fill="#E86A9A"/><path d="M50,34 m-16,0 a16,16 0 1 1 16,16 a10,10 0 1 1 -10,-10" fill="none" stroke="#F7D2DC" stroke-width="6" stroke-linecap="round"/>`,
+  cottonCandy: `<path d="M44,56 L56,56 L52,96 L48,96 Z" fill="#E2B13F"/><circle cx="36" cy="38" r="20" fill="#F2B6C6"/><circle cx="62" cy="34" r="22" fill="#D7B8EC"/><circle cx="50" cy="20" r="16" fill="#F2B6C6"/><circle cx="50" cy="48" r="18" fill="#EFC7DA"/>`,
+  pancakes: `<ellipse cx="50" cy="84" rx="44" ry="10" fill="#EDE0C4"/>` +
+    [0, 1, 2, 3].map((i) => `<ellipse cx="50" cy="${74 - i * 12}" rx="36" ry="10" fill="#D9A55E"/>`).join('') +
+    `<path d="M20,38 C30,30 70,30 80,38 C80,46 72,44 68,52 C64,44 56,46 50,50 C44,46 36,48 32,54 C30,46 20,46 20,38 Z" fill="#F2E6CC"/><circle cx="40" cy="30" r="7" fill="#D9473F"/><circle cx="58" cy="28" r="7" fill="#D9473F"/>`,
+  starCake: cake('#A487C9', '#7FA7C4', `<path d="M28,38 l3,7 7,1 -5,5 1,7 -6,-3 -6,3 1,-7 -5,-5 7,-1 Z M72,38 l3,7 7,1 -5,5 1,7 -6,-3 -6,3 1,-7 -5,-5 7,-1 Z" fill="#E2B13F"/>`),
   // ---- accessories
+  tiara: `<path d="M10,72 C30,58 70,58 90,72 L86,80 C68,68 32,68 14,80 Z" fill="#C9CED6"/><path d="M26,64 L34,40 L42,60 L50,26 L58,60 L66,40 L74,64 Z" fill="#C9CED6"/><circle cx="50" cy="36" r="7" fill="#E86A9A"/><circle cx="34" cy="48" r="4" fill="#7FA7C4"/><circle cx="66" cy="48" r="4" fill="#7FA7C4"/>`,
+  sunglasses: `<path d="M8,40 L92,40" stroke="#E86A9A" stroke-width="6" stroke-linecap="round"/><path d="M10,40 L44,40 C44,60 38,68 27,68 C16,68 10,60 10,40 Z M56,40 L90,40 C90,60 84,68 73,68 C62,68 56,60 56,40 Z" fill="#3B3355"/><path d="M18,46 L26,46 M64,46 L72,46" stroke="#8E86B0" stroke-width="4" stroke-linecap="round"/>`,
+  scarf: `<path d="M8,28 C30,44 70,44 92,28 L90,44 C68,60 32,60 10,44 Z" fill="#E86A9A"/><path d="M60,48 L74,48 L80,92 L64,92 Z" fill="#E86A9A"/><path d="M14,36 L18,46 M86,36 L82,46 M66,60 L76,60 M67,74 L78,74" stroke="#F7D2DC" stroke-width="4" stroke-linecap="round"/>`,
+  wings: `<path d="M48,60 C30,30 8,22 4,36 C2,48 12,54 20,56 C8,60 6,72 16,76 C26,80 40,72 48,60 Z" fill="#E6D8F5"/><path d="M52,60 C70,30 92,22 96,36 C98,48 88,54 80,56 C92,60 94,72 84,76 C74,80 60,72 52,60 Z" fill="#E6D8F5"/><path d="M14,40 C24,44 34,50 44,58 M86,40 C76,44 66,50 56,58" stroke="#A487C9" stroke-width="3" fill="none"/>`,
+
   collar: `<path d="M8,30 Q50,66 92,30" fill="none" stroke="#C8433A" stroke-width="13" stroke-linecap="round"/><circle cx="50" cy="62" r="11" fill="#E2B13F"/><circle cx="50" cy="51" r="3" fill="#A97E1E"/>`,
   bow: (c: string, knot: string) => `<path d="M50,50 L18,30 C12,40 12,60 18,70 Z M50,50 L82,30 C88,40 88,60 82,70 Z" fill="${c}"/><circle cx="50" cy="50" r="9" fill="${knot}"/>`,
   bandana: `<path d="M8,26 L92,26 L50,84 Z" fill="#7FA7C4"/><g fill="#FFFFFF"><circle cx="34" cy="36" r="4"/><circle cx="62" cy="38" r="4"/><circle cx="48" cy="54" r="4"/><circle cx="52" cy="70" r="3"/></g>`,

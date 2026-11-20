@@ -77,7 +77,7 @@ export function parentScreen(stage: HTMLElement, opts: { close: () => void; tryS
         const set = (k: number) => { setRewards(t, k); render(); };
         return h('div', { class: 'p-reward' },
           h('img', { src: t.head, alt: '' }),
-          h('span', {}, t.animal.Nom),
+          h('span', {}, t.label ?? t.animal.Nom),
           h('button', { class: 'p-step', 'aria-label': 'Ubrat', disabled: n > 0 ? null : 'disabled', onClick: () => set(n - 1) }, '−'),
           h('b', { class: 'p-count' }, `${n} / ${t.gifts.length}`),
           h('button', { class: 'p-step', 'aria-label': 'Přidat', disabled: n < t.gifts.length ? null : 'disabled', onClick: () => set(n + 1) }, '+'),
